@@ -1,13 +1,15 @@
 :root {
-  --color-canvas: #f7f5ed;
-  --color-surface: #fffdf8;
-  --color-forest: #486b3d;
-  --color-petrol: #1d6b62;
-  --color-embroidery: #b7342a;
-  --color-ink: #24211f;
-  --color-muted: #6b665e;
-  --color-line: #dcd5c6;
-  --shadow-soft: 0 18px 45px rgb(36 33 31 / 10%);
+  --color-warm-canvas: #efe5d2;
+  --color-surface: #f8f1e3;
+  --color-surface-strong: #fff8ea;
+  --color-charcoal: #211f1b;
+  --color-muted: #695f50;
+  --color-thread-red: #b32620;
+  --color-pine: #315a3b;
+  --color-petrol: #14616a;
+  --color-line: #cdbd9d;
+  --color-line-strong: #7b6d56;
+  --shadow-soft: 0 14px 0 rgb(33 31 27 / 7%);
 }
 
 * {
@@ -15,13 +17,18 @@
 }
 
 html {
-  background: var(--color-canvas);
-  color: var(--color-ink);
+  background: var(--color-warm-canvas);
+  color: var(--color-charcoal);
 }
 
 body {
+  background:
+    linear-gradient(90deg, rgb(33 31 27 / 3%) 1px, transparent 1px),
+    linear-gradient(rgb(33 31 27 / 3%) 1px, transparent 1px),
+    var(--color-warm-canvas);
+  background-size: 28px 28px;
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Arial Narrow", "Roboto Condensed", "Segoe UI", Arial, sans-serif;
   line-height: 1.5;
 }
 
@@ -32,9 +39,9 @@ a {
 
 .site-header {
   align-items: center;
-  background: rgb(247 245 237 / 92%);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+  border-bottom: 3px solid var(--color-charcoal);
+  border-top: 8px solid var(--color-thread-red);
   display: flex;
   gap: 24px;
   justify-content: space-between;
@@ -53,10 +60,12 @@ a {
 
 .brand-mark {
   align-items: center;
-  background: var(--color-forest);
-  border-radius: 50%;
-  color: var(--color-canvas);
+  background: var(--color-thread-red);
+  border: 2px solid var(--color-charcoal);
+  color: var(--color-surface-strong);
   display: grid;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
   font-weight: 800;
   height: 42px;
   place-items: center;
@@ -68,9 +77,17 @@ a {
   display: block;
 }
 
+.brand strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  line-height: 1;
+}
+
 .brand small {
   color: var(--color-muted);
   font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .main-nav {
@@ -82,15 +99,18 @@ a {
 }
 
 .main-nav a {
-  border-radius: 999px;
+  border: 1px solid transparent;
   color: var(--color-muted);
-  font-size: 14px;
-  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 10px;
+  text-transform: uppercase;
 }
 
 .main-nav a:hover {
-  background: var(--color-surface);
-  color: var(--color-forest);
+  background: var(--color-thread-red);
+  border-color: var(--color-charcoal);
+  color: var(--color-surface-strong);
 }
 
 .page {
@@ -107,16 +127,19 @@ a {
 
 .hero-copy {
   align-content: center;
-  background: linear-gradient(135deg, rgb(72 107 61 / 12%), rgb(29 107 98 / 10%));
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgb(179 38 32 / 10%), transparent 42%),
+    linear-gradient(90deg, rgb(49 90 59 / 13%) 0 12px, transparent 12px 24px),
+    var(--color-surface);
+  border: 2px solid var(--color-charcoal);
+  box-shadow: 10px 10px 0 var(--color-charcoal);
   display: grid;
   min-height: 430px;
   padding: clamp(28px, 5vw, 64px);
 }
 
 .eyebrow {
-  color: var(--color-embroidery);
+  color: var(--color-thread-red);
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0;
@@ -131,6 +154,13 @@ p {
   margin-top: 0;
 }
 
+h1,
+h2,
+h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+}
+
 h1 {
   font-size: clamp(42px, 7vw, 82px);
   line-height: 0.98;
@@ -140,6 +170,11 @@ h1 {
 h2 {
   font-size: clamp(28px, 4vw, 46px);
   line-height: 1.08;
+}
+
+h3 {
+  font-size: 23px;
+  line-height: 1.15;
 }
 
 .lead {
@@ -158,8 +193,7 @@ h2 {
 .button,
 button {
   align-items: center;
-  border: 0;
-  border-radius: 999px;
+  border: 2px solid var(--color-charcoal);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
@@ -171,23 +205,27 @@ button {
 
 .button.primary,
 button.primary {
-  background: var(--color-embroidery);
-  color: white;
+  background: var(--color-thread-red);
+  color: var(--color-surface-strong);
 }
 
-.button.secondary {
+.button.secondary,
+button.secondary {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
-  color: var(--color-forest);
+  color: var(--color-pine);
 }
 
 .hero-panel,
 .card,
 .auth-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
+  border: 2px solid var(--color-charcoal);
   box-shadow: var(--shadow-soft);
+}
+
+.card {
+  border-top: 6px solid var(--color-thread-red);
 }
 
 .hero-panel {
@@ -198,11 +236,10 @@ button.primary {
   align-items: flex-end;
   aspect-ratio: 4 / 3;
   background:
-    radial-gradient(circle at 30% 30%, rgb(183 52 42 / 85%), transparent 18%),
-    radial-gradient(circle at 67% 42%, rgb(29 107 98 / 88%), transparent 17%),
-    linear-gradient(135deg, #24211f, #486b3d);
-  border-radius: 8px;
-  color: white;
+    linear-gradient(45deg, transparent 0 42%, rgb(255 248 234 / 20%) 42% 58%, transparent 58%),
+    repeating-linear-gradient(90deg, var(--color-thread-red) 0 14px, var(--color-pine) 14px 22px, var(--color-petrol) 22px 30px, var(--color-charcoal) 30px 32px);
+  border: 2px solid var(--color-charcoal);
+  color: var(--color-surface-strong);
   display: flex;
   font-weight: 800;
   padding: 22px;
@@ -246,8 +283,10 @@ button.primary {
 
 .placeholder-photo {
   aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, var(--color-forest), var(--color-petrol));
-  border-radius: 8px;
+  background:
+    linear-gradient(45deg, transparent 0 45%, rgb(248 241 227 / 22%) 45% 55%, transparent 55%),
+    repeating-linear-gradient(90deg, var(--color-pine) 0 18px, var(--color-petrol) 18px 28px, var(--color-thread-red) 28px 34px);
+  border: 2px solid var(--color-charcoal);
   margin-bottom: 16px;
 }
 
@@ -287,20 +326,18 @@ label {
 }
 
 input {
-  background: white;
-  border: 1px solid var(--color-line);
-  border-radius: 8px;
-  color: var(--color-ink);
+  background: var(--color-surface-strong);
+  border: 2px solid var(--color-line-strong);
+  color: var(--color-charcoal);
   font: inherit;
   min-height: 46px;
   padding: 10px 12px;
 }
 
 .error {
-  background: rgb(183 52 42 / 10%);
-  border: 1px solid rgb(183 52 42 / 28%);
-  border-radius: 8px;
-  color: var(--color-embroidery);
+  background: rgb(179 38 32 / 10%);
+  border: 2px solid rgb(179 38 32 / 42%);
+  color: var(--color-thread-red);
   padding: 10px 12px;
 }
 
@@ -318,11 +355,17 @@ input {
 
 .site-footer {
   align-items: center;
-  border-top: 1px solid var(--color-line);
+  background: var(--color-charcoal);
+  border-top: 5px solid var(--color-thread-red);
   color: var(--color-muted);
   display: flex;
   justify-content: space-between;
   padding: 22px clamp(18px, 4vw, 56px);
+}
+
+.site-footer,
+.site-footer a {
+  color: var(--color-surface);
 }
 
 .site-footer p {
