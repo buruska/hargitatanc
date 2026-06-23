@@ -1,0 +1,10 @@
+.next/
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.env
+.env*.local
+prisma/dev.db
+prisma/dev.db-journal
+*.log
