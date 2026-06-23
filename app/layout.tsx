@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Hargita Székely Néptáncszínház",
   description: "Modern, mobilbarát oldal a Hargita Székely Néptáncszínház eseményeinek, híreinek és galériáinak.",
+  icons: {
+    icon: "/icon.jpg",
+  },
 };
 
 const navigation = [
@@ -26,7 +30,7 @@ export default function RootLayout({
       <body>
         <header className="site-header">
           <Link href="/" className="brand" aria-label="Hargita Székely Néptáncszínház főoldal">
-            <span className="brand-mark">H</span>
+            <Image className="brand-logo" src="/logo.jpg" alt="" width={52} height={52} priority />
             <span>
               <strong>Hargita</strong>
               <small>Székely Néptáncszínház</small>
