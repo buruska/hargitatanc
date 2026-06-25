@@ -1,6 +1,7 @@
 import { getAdminSession } from "@/lib/auth";
 import { logoutAction } from "@/app/actions/auth";
 import { buttonSecondary, card, eyebrow, gridThree, h1, h2, lead, page, panel } from "@/lib/styles";
+import { prisma } from "@/lib/prisma";
 import { LoginForm } from "./login-form";
 
 export default async function AdminPage() {
@@ -19,6 +20,23 @@ export default async function AdminPage() {
     );
   }
 
+  const [events, posts, members, albums, users] = await Promise.all([
+    prisma.event.count(),
+    prisma.newsPost.count(),
+    prisma.member.count(),
+    prisma.galleryAlbum.count(),
+    prisma.user.count(),
+  ]);
+
+  const dashboardCards = [
+    { label: "Események", count: events, description: "Adatbázisból betöltött előadások és rendezvények." },
+    { label: "Hírek", count: posts, description: "Publikált vagy előkészített hírbejegyzések." },
+    { label: "Társulat", count: members, description: "Társulati tagok és bemutatkozó csoportkártyák." },
+    { label: "Galéria", count: albums, description: "Galéria albumok, később képekkel bővítve." },
+    { label: "Felhasználók", count: users, description: "Admin és szerkesztői hozzáférések." },
+    { label: "Foglalások", count: 0, description: "A foglalási adatmodell a következő körben kerülhet be." },
+  ];
+
   return (
     <main className={page}>
       <section className="mx-auto max-w-[1040px]">
@@ -35,10 +53,11 @@ export default async function AdminPage() {
           </form>
         </div>
         <div className={gridThree}>
-          {["Események", "Hírek", "Társulat", "Galéria", "Oldalszövegek", "Foglalások"].map((item) => (
-            <article className={card} key={item}>
-              <h2 className={h2}>{item}</h2>
-              <p>A következő fejlesztési körben ide kerül a szerkesztő felület.</p>
+          {dashboardCards.map((item) => (
+            <article className={card} key={item.label}>
+              <p className="mb-2 text-[13px] font-extrabold uppercase text-petrol">{item.count} rekord</p>
+              <h2 className={h2}>{item.label}</h2>
+              <p>{item.description}</p>
             </article>
           ))}
         </div>

@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="hu">
-      <body className="m-0 bg-warm-canvas bg-[linear-gradient(90deg,rgb(33_31_27_/_3%)_1px,transparent_1px),linear-gradient(rgb(33_31_27_/_3%)_1px,transparent_1px)] bg-[length:28px_28px] font-sans leading-normal text-charcoal">
+      <body className="m-0 bg-warm-canvas font-sans leading-normal text-charcoal">
         <header className="sticky top-0 z-10 flex min-h-[76px] flex-col items-start justify-between gap-6 border-b-[3px] border-b-charcoal border-t-8 border-t-thread-red bg-surface px-[clamp(18px,4vw,56px)] py-4 min-[861px]:flex-row min-[861px]:items-center">
           <Link href="/" className="inline-flex items-center gap-3" aria-label="Hargita Székely Néptáncszínház főoldal">
             <Image

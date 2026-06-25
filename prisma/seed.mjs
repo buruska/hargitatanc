@@ -42,6 +42,85 @@ async function main() {
       content: "Ez egy minta hír, amelyet később az admin felületről lehet majd szerkeszteni.",
     },
   });
+
+  const members = [
+    {
+      name: "Tánckar",
+      role: "Előadóművészek",
+      bio: "A társulat táncos közösségének bemutatkozó kártyája. A későbbi admin felületen név szerinti tagokra bontható.",
+      sortOrder: 10,
+    },
+    {
+      name: "Zenekar",
+      role: "Élő zenei kíséret",
+      bio: "A zenekar és a népzenei kíséret helye, amely később részletes taglistával bővíthető.",
+      sortOrder: 20,
+    },
+    {
+      name: "Alkotók",
+      role: "Koreográfusok és rendezők",
+      bio: "Az alkotói csapat bemutatására előkészített adatbázisrekord.",
+      sortOrder: 30,
+    },
+    {
+      name: "Munkatársak",
+      role: "Szervezés és háttérmunka",
+      bio: "A színház működését segítő szakmai háttércsapat bemutatkozó kártyája.",
+      sortOrder: 40,
+    },
+  ];
+
+  for (const member of members) {
+    await prisma.member.upsert({
+      where: { id: `seed-${member.sortOrder}` },
+      update: member,
+      create: {
+        id: `seed-${member.sortOrder}`,
+        ...member,
+      },
+    });
+  }
+
+  const albums = [
+    {
+      title: "Táncelőadások",
+      slug: "tanceloadasok",
+      description: "Színpadi előadások fotóválogatásának helye.",
+    },
+    {
+      title: "Próbák",
+      slug: "probak",
+      description: "Próbatermi pillanatok és munkafolyamatok.",
+    },
+    {
+      title: "Turnék",
+      slug: "turnek",
+      description: "Vendégszereplések, utazások és fesztiválok képei.",
+    },
+    {
+      title: "Rendezvények",
+      slug: "rendezvenyek",
+      description: "Közösségi események és szakmai programok albumai.",
+    },
+    {
+      title: "Portrék",
+      slug: "portrek",
+      description: "Társulati és alkotói portrék gyűjteménye.",
+    },
+    {
+      title: "Archívum",
+      slug: "archivum",
+      description: "Régebbi előadások és emlékezetes pillanatok.",
+    },
+  ];
+
+  for (const album of albums) {
+    await prisma.galleryAlbum.upsert({
+      where: { slug: album.slug },
+      update: album,
+      create: album,
+    });
+  }
 }
 
 main()
