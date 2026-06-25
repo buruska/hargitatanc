@@ -1,6 +1,7 @@
 import { getAdminSession } from "@/lib/auth";
 import { logoutAction } from "@/app/actions/auth";
 import { buttonSecondary, eyebrow, h1, page, panel } from "@/lib/styles";
+import { InactivityLogoutTimer } from "./inactivity-logout";
 import { LoginForm } from "./login-form";
 
 export default async function AdminPage() {
@@ -26,6 +27,7 @@ export default async function AdminPage() {
           <div>
             <p className={eyebrow}>Admin</p>
             <p className="text-[clamp(17px,2vw,21px)] text-muted">Belépve: {session.email}</p>
+            <InactivityLogoutTimer />
           </div>
           <form action={logoutAction}>
             <button className={buttonSecondary} type="submit">
