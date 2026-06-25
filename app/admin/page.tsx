@@ -1,7 +1,6 @@
 import { getAdminSession } from "@/lib/auth";
 import { logoutAction } from "@/app/actions/auth";
-import { buttonSecondary, card, eyebrow, gridThree, h1, h2, lead, page, panel } from "@/lib/styles";
-import { prisma } from "@/lib/prisma";
+import { buttonSecondary, eyebrow, h1, page, panel } from "@/lib/styles";
 import { LoginForm } from "./login-form";
 
 export default async function AdminPage() {
@@ -20,46 +19,19 @@ export default async function AdminPage() {
     );
   }
 
-  const [events, posts, members, albums, users] = await Promise.all([
-    prisma.event.count(),
-    prisma.newsPost.count(),
-    prisma.member.count(),
-    prisma.galleryAlbum.count(),
-    prisma.user.count(),
-  ]);
-
-  const dashboardCards = [
-    { label: "Események", count: events, description: "Adatbázisból betöltött előadások és rendezvények." },
-    { label: "Hírek", count: posts, description: "Publikált vagy előkészített hírbejegyzések." },
-    { label: "Társulat", count: members, description: "Társulati tagok és bemutatkozó csoportkártyák." },
-    { label: "Galéria", count: albums, description: "Galéria albumok, később képekkel bővítve." },
-    { label: "Felhasználók", count: users, description: "Admin és szerkesztői hozzáférések." },
-    { label: "Foglalások", count: 0, description: "A foglalási adatmodell a következő körben kerülhet be." },
-  ];
-
   return (
     <main className={page}>
       <section className="mx-auto max-w-[1040px]">
-        <div className="mb-6 flex flex-col items-start justify-between min-[861px]:flex-row min-[861px]:items-center">
+        <div className="flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
           <div>
             <p className={eyebrow}>Admin</p>
-            <h1 className={h1}>Vezérlőpult</h1>
-            <p className={lead}>Belépve: {session.email}</p>
+            <p className="text-[clamp(17px,2vw,21px)] text-muted">Belépve: {session.email}</p>
           </div>
           <form action={logoutAction}>
             <button className={buttonSecondary} type="submit">
               Kilépés
             </button>
           </form>
-        </div>
-        <div className={gridThree}>
-          {dashboardCards.map((item) => (
-            <article className={card} key={item.label}>
-              <p className="mb-2 text-[13px] font-extrabold uppercase text-petrol">{item.count} rekord</p>
-              <h2 className={h2}>{item.label}</h2>
-              <p>{item.description}</p>
-            </article>
-          ))}
         </div>
       </section>
     </main>
