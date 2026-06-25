@@ -32,7 +32,7 @@ export async function loginAction(_state: LoginState, formData: FormData): Promi
   }
 
   await createSession(user.email);
-  redirect("/admin");
+  redirect("/admin/statisztikak");
 }
 
 export async function logoutAction() {

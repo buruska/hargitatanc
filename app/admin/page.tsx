@@ -1,7 +1,6 @@
+import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/auth";
-import { logoutAction } from "@/app/actions/auth";
-import { buttonSecondary, eyebrow, h1, page, panel } from "@/lib/styles";
-import { InactivityLogoutTimer } from "./inactivity-logout";
+import { eyebrow, h1, panel } from "@/lib/styles";
 import { LoginForm } from "./login-form";
 
 export default async function AdminPage() {
@@ -20,22 +19,5 @@ export default async function AdminPage() {
     );
   }
 
-  return (
-    <main className={page}>
-      <section className="mx-auto max-w-[1040px]">
-        <div className="flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
-          <div>
-            <p className={eyebrow}>Admin</p>
-            <p className="text-[clamp(17px,2vw,21px)] text-muted">Belépve: {session.email}</p>
-            <InactivityLogoutTimer />
-          </div>
-          <form action={logoutAction}>
-            <button className={buttonSecondary} type="submit">
-              Kilépés
-            </button>
-          </form>
-        </div>
-      </section>
-    </main>
-  );
+  redirect("/admin/statisztikak");
 }
