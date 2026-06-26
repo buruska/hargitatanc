@@ -18,7 +18,7 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
   }
 
   return (
-    <main className={page}>
+    <main className={`${page} pt-[124px]`}>
       <section className="mx-auto max-w-[1040px]">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
           <div>
