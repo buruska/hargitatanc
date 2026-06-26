@@ -11,9 +11,10 @@ type HeroCover = {
 
 type HeroCoverCarouselProps = {
   covers: HeroCover[];
+  className?: string;
 };
 
-export function HeroCoverCarousel({ covers }: HeroCoverCarouselProps) {
+export function HeroCoverCarousel({ covers, className = "relative h-screen w-full overflow-hidden" }: HeroCoverCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export function HeroCoverCarousel({ covers }: HeroCoverCarouselProps) {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className={className}>
       {covers.map((cover, index) => (
         <Image
           alt={cover.title}

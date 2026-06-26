@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { HeaderScrollBorder } from "./header-scroll-border";
+import { SiteFooter } from "./site-footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -124,13 +125,7 @@ export default function RootLayout({
           </div>
         </header>
         {children}
-        <footer className="flex flex-col items-start justify-between border-t-[5px] border-t-thread-red bg-charcoal px-[clamp(18px,4vw,56px)] py-[22px] text-surface min-[861px]:flex-row min-[861px]:items-center">
-          <div>
-            <strong>Hargita Székely Néptáncszínház</strong>
-            <p className="mt-1">Csíkszereda, Temesvári sugárút 6.</p>
-          </div>
-          <Link href="/admin">Admin</Link>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );
