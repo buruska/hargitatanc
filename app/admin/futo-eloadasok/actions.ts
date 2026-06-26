@@ -1,12 +1,17 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export type PerformanceFormState = {
+  error?: string;
+  success?: boolean;
+};
+
+export type DeletePerformanceState = {
   error?: string;
   success?: boolean;
 };
@@ -102,6 +107,55 @@ export async function createRunningPerformanceAction(
     },
   });
 
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function deleteRunningPerformanceAction(
+  _state: DeletePerformanceState,
+  formData: FormData,
+): Promise<DeletePerformanceState> {
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    return { error: "Hiányzik a törlendő előadás azonosítója." };
+  }
+
+  const performance = await prisma.runningPerformance.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      coverImageUrl: true,
+    },
+  });
+
+  if (!performance) {
+    return { error: "Az előadás már nem található." };
+  }
+
+  await prisma.runningPerformance.delete({
+    where: {
+      id,
+    },
+  });
+
+  if (performance.coverImageUrl.startsWith("/uploads/performances/")) {
+    const filePath = path.join(process.cwd(), "public", performance.coverImageUrl.replace(/^\//, ""));
+
+    try {
+      await unlink(filePath);
+    } catch (error) {
+      const fileError = error as NodeJS.ErrnoException;
+
+      if (fileError.code !== "ENOENT") {
+        console.error(error);
+      }
+    }
+  }
+
+  revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");
 
   return { success: true };

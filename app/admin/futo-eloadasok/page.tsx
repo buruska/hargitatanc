@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, buttonSecondary, panel } from "@/lib/styles";
+import { DeletePerformanceModal } from "./delete-performance-modal";
 import { NewPerformanceModal } from "./new-performance-modal";
 
 export default async function AdminFutoEloadasokPage() {
@@ -39,9 +40,7 @@ export default async function AdminFutoEloadasokPage() {
               <button className={buttonSecondary} type="button">
                 Módosítás
               </button>
-              <button className={buttonSecondary} type="button">
-                Törlés
-              </button>
+              <DeletePerformanceModal id={performance.id} title={performance.title} />
             </div>
           </article>
         ))}
