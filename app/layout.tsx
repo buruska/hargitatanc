@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { HeaderScrollBorder } from "./header-scroll-border";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -69,7 +70,8 @@ export default function RootLayout({
   return (
     <html lang="hu">
       <body className="m-0 bg-warm-canvas font-sans leading-normal text-charcoal">
-        <header className="fixed inset-x-0 top-0 z-10 flex h-[92px] flex-col items-center justify-between gap-6 border-t-8 border-t-thread-red bg-[linear-gradient(180deg,rgb(33_31_27_/_100%)_0%,rgb(33_31_27_/_0%)_100%)] px-[clamp(18px,4vw,56px)] py-4 min-[861px]:flex-row">
+        <header className="fixed inset-x-0 top-0 z-10 flex h-[92px] flex-col items-center justify-between gap-6 bg-[linear-gradient(180deg,rgb(33_31_27_/_100%)_0%,rgb(33_31_27_/_0%)_100%)] px-[clamp(18px,4vw,56px)] py-4 pt-6 min-[861px]:flex-row">
+          <HeaderScrollBorder />
           <Link href="/" className="relative inline-flex h-full items-center gap-3 pl-[60px]" aria-label="Hargita Székely Néptáncszínház főoldal">
             <Image
               className="absolute left-0 top-1/2 block size-[52px] -translate-y-1/2 object-cover"
