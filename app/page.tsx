@@ -1,65 +1,80 @@
-import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { buttonPrimary, buttonSecondary, card, eyebrow, gridThree, h1, h2, h3, heroImage, lead, meta, page, panel } from "@/lib/styles";
 
 export default async function HomePage() {
-  const [events, posts] = await Promise.all([
-    prisma.event.findMany({
-      orderBy: { startsAt: "asc" },
-      take: 3,
-    }),
-    prisma.newsPost.findMany({
-      orderBy: { publishedAt: "desc" },
-      take: 3,
-    }),
-  ]);
+  const performance = await prisma.runningPerformance.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   return (
-    <main className={page}>
-      <section className="mx-auto grid max-w-[1160px] grid-cols-1 gap-8 min-[861px]:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-        <div className="grid content-center border-2 border-charcoal bg-[linear-gradient(135deg,rgb(179_38_32_/_10%),transparent_42%),linear-gradient(90deg,rgb(49_90_59_/_13%)_0_12px,transparent_12px_24px),theme(colors.surface)] p-[clamp(28px,5vw,64px)] shadow-[10px_10px_0_theme(colors.charcoal)] min-[861px]:min-h-[430px]">
-          <p className={eyebrow}>Élő hagyomány kortárs színpadon</p>
-          <h1 className={h1}>Hargita Székely Néptáncszínház</h1>
-          <p className={lead}>
-            Előadások, közösségi események, hírek és képek egy tiszta, mobilbarát felületen.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/esemenyeink" className={buttonPrimary}>
-              Helyfoglalás
-            </Link>
-            <Link href="/tarsulat" className={buttonSecondary}>
-              A társulatról
-            </Link>
-          </div>
+    <main>
+      {performance ? (
+        <div className="relative h-screen w-full overflow-hidden">
+          <Image
+            alt={performance.title}
+            className="object-cover object-top"
+            fill
+            priority
+            sizes="100vw"
+            src={performance.coverImageUrl}
+          />
         </div>
-        <aside className={`${panel} p-[22px]`}>
-          <div className={heroImage}>Aktuális előadásfotók helye</div>
-          <h2 className={h2}>Következő előadások</h2>
-          {events.map((event) => (
-            <article className={card} key={event.id}>
-              <time className={meta}>{new Intl.DateTimeFormat("hu-RO", { dateStyle: "long", timeStyle: "short" }).format(event.startsAt)}</time>
-              <h3 className={h3}>{event.title}</h3>
-              <p>{event.location}</p>
-            </article>
-          ))}
-        </aside>
-      </section>
+      ) : null}
 
-      <section className="mx-auto mt-14 max-w-[1160px]">
-        <div className="mb-5 flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-end">
-          <h2 className={h2}>Friss hírek</h2>
-          <Link href="/hirek" className={buttonSecondary}>
-            Összes hír
-          </Link>
-        </div>
-        <div className={gridThree}>
-          {posts.map((post) => (
-            <article className={card} key={post.id}>
-              <span className={meta}>{new Intl.DateTimeFormat("hu-RO", { dateStyle: "medium" }).format(post.publishedAt)}</span>
-              <h3 className={h3}>{post.title}</h3>
-              <p>{post.excerpt}</p>
-            </article>
-          ))}
+      <section className="bg-surface px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
+        <div className="mx-auto max-w-[860px] space-y-6 text-[18px] leading-8">
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae arcu sed nulla porta
+            tincidunt. Donec volutpat, sem id facilisis luctus, metus mi fermentum lectus, sed dapibus
+            ipsum neque vitae lorem.
+          </p>
+          <p>
+            Praesent ac nibh at velit feugiat posuere. Morbi consequat, augue at dignissim luctus, turpis
+            lacus gravida risus, vitae luctus enim justo id mi. Curabitur sed lectus nec erat pulvinar
+            placerat.
+          </p>
+          <p>
+            Suspendisse potenti. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere
+            cubilia curae; Aliquam erat volutpat. Etiam rhoncus, lectus at convallis porta, justo nibh
+            suscipit nisl, id blandit tortor mi sed lectus.
+          </p>
+          <p>
+            Nulla facilisi. Sed ut felis eu augue efficitur tincidunt. Maecenas tempus turpis id mauris
+            hendrerit, vitae dictum lorem pretium. Integer nec orci at risus volutpat dignissim non at
+            arcu.
+          </p>
+          <p>
+            Vivamus a tellus gravida, placerat mauris non, ultricies lorem. Donec aliquet lorem in tortor
+            faucibus, ac commodo turpis blandit. Proin vel neque et sem egestas vestibulum sit amet at
+            lacus.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae arcu sed nulla porta
+            tincidunt. Donec volutpat, sem id facilisis luctus, metus mi fermentum lectus, sed dapibus
+            ipsum neque vitae lorem.
+          </p>
+          <p>
+            Praesent ac nibh at velit feugiat posuere. Morbi consequat, augue at dignissim luctus, turpis
+            lacus gravida risus, vitae luctus enim justo id mi. Curabitur sed lectus nec erat pulvinar
+            placerat.
+          </p>
+          <p>
+            Suspendisse potenti. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere
+            cubilia curae; Aliquam erat volutpat. Etiam rhoncus, lectus at convallis porta, justo nibh
+            suscipit nisl, id blandit tortor mi sed lectus.
+          </p>
+          <p>
+            Nulla facilisi. Sed ut felis eu augue efficitur tincidunt. Maecenas tempus turpis id mauris
+            hendrerit, vitae dictum lorem pretium. Integer nec orci at risus volutpat dignissim non at
+            arcu.
+          </p>
+          <p>
+            Vivamus a tellus gravida, placerat mauris non, ultricies lorem. Donec aliquet lorem in tortor
+            faucibus, ac commodo turpis blandit. Proin vel neque et sem egestas vestibulum sit amet at
+            lacus.
+          </p>
         </div>
       </section>
     </main>
