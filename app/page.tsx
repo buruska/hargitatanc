@@ -15,7 +15,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <HeroCoverCarousel covers={performances} />
+      <HeroCoverCarousel covers={performances} showTitleList />
 
       <section className="bg-surface px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
         <div className="mx-auto max-w-[860px] space-y-6 text-[18px] leading-8">
