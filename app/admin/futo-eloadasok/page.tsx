@@ -1,10 +1,57 @@
+import Image from "next/image";
 import { AdminShell } from "../admin-shell";
-import { adminTitle } from "@/lib/styles";
+import { prisma } from "@/lib/prisma";
+import { adminTitle, buttonSecondary, panel } from "@/lib/styles";
+import { NewPerformanceModal } from "./new-performance-modal";
 
-export default function AdminFutoEloadasokPage() {
+export default async function AdminFutoEloadasokPage() {
+  const performances = await prisma.runningPerformance.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
   return (
     <AdminShell>
-      <h1 className={adminTitle}>Futó előadások</h1>
+      <div className="flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
+        <h1 className={adminTitle}>Futó előadások</h1>
+        <NewPerformanceModal />
+      </div>
+
+      <div className="mt-6 grid gap-4">
+        {performances.map((performance) => (
+          <article className={`${panel} grid gap-4 p-4 min-[720px]:grid-cols-[112px_1fr_170px] min-[720px]:items-center`} key={performance.id}>
+            <Image
+              alt=""
+              className="aspect-[4/3] w-full border-2 border-charcoal object-cover min-[720px]:w-28"
+              height={84}
+              src={performance.coverImageUrl}
+              width={112}
+            />
+            <div>
+              <h2 className="font-serif text-2xl font-bold leading-tight">{performance.title}</h2>
+              <p className="mt-2 text-muted">{performance.summary}</p>
+            </div>
+            <div className="grid gap-2">
+              <button className={buttonSecondary} type="button">
+                Dátum hozzáadása
+              </button>
+              <button className={buttonSecondary} type="button">
+                Módosítás
+              </button>
+              <button className={buttonSecondary} type="button">
+                Törlés
+              </button>
+            </div>
+          </article>
+        ))}
+
+        {performances.length === 0 ? (
+          <article className={`${panel} p-5`}>
+            <p className="font-extrabold text-muted">Nincs futó előadás.</p>
+          </article>
+        ) : null}
+      </div>
     </AdminShell>
   );
 }
