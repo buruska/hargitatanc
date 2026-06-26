@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function SiteFooter() {
@@ -17,7 +16,6 @@ export function SiteFooter() {
         <strong>Hargita Székely Néptáncszínház</strong>
         <p className="mt-1">Csíkszereda, Temesvári sugárút 6.</p>
       </div>
-      <Link href="/admin">Admin</Link>
     </footer>
   );
 }
