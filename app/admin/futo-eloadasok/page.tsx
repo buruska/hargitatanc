@@ -3,12 +3,19 @@ import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, buttonSecondary, panel } from "@/lib/styles";
 import { DeletePerformanceModal } from "./delete-performance-modal";
+import { EditPerformanceModal } from "./edit-performance-modal";
 import { NewPerformanceModal } from "./new-performance-modal";
 
 export default async function AdminFutoEloadasokPage() {
   const performances = await prisma.runningPerformance.findMany({
     orderBy: {
       createdAt: "desc",
+    },
+    select: {
+      id: true,
+      title: true,
+      summary: true,
+      coverImageUrl: true,
     },
   });
 
@@ -37,9 +44,7 @@ export default async function AdminFutoEloadasokPage() {
               <button className={buttonSecondary} type="button">
                 Dátum hozzáadása
               </button>
-              <button className={buttonSecondary} type="button">
-                Módosítás
-              </button>
+              <EditPerformanceModal id={performance.id} summary={performance.summary} title={performance.title} />
               <DeletePerformanceModal id={performance.id} title={performance.title} />
             </div>
           </article>

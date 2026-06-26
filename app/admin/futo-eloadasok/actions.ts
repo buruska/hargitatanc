@@ -30,17 +30,21 @@ function slugify(value: string) {
   return slug || `eloadas-${randomUUID().slice(0, 8)}`;
 }
 
-async function createUniqueSlug(title: string) {
+async function createUniqueSlug(title: string, currentId?: string) {
   const baseSlug = slugify(title);
   let slug = baseSlug;
   let index = 2;
 
-  while (await prisma.runningPerformance.findUnique({ where: { slug } })) {
+  while (true) {
+    const existingPerformance = await prisma.runningPerformance.findUnique({ where: { slug } });
+
+    if (!existingPerformance || existingPerformance.id === currentId) {
+      return slug;
+    }
+
     slug = `${baseSlug}-${index}`;
     index += 1;
   }
-
-  return slug;
 }
 
 function getImageExtension(file: File) {
@@ -63,6 +67,36 @@ function getImageExtension(file: File) {
   }
 
   return ".jpg";
+}
+
+async function saveCoverImage(coverImage: File, slug: string) {
+  const extension = getImageExtension(coverImage);
+  const fileName = `${slug}-${randomUUID()}${extension}`;
+  const filePath = path.join(UPLOAD_DIR, fileName);
+  const coverImageUrl = `/uploads/performances/${fileName}`;
+
+  await mkdir(UPLOAD_DIR, { recursive: true });
+  await writeFile(filePath, Buffer.from(await coverImage.arrayBuffer()));
+
+  return coverImageUrl;
+}
+
+async function deleteCoverImage(coverImageUrl: string) {
+  if (!coverImageUrl.startsWith("/uploads/performances/")) {
+    return;
+  }
+
+  const filePath = path.join(process.cwd(), "public", coverImageUrl.replace(/^\//, ""));
+
+  try {
+    await unlink(filePath);
+  } catch (error) {
+    const fileError = error as NodeJS.ErrnoException;
+
+    if (fileError.code !== "ENOENT") {
+      console.error(error);
+    }
+  }
 }
 
 export async function createRunningPerformanceAction(
@@ -90,13 +124,7 @@ export async function createRunningPerformanceAction(
   }
 
   const slug = await createUniqueSlug(title);
-  const extension = getImageExtension(coverImage);
-  const fileName = `${slug}-${randomUUID()}${extension}`;
-  const filePath = path.join(UPLOAD_DIR, fileName);
-  const coverImageUrl = `/uploads/performances/${fileName}`;
-
-  await mkdir(UPLOAD_DIR, { recursive: true });
-  await writeFile(filePath, Buffer.from(await coverImage.arrayBuffer()));
+  const coverImageUrl = await saveCoverImage(coverImage, slug);
 
   await prisma.runningPerformance.create({
     data: {
@@ -107,6 +135,70 @@ export async function createRunningPerformanceAction(
     },
   });
 
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function updateRunningPerformanceAction(
+  _state: PerformanceFormState,
+  formData: FormData,
+): Promise<PerformanceFormState> {
+  const id = String(formData.get("id") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim();
+  const summary = String(formData.get("summary") ?? "").trim();
+  const coverImage = formData.get("coverImage");
+
+  if (!id) {
+    return { error: "Hiányzik a módosítandó előadás azonosítója." };
+  }
+
+  if (!title || !summary) {
+    return { error: "Add meg az előadás címét és rövid leírását." };
+  }
+
+  const performance = await prisma.runningPerformance.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      coverImageUrl: true,
+    },
+  });
+
+  if (!performance) {
+    return { error: "Az előadás már nem található." };
+  }
+
+  let coverImageUrl = performance.coverImageUrl;
+  const slug = await createUniqueSlug(title, id);
+
+  if (coverImage instanceof File && coverImage.size > 0) {
+    if (!coverImage.type.startsWith("image/")) {
+      return { error: "A borítókép csak képfájl lehet." };
+    }
+
+    if (coverImage.size > MAX_IMAGE_SIZE) {
+      return { error: "A borítókép legfeljebb 5 MB lehet." };
+    }
+
+    coverImageUrl = await saveCoverImage(coverImage, slug);
+    await deleteCoverImage(performance.coverImageUrl);
+  }
+
+  await prisma.runningPerformance.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      slug,
+      summary,
+      coverImageUrl,
+    },
+  });
+
+  revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");
 
   return { success: true };
@@ -141,19 +233,7 @@ export async function deleteRunningPerformanceAction(
     },
   });
 
-  if (performance.coverImageUrl.startsWith("/uploads/performances/")) {
-    const filePath = path.join(process.cwd(), "public", performance.coverImageUrl.replace(/^\//, ""));
-
-    try {
-      await unlink(filePath);
-    } catch (error) {
-      const fileError = error as NodeJS.ErrnoException;
-
-      if (fileError.code !== "ENOENT") {
-        console.error(error);
-      }
-    }
-  }
+  await deleteCoverImage(performance.coverImageUrl);
 
   revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");
