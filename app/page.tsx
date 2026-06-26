@@ -1,27 +1,21 @@
-import Image from "next/image";
+import { HeroCoverCarousel } from "./hero-cover-carousel";
 import { prisma } from "@/lib/prisma";
 
 export default async function HomePage() {
-  const performance = await prisma.runningPerformance.findFirst({
+  const performances = await prisma.runningPerformance.findMany({
     orderBy: {
       createdAt: "desc",
+    },
+    select: {
+      id: true,
+      title: true,
+      coverImageUrl: true,
     },
   });
 
   return (
     <main>
-      {performance ? (
-        <div className="relative h-screen w-full overflow-hidden">
-          <Image
-            alt={performance.title}
-            className="object-cover object-top"
-            fill
-            priority
-            sizes="100vw"
-            src={performance.coverImageUrl}
-          />
-        </div>
-      ) : null}
+      <HeroCoverCarousel covers={performances} />
 
       <section className="bg-surface px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
         <div className="mx-auto max-w-[860px] space-y-6 text-[18px] leading-8">
