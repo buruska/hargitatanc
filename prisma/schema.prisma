@@ -40,8 +40,23 @@ model RunningPerformance {
   slug          String   @unique
   summary       String
   coverImageUrl String
+  events        RunningPerformanceEvent[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model RunningPerformanceEvent {
+  id                   String             @id @default(cuid())
+  runningPerformanceId String
+  runningPerformance   RunningPerformance @relation(fields: [runningPerformanceId], references: [id], onDelete: Cascade)
+  startsAt             DateTime
+  location             String
+  ticketUrl            String
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([runningPerformanceId])
+  @@index([startsAt])
 }
 
 model NewsPost {

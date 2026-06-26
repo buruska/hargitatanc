@@ -16,6 +16,11 @@ export type DeletePerformanceState = {
   success?: boolean;
 };
 
+export type PerformanceEventFormState = {
+  error?: string;
+  success?: boolean;
+};
+
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "performances");
 
@@ -234,6 +239,64 @@ export async function deleteRunningPerformanceAction(
   });
 
   await deleteCoverImage(performance.coverImageUrl);
+
+  revalidatePath("/");
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function createRunningPerformanceEventAction(
+  _state: PerformanceEventFormState,
+  formData: FormData,
+): Promise<PerformanceEventFormState> {
+  const runningPerformanceId = String(formData.get("runningPerformanceId") ?? "").trim();
+  const date = String(formData.get("date") ?? "").trim();
+  const time = String(formData.get("time") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+  const ticketUrl = String(formData.get("ticketUrl") ?? "").trim();
+
+  if (!runningPerformanceId) {
+    return { error: "Hiányzik az előadás azonosítója." };
+  }
+
+  if (!date || !time || !location || !ticketUrl) {
+    return { error: "Tölts ki minden mezőt a fellépés hozzáadásához." };
+  }
+
+  const startsAt = new Date(`${date}T${time}:00`);
+
+  if (Number.isNaN(startsAt.getTime())) {
+    return { error: "Érvénytelen dátum vagy kezdési időpont." };
+  }
+
+  try {
+    new URL(ticketUrl);
+  } catch {
+    return { error: "Adj meg érvényes jegyvásárló linket." };
+  }
+
+  const performance = await prisma.runningPerformance.findUnique({
+    where: {
+      id: runningPerformanceId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!performance) {
+    return { error: "Az előadás már nem található." };
+  }
+
+  await prisma.runningPerformanceEvent.create({
+    data: {
+      runningPerformanceId,
+      startsAt,
+      location,
+      ticketUrl,
+    },
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");

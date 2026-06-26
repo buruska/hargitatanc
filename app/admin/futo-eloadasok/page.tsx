@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
-import { adminTitle, buttonSecondary, panel } from "@/lib/styles";
+import { adminTitle, panel } from "@/lib/styles";
 import { DeletePerformanceModal } from "./delete-performance-modal";
 import { EditPerformanceModal } from "./edit-performance-modal";
+import { NewPerformanceEventModal } from "./new-performance-event-modal";
 import { NewPerformanceModal } from "./new-performance-modal";
 
 export default async function AdminFutoEloadasokPage() {
@@ -41,9 +42,7 @@ export default async function AdminFutoEloadasokPage() {
               <p className="mt-2 text-muted">{performance.summary}</p>
             </div>
             <div className="grid gap-2">
-              <button className={buttonSecondary} type="button">
-                Dátum hozzáadása
-              </button>
+              <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
               <EditPerformanceModal id={performance.id} summary={performance.summary} title={performance.title} />
               <DeletePerformanceModal id={performance.id} title={performance.title} />
             </div>
