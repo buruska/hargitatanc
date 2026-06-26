@@ -82,8 +82,8 @@ export default function RootLayout({
               priority
             />
             <span className="font-serif tracking-[0.035em] text-surface-strong">
-              <span className="block text-[21px] leading-[1.28]">Hargita Székely</span>
-              <span className="block text-[21px] leading-[1.28]">Néptáncszínház</span>
+              <span className="block text-[18px] leading-[1.28]">Hargita Székely</span>
+              <span className="block text-[18px] leading-[1.28]">Néptáncszínház</span>
             </span>
           </Link>
           <div className="flex flex-wrap items-center justify-start gap-3 min-[861px]:justify-end">
