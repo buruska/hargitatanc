@@ -7,6 +7,13 @@ type HeroCover = {
   id: string;
   title: string;
   coverImageUrl: string;
+  summary?: string;
+  events?: {
+    id: string;
+    location: string;
+    startsAt: string;
+    ticketUrl: string;
+  }[];
 };
 
 type HeroCoverCarouselProps = {
@@ -21,6 +28,7 @@ export function HeroCoverCarousel({
   showTitleList = false,
 }: HeroCoverCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedCover, setSelectedCover] = useState<HeroCover | null>(null);
 
   useEffect(() => {
     if (covers.length < 2) {
@@ -71,7 +79,10 @@ export function HeroCoverCarousel({
                   }`}
                   key={cover.id}
                   type="button"
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => {
+                    setActiveIndex(index);
+                    setSelectedCover(cover);
+                  }}
                 >
                   {cover.title}
                 </button>
@@ -79,6 +90,76 @@ export function HeroCoverCarousel({
             })}
           </div>
         </aside>
+      ) : null}
+      {selectedCover ? (
+        <div
+          aria-modal="true"
+          className="fixed inset-0 z-50 grid place-items-center bg-charcoal/70 px-4 py-8 backdrop-blur-sm"
+          role="dialog"
+          onMouseDown={() => setSelectedCover(null)}
+        >
+          <div
+            className="max-h-[min(720px,calc(100vh-64px))] w-[min(720px,100%)] overflow-y-auto border border-line-strong bg-surface-strong p-6 text-charcoal shadow-[12px_12px_0_rgb(33_31_27_/_20%)]"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="mb-5 flex items-start justify-between gap-5 border-b border-line pb-5">
+              <h2 className="font-serif text-[clamp(28px,4vw,44px)] font-bold leading-tight">
+                {selectedCover.title}
+              </h2>
+              <button
+                aria-label="Modal bezárása"
+                className="grid size-9 shrink-0 place-items-center border border-line bg-surface text-[20px] font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+                type="button"
+                onClick={() => setSelectedCover(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="grid gap-3">
+              {(selectedCover.events?.length ?? 0) > 0 ? (
+                selectedCover.events?.map((event) => (
+                  <div
+                    className="grid gap-3 border border-line bg-surface px-4 py-3 min-[620px]:grid-cols-[1fr_auto] min-[620px]:items-center"
+                    key={event.id}
+                  >
+                    <div className="grid gap-1">
+                      <time className="text-[14px] font-extrabold text-thread-red">
+                        {new Intl.DateTimeFormat("hu-RO", {
+                          dateStyle: "full",
+                          timeStyle: "short",
+                        }).format(new Date(event.startsAt))}
+                      </time>
+                      <span className="text-[13px] font-bold text-muted">{event.location}</span>
+                    </div>
+                    {event.ticketUrl ? (
+                      <a
+                        className="inline-flex items-center justify-center bg-thread-red px-4 py-2 text-[12px] font-extrabold uppercase tracking-[0.1em] text-surface-strong transition hover:bg-charcoal"
+                        href={event.ticketUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        Jegyvásárlás
+                      </a>
+                    ) : (
+                      <span className="text-[12px] font-extrabold uppercase tracking-[0.1em] text-muted">
+                        Nincs jegy link
+                      </span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="border border-line bg-surface px-4 py-3 text-[14px] font-bold text-muted">
+                  Jelenleg nincs meghirdetett közelgő fellépés.
+                </p>
+              )}
+            </div>
+
+            <p className="mt-6 border-t border-line pt-5 text-[15px] font-bold leading-relaxed text-muted">
+              {selectedCover.summary}
+            </p>
+          </div>
+        </div>
       ) : null}
     </div>
   );

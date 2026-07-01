@@ -17,11 +17,40 @@ export default async function HomePage() {
       createdAt: "desc",
     },
     select: {
-      id: true,
-      title: true,
       coverImageUrl: true,
+      events: {
+        where: {
+          startsAt: {
+            gte: now,
+          },
+        },
+        orderBy: {
+          startsAt: "asc",
+        },
+        select: {
+          id: true,
+          location: true,
+          startsAt: true,
+          ticketUrl: true,
+        },
+      },
+      id: true,
+      summary: true,
+      title: true,
     },
   });
+  const heroCovers = performances.map((performance) => ({
+    coverImageUrl: performance.coverImageUrl,
+    events: performance.events.map((event) => ({
+      id: event.id,
+      location: event.location,
+      startsAt: event.startsAt.toISOString(),
+      ticketUrl: event.ticketUrl,
+    })),
+    id: performance.id,
+    summary: performance.summary,
+    title: performance.title,
+  }));
   const upcomingEvents = await prisma.runningPerformanceEvent.findMany({
     where: {
       startsAt: {
@@ -60,7 +89,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <HeroCoverCarousel covers={performances} showTitleList />
+      <HeroCoverCarousel covers={heroCovers} showTitleList />
 
       <section className="border-t border-line bg-[linear-gradient(180deg,#fff8ea_0%,#f8f1e3_48%,#efe5d2_100%)] px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
         <div className="mx-auto max-w-[1180px]">
