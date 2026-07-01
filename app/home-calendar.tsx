@@ -125,6 +125,8 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
                 <a
                   className="absolute left-2 top-2 z-[1] bg-thread-red px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition hover:bg-charcoal"
                   href={ticketUrl}
+                  rel="noreferrer"
+                  target="_blank"
                 >
                   Jegyek
                 </a>
