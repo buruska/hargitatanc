@@ -6,7 +6,9 @@ const weekdayLabels = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
 
 type HomeCalendarProps = {
   events: {
+    coverImageUrl: string;
     dateKey: string;
+    ticketUrl: string;
     title: string;
   }[];
   initialDate: string;
@@ -39,8 +41,11 @@ export function HomeCalendar({ events, initialDate }: HomeCalendarProps) {
     return new Date(year, month - 1, day);
   });
   const eventsByDate = useMemo(() => {
-    return events.reduce<Record<string, string[]>>((groupedEvents, event) => {
-      groupedEvents[event.dateKey] = [...(groupedEvents[event.dateKey] ?? []), event.title];
+    return events.reduce<Record<string, { coverImageUrl: string; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
+      groupedEvents[event.dateKey] = [
+        ...(groupedEvents[event.dateKey] ?? []),
+        { coverImageUrl: event.coverImageUrl, ticketUrl: event.ticketUrl, title: event.title },
+      ];
       return groupedEvents;
     }, {});
   }, [events]);
@@ -92,24 +97,36 @@ export function HomeCalendar({ events, initialDate }: HomeCalendarProps) {
           const dayEvents = eventsByDate[dateKey] ?? [];
           const hasEvent = dayEvents.length > 0;
           const isCurrentMonth = calendarDay.getMonth() === currentMonth;
+          const coverImageUrl = dayEvents[0]?.coverImageUrl;
+          const ticketUrl = dayEvents.find((event) => event.ticketUrl)?.ticketUrl;
 
           return (
             <div
               className={`relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition ${
                 isCurrentMonth ? "bg-surface-strong text-charcoal" : "bg-surface text-muted/35"
-              } ${hasEvent ? "bg-thread-red text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""}`}
+              } ${hasEvent ? "bg-cover bg-center text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""}`}
               key={dateKey}
+              style={coverImageUrl ? { backgroundImage: `url(${coverImageUrl})` } : undefined}
             >
-              <span>{calendarDay.getDate()}</span>
+              {hasEvent ? <span className="absolute inset-0 bg-charcoal/36" /> : null}
+              {ticketUrl ? (
+                <a
+                  className="absolute left-2 top-2 z-[1] bg-thread-red px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition hover:bg-charcoal"
+                  href={ticketUrl}
+                >
+                  Jegyek
+                </a>
+              ) : null}
+              <span className="relative">{calendarDay.getDate()}</span>
               {hasEvent ? (
                 <div className="absolute bottom-2 left-2 right-2 grid gap-0.5 text-left">
-                  {dayEvents.slice(0, 2).map((title) => (
-                    <span className="truncate text-[10px] font-extrabold leading-tight text-surface-strong" key={title}>
-                      {title}
+                  {dayEvents.slice(0, 2).map((event, index) => (
+                    <span className="truncate text-[12px] font-extrabold leading-tight text-surface-strong" key={`${event.title}-${index}`}>
+                      {event.title}
                     </span>
                   ))}
                   {dayEvents.length > 2 ? (
-                    <span className="text-[10px] font-extrabold leading-tight text-surface-strong/80">
+                    <span className="text-[11px] font-extrabold leading-tight text-surface-strong/80">
                       +{dayEvents.length - 2} további
                     </span>
                   ) : null}

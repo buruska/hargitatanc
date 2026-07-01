@@ -40,6 +40,7 @@ export default async function HomePage() {
       ticketUrl: true,
       runningPerformance: {
         select: {
+          coverImageUrl: true,
           title: true,
         },
       },
@@ -47,7 +48,9 @@ export default async function HomePage() {
   });
   const calendarDate = upcomingEvents[0]?.startsAt ?? now;
   const calendarEvents = upcomingEvents.map((event) => ({
+    coverImageUrl: event.runningPerformance.coverImageUrl,
     dateKey: getDateKey(event.startsAt),
+    ticketUrl: event.ticketUrl,
     title: event.runningPerformance.title,
   }));
 
