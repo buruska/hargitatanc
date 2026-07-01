@@ -12,6 +12,7 @@ type HomeCalendarProps = {
     title: string;
   }[];
   initialDate: string;
+  onPerformanceHover?: (performance: { coverImageUrl: string; dateKey: string; ticketUrl: string; title: string }) => void;
 };
 
 function getDateKey(date: Date) {
@@ -35,7 +36,7 @@ function getCalendarDays(date: Date) {
   });
 }
 
-export function HomeCalendar({ events, initialDate }: HomeCalendarProps) {
+export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCalendarProps) {
   const [visibleDate, setVisibleDate] = useState(() => {
     const [year, month, day] = initialDate.split("-").map(Number);
     return new Date(year, month - 1, day);
@@ -97,16 +98,27 @@ export function HomeCalendar({ events, initialDate }: HomeCalendarProps) {
           const dayEvents = eventsByDate[dateKey] ?? [];
           const hasEvent = dayEvents.length > 0;
           const isCurrentMonth = calendarDay.getMonth() === currentMonth;
-          const coverImageUrl = dayEvents[0]?.coverImageUrl;
+          const firstEvent = dayEvents[0];
+          const coverImageUrl = firstEvent?.coverImageUrl;
           const ticketUrl = dayEvents.find((event) => event.ticketUrl)?.ticketUrl;
 
           return (
             <div
-              className={`relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition ${
+              className={`relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition-all duration-300 ease-out ${
                 isCurrentMonth ? "bg-surface-strong text-charcoal" : "bg-surface text-muted/35"
               } ${hasEvent ? "bg-cover bg-center text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""}`}
               key={dateKey}
               style={coverImageUrl ? { backgroundImage: `url(${coverImageUrl})` } : undefined}
+              onMouseEnter={() => {
+                if (firstEvent) {
+                  onPerformanceHover?.({
+                    coverImageUrl: firstEvent.coverImageUrl,
+                    dateKey,
+                    ticketUrl: firstEvent.ticketUrl,
+                    title: firstEvent.title,
+                  });
+                }
+              }}
             >
               {hasEvent ? <span className="absolute inset-0 bg-charcoal/36" /> : null}
               {ticketUrl ? (

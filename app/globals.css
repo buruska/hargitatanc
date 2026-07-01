@@ -65,11 +65,29 @@
   transform: translate(0, 0);
 }
 
+.home-list-transition {
+  animation: home-list-fade 300ms ease-out;
+}
+
+@keyframes home-list-fade {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-reveal-calendar,
-  .home-reveal-event {
+  .home-reveal-event,
+  .home-list-transition {
     opacity: 1;
     transform: none;
+    animation: none;
     transition: none;
   }
 }

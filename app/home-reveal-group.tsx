@@ -1,13 +1,13 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { HTMLAttributes, ReactNode, useEffect, useRef, useState } from "react";
 
-type HomeRevealGroupProps = {
+type HomeRevealGroupProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
   className?: string;
 };
 
-export function HomeRevealGroup({ children, className = "" }: HomeRevealGroupProps) {
+export function HomeRevealGroup({ children, className = "", ...props }: HomeRevealGroupProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRevealed, setIsRevealed] = useState(false);
 
@@ -36,7 +36,7 @@ export function HomeRevealGroup({ children, className = "" }: HomeRevealGroupPro
   }, []);
 
   return (
-    <div className={className} data-revealed={isRevealed} ref={containerRef}>
+    <div className={className} data-revealed={isRevealed} ref={containerRef} {...props}>
       {children}
     </div>
   );
