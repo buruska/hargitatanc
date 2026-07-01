@@ -15,3 +15,61 @@
   --font-serif: Georgia, "Times New Roman", serif;
   --shadow-soft: 0 14px 0 rgb(33 31 27 / 7%);
 }
+
+.event-list-scrollbar {
+  scrollbar-color: #14616a #f8f1e3;
+  scrollbar-width: thin;
+}
+
+.event-list-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+
+.event-list-scrollbar::-webkit-scrollbar-track {
+  background: #f8f1e3;
+  border: 1px solid #cdbd9d;
+}
+
+.event-list-scrollbar::-webkit-scrollbar-thumb {
+  background: #14616a;
+  border: 3px solid #f8f1e3;
+}
+
+.event-list-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #315a3b;
+}
+
+.home-reveal-calendar,
+.home-reveal-event {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.home-reveal-calendar {
+  transform: translateY(52px);
+  transition:
+    opacity 620ms ease,
+    transform 620ms ease;
+}
+
+.home-reveal-event {
+  transform: translateX(58px);
+  transition:
+    opacity 520ms ease,
+    transform 520ms ease;
+}
+
+.home-reveal-group[data-revealed="true"] .home-reveal-calendar,
+.home-reveal-group[data-revealed="true"] .home-reveal-event {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-reveal-calendar,
+  .home-reveal-event {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
