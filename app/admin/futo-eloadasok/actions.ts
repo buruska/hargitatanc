@@ -309,3 +309,104 @@ export async function createRunningPerformanceEventAction(
 
   return { success: true };
 }
+
+export async function updateRunningPerformanceEventAction(
+  _state: PerformanceEventFormState,
+  formData: FormData,
+): Promise<PerformanceEventFormState> {
+  const id = String(formData.get("id") ?? "").trim();
+  const date = String(formData.get("date") ?? "").trim();
+  const time = String(formData.get("time") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+  const ticketUrl = String(formData.get("ticketUrl") ?? "").trim();
+
+  if (!id) {
+    return { error: "Hiányzik a módosítandó fellépés azonosítója." };
+  }
+
+  if (!location) {
+    return { error: "Helyszín megadása kötelező." };
+  }
+
+  if (!date || !time) {
+    return { error: "Tölts ki minden mezőt a fellépés módosításához." };
+  }
+
+  const startsAt = new Date(`${date}T${time}:00`);
+
+  if (Number.isNaN(startsAt.getTime())) {
+    return { error: "Érvénytelen dátum vagy kezdési időpont." };
+  }
+
+  if (ticketUrl) {
+    try {
+      new URL(ticketUrl);
+    } catch {
+      return { error: "Adj meg érvényes jegyvásárló linket." };
+    }
+  }
+
+  const event = await prisma.runningPerformanceEvent.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!event) {
+    return { error: "A fellépés már nem található." };
+  }
+
+  await prisma.runningPerformanceEvent.update({
+    where: {
+      id,
+    },
+    data: {
+      startsAt,
+      location,
+      ticketUrl,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function deleteRunningPerformanceEventAction(
+  _state: DeletePerformanceState,
+  formData: FormData,
+): Promise<DeletePerformanceState> {
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    return { error: "Hiányzik a törlendő fellépés azonosítója." };
+  }
+
+  const event = await prisma.runningPerformanceEvent.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!event) {
+    return { error: "A fellépés már nem található." };
+  }
+
+  await prisma.runningPerformanceEvent.delete({
+    where: {
+      id,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
