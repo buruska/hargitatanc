@@ -54,7 +54,11 @@ export function EditPerformanceModal({ id, title, summary }: EditPerformanceModa
 
   return (
     <>
-      <button className={buttonSecondary} type="button" onClick={() => setIsOpen(true)}>
+      <button
+        className="inline-flex min-h-8 items-center justify-center border border-[rgb(205_151_35_/_70%)] bg-[rgb(205_151_35_/_12%)] px-3 py-1.5 text-xs font-extrabold text-[rgb(122_83_18)] transition hover:bg-[rgb(205_151_35_/_20%)] hover:text-charcoal"
+        type="button"
+        onClick={() => setIsOpen(true)}
+      >
         Módosítás
       </button>
 

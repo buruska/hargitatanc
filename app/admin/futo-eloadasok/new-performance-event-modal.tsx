@@ -129,7 +129,11 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
 
   return (
     <>
-      <button className={buttonSecondary} type="button" onClick={openModal}>
+      <button
+        className="inline-flex min-h-8 items-center justify-center border border-pine bg-[rgb(49_90_59_/_10%)] px-3 py-1.5 text-xs font-extrabold text-pine transition hover:bg-[rgb(49_90_59_/_18%)] hover:text-charcoal"
+        type="button"
+        onClick={openModal}
+      >
         Fellépés hozzáadása
       </button>
 

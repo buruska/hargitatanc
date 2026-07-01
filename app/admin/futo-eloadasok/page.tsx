@@ -41,17 +41,22 @@ export default async function AdminFutoEloadasokPage() {
 
       <div className="mt-6 grid gap-4">
         {performances.map((performance) => (
-          <article className={`${panel} grid gap-4 p-4 min-[720px]:grid-cols-[112px_1fr_170px] min-[720px]:items-center`} key={performance.id}>
-            <Image
-              alt=""
-              className="aspect-[4/3] w-full border-2 border-charcoal object-cover min-[720px]:w-28"
-              height={84}
-              src={performance.coverImageUrl}
-              width={112}
-            />
+          <article className={`${panel} grid gap-4 p-4 min-[720px]:grid-cols-[1fr_170px] min-[720px]:items-start`} key={performance.id}>
             <div>
-              <h2 className="font-serif text-2xl font-bold leading-tight">{performance.title}</h2>
+              <div className="flex items-center gap-4">
+                <Image
+                  alt=""
+                  className="aspect-[4/3] w-24 shrink-0 border-2 border-charcoal object-cover"
+                  height={72}
+                  src={performance.coverImageUrl}
+                  width={96}
+                />
+                <h2 className="font-serif text-2xl font-bold leading-tight">{performance.title}</h2>
+              </div>
               <p className="mt-2 text-muted">{performance.summary}</p>
+              <div className="mt-3">
+                <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
+              </div>
               <PerformanceEventsToggle
                 events={performance.events.map((event) => ({
                   ...event,
@@ -60,7 +65,6 @@ export default async function AdminFutoEloadasokPage() {
               />
             </div>
             <div className="grid gap-2">
-              <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
               <EditPerformanceModal id={performance.id} summary={performance.summary} title={performance.title} />
               <DeletePerformanceModal id={performance.id} title={performance.title} />
             </div>

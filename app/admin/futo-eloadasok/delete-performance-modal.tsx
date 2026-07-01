@@ -47,7 +47,11 @@ export function DeletePerformanceModal({ id, title }: DeletePerformanceModalProp
 
   return (
     <>
-      <button className={buttonSecondary} type="button" onClick={() => setIsOpen(true)}>
+      <button
+        className="inline-flex min-h-8 items-center justify-center border border-[rgb(179_38_32_/_55%)] bg-[rgb(179_38_32_/_10%)] px-3 py-1.5 text-xs font-extrabold text-thread-red transition hover:bg-[rgb(179_38_32_/_18%)] hover:text-charcoal"
+        type="button"
+        onClick={() => setIsOpen(true)}
+      >
         Törlés
       </button>
 
