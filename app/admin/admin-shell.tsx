@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
 import { getAdminSession } from "@/lib/auth";
-import { buttonSecondary, eyebrow, page, panel } from "@/lib/styles";
+import { buttonSecondary, eyebrow, panel } from "@/lib/styles";
 import { InactivityLogoutTimer } from "./inactivity-logout";
 
 const adminNavigation = [
@@ -18,7 +18,7 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
   }
 
   return (
-    <main className={`${page} pt-[124px]`}>
+    <main className="px-[clamp(18px,4vw,56px)] pb-[150px] pt-[124px]">
       <section className="mx-auto max-w-[1040px]">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
           <div>
