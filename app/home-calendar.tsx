@@ -48,32 +48,32 @@ export function HomeCalendar({ eventDateKeys, initialDate }: HomeCalendarProps) 
   }
 
   return (
-    <aside className="h-full border-2 border-charcoal bg-surface-strong p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <aside className="h-full border border-line-strong bg-surface-strong p-5 shadow-[0_18px_35px_rgb(33_31_27_/_10%)]">
+      <div className="mb-5 flex items-center justify-between gap-3 border-b border-line pb-4">
         <button
           aria-label="Előző hónap"
-          className="grid size-8 place-items-center border border-line bg-surface text-lg font-extrabold text-petrol transition hover:bg-petrol hover:text-surface-strong"
+          className="grid size-8 place-items-center border border-line bg-surface text-lg font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
           type="button"
           onClick={() => changeMonth(-1)}
         >
           ‹
         </button>
-        <h2 className="font-serif text-[24px] font-bold capitalize leading-none text-charcoal">
+        <h2 className="font-serif text-[26px] font-bold capitalize leading-none text-charcoal">
           {calendarTitle}
         </h2>
         <button
           aria-label="Következő hónap"
-          className="grid size-8 place-items-center border border-line bg-surface text-lg font-extrabold text-petrol transition hover:bg-petrol hover:text-surface-strong"
+          className="grid size-8 place-items-center border border-line bg-surface text-lg font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
           type="button"
           onClick={() => changeMonth(1)}
         >
           ›
         </button>
       </div>
-      <div className="grid grid-cols-7 border-l border-t border-line text-center">
+      <div className="grid grid-cols-7 overflow-hidden border-l border-t border-line text-center shadow-[inset_0_1px_0_rgb(255_248_234_/_65%)]">
         {weekdayLabels.map((weekday) => (
           <div
-            className="border-b border-r border-line bg-surface px-1 py-2 text-[11px] font-extrabold uppercase text-muted"
+            className="border-b border-r border-line bg-surface px-1 py-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted"
             key={weekday}
           >
             {weekday}
@@ -86,9 +86,9 @@ export function HomeCalendar({ eventDateKeys, initialDate }: HomeCalendarProps) 
 
           return (
             <div
-              className={`flex aspect-square items-start justify-end border-b border-r border-line p-2 text-[13px] font-extrabold ${
-                isCurrentMonth ? "text-charcoal" : "text-muted/35"
-              } ${hasEvent ? "bg-petrol text-surface-strong" : ""}`}
+              className={`flex aspect-square items-start justify-end border-b border-r border-line p-2 text-[13px] font-extrabold transition ${
+                isCurrentMonth ? "bg-surface-strong text-charcoal" : "bg-surface text-muted/35"
+              } ${hasEvent ? "bg-thread-red text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""}`}
               key={dateKey}
             >
               {calendarDay.getDate()}

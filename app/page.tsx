@@ -52,12 +52,12 @@ export default async function HomePage() {
     <main>
       <HeroCoverCarousel covers={performances} showTitleList />
 
-      <section className="bg-surface px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
+      <section className="border-t border-line bg-[linear-gradient(180deg,#fff8ea_0%,#f8f1e3_48%,#efe5d2_100%)] px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
         <div className="mx-auto max-w-[1180px]">
-          <p className="mb-3 text-[13px] font-extrabold uppercase tracking-normal text-thread-red">
-            Naptár
-          </p>
-          <div className="mb-8 border-b-2 border-line pb-5">
+          <div className="mb-8 flex items-end justify-between gap-5 border-b border-line pb-5">
+            <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
+              Naptár
+            </p>
             <h1 className="font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
               Közelgő fellépések
             </h1>
@@ -81,13 +81,15 @@ export default async function HomePage() {
 
                     const eventContent = (
                       <>
-                        <time className="grid min-h-[72px] min-w-[86px] place-items-center border-r-2 border-line bg-surface-strong px-4 text-center">
-                          <span className="text-[12px] font-extrabold uppercase text-muted">{month}</span>
-                          <span className="font-serif text-[34px] font-bold leading-none text-petrol">{day}</span>
+                        <time className="grid min-h-[72px] min-w-[86px] place-items-center border-r border-thread-red/25 bg-thread-red px-4 text-center text-surface-strong">
+                          <span className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-surface-strong/78">
+                            {month}
+                          </span>
+                          <span className="font-serif text-[34px] font-bold leading-none">{day}</span>
                         </time>
                         <span className="grid min-w-0 flex-1 gap-1 px-4 py-3">
                           <span className="flex min-w-0 items-center justify-between gap-3 text-[13px] font-extrabold">
-                            <span className="truncate text-petrol">{date}</span>
+                            <span className="truncate text-thread-red">{date}</span>
                             <span className="ml-auto truncate text-right text-muted">{event.location}</span>
                           </span>
                           <span className="truncate font-serif text-[clamp(22px,3vw,32px)] font-bold leading-tight text-charcoal">
@@ -105,13 +107,13 @@ export default async function HomePage() {
                       >
                         {event.ticketUrl ? (
                           <a
-                            className="flex h-full overflow-hidden border-2 border-charcoal bg-surface transition hover:-translate-y-0.5 hover:bg-surface-strong hover:shadow-soft"
+                            className="flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition hover:-translate-y-0.5 hover:border-thread-red hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)]"
                             href={event.ticketUrl}
                           >
                             {eventContent}
                           </a>
                         ) : (
-                          <article className="flex h-full overflow-hidden border-2 border-charcoal bg-surface">
+                          <article className="flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)]">
                             {eventContent}
                           </article>
                         )}
@@ -120,7 +122,7 @@ export default async function HomePage() {
                   })}
                 </div>
               ) : (
-                <div className="border-2 border-charcoal bg-surface-strong p-6 text-[17px] font-extrabold text-muted">
+                <div className="border border-line-strong bg-surface-strong p-6 text-[17px] font-extrabold text-muted shadow-[0_10px_24px_rgb(33_31_27_/_7%)]">
                   Jelenleg nincs meghirdetett közelgő fellépés.
                 </div>
               )}

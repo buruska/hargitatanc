@@ -17,7 +17,7 @@
 }
 
 .event-list-scrollbar {
-  scrollbar-color: #14616a #f8f1e3;
+  scrollbar-color: #b32620 #f8f1e3;
   scrollbar-width: thin;
 }
 
@@ -31,12 +31,12 @@
 }
 
 .event-list-scrollbar::-webkit-scrollbar-thumb {
-  background: #14616a;
+  background: #b32620;
   border: 3px solid #f8f1e3;
 }
 
 .event-list-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #315a3b;
+  background: #8f1f1a;
 }
 
 .home-reveal-calendar,
