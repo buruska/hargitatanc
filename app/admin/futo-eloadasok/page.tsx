@@ -6,6 +6,7 @@ import { DeletePerformanceModal } from "./delete-performance-modal";
 import { EditPerformanceModal } from "./edit-performance-modal";
 import { NewPerformanceEventModal } from "./new-performance-event-modal";
 import { NewPerformanceModal } from "./new-performance-modal";
+import { PerformanceEventsToggle } from "./performance-events-toggle";
 
 export default async function AdminFutoEloadasokPage() {
   const performances = await prisma.runningPerformance.findMany({
@@ -17,6 +18,17 @@ export default async function AdminFutoEloadasokPage() {
       title: true,
       summary: true,
       coverImageUrl: true,
+      events: {
+        orderBy: {
+          startsAt: "asc",
+        },
+        select: {
+          id: true,
+          startsAt: true,
+          location: true,
+          ticketUrl: true,
+        },
+      },
     },
   });
 
@@ -40,6 +52,12 @@ export default async function AdminFutoEloadasokPage() {
             <div>
               <h2 className="font-serif text-2xl font-bold leading-tight">{performance.title}</h2>
               <p className="mt-2 text-muted">{performance.summary}</p>
+              <PerformanceEventsToggle
+                events={performance.events.map((event) => ({
+                  ...event,
+                  startsAt: event.startsAt.toISOString(),
+                }))}
+              />
             </div>
             <div className="grid gap-2">
               <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
