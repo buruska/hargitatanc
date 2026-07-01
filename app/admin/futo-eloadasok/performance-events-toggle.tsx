@@ -140,7 +140,10 @@ function EventButton({
               {content}
             </a>
           ) : (
-            <span className="truncate text-muted group-hover:hidden">{content}</span>
+            <span className="flex w-full min-w-0 items-center justify-between gap-2 text-petrol group-hover:hidden">
+              <span className="truncate">{content}</span>
+              <span className="shrink-0 text-[10px] font-extrabold text-pine/75">még nincs jegyvásárló link</span>
+            </span>
           )}
           <div className="hidden w-full grid-cols-2 gap-1 group-hover:grid">
             <button
