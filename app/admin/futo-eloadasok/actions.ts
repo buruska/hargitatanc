@@ -260,7 +260,11 @@ export async function createRunningPerformanceEventAction(
     return { error: "Hiányzik az előadás azonosítója." };
   }
 
-  if (!date || !time || !location || !ticketUrl) {
+  if (!location) {
+    return { error: "Helyszín megadása kötelező." };
+  }
+
+  if (!date || !time) {
     return { error: "Tölts ki minden mezőt a fellépés hozzáadásához." };
   }
 
@@ -270,10 +274,12 @@ export async function createRunningPerformanceEventAction(
     return { error: "Érvénytelen dátum vagy kezdési időpont." };
   }
 
-  try {
-    new URL(ticketUrl);
-  } catch {
-    return { error: "Adj meg érvényes jegyvásárló linket." };
+  if (ticketUrl) {
+    try {
+      new URL(ticketUrl);
+    } catch {
+      return { error: "Adj meg érvényes jegyvásárló linket." };
+    }
   }
 
   const performance = await prisma.runningPerformance.findUnique({
