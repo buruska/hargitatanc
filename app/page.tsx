@@ -64,11 +64,11 @@ export default async function HomePage() {
 
       <section className="border-t border-line bg-[linear-gradient(180deg,#fff8ea_0%,#f8f1e3_48%,#efe5d2_100%)] px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
         <div className="mx-auto max-w-[1180px]">
-          <div className="mb-8 flex items-end justify-between gap-5 border-b border-line pb-5">
+          <div className="mb-12 grid gap-0 border-b border-line pb-12 pt-12 text-left">
             <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
               Naptár
             </p>
-            <h1 className="font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
+            <h1 className="pt-6 pb-12 font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
               Közelgő fellépések
             </h1>
           </div>

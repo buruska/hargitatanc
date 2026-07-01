@@ -78,7 +78,7 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
         {visibleEvents.length > 0 ? (
           <div
             key={activePerformance?.dateKey ?? "all-events"}
-            className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-scroll overscroll-contain pr-2 transition-all duration-300 ease-out ${
+            className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pr-2 transition-all duration-300 ease-out ${
               activePerformance ? "auto-rows-max content-start" : "auto-rows-[calc((100%_-_60px)/6)]"
             }`}
           >
@@ -112,6 +112,11 @@ function PerformanceListItem({
     dateStyle: "full",
     timeStyle: "short",
   }).format(startsAt);
+  const weekdayAndTime = new Intl.DateTimeFormat("hu-RO", {
+    weekday: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(startsAt);
   const eventContent = (
     <>
       {isFiltered ? null : (
@@ -130,7 +135,7 @@ function PerformanceListItem({
           </span>
         ) : (
           <span className="flex min-w-0 items-center justify-between gap-3 text-[13px] font-extrabold">
-            <span className="truncate text-thread-red">{date}</span>
+            <span className="truncate text-thread-red">{weekdayAndTime}</span>
             <span className="ml-auto truncate text-right text-muted">{event.location}</span>
           </span>
         )}

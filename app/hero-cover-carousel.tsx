@@ -57,7 +57,7 @@ export function HeroCoverCarousel({
       ))}
       {showTitleList ? (
         <aside className="absolute right-[clamp(18px,4vw,56px)] top-[128px] z-[1] w-[min(360px,calc(100vw-36px))] bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm">
-          <h2 className="mb-6 font-serif text-[24px] leading-none tracking-[0.035em]">Futó előadások</h2>
+          <h2 className="mb-6 font-serif text-[24px] leading-none tracking-[0.035em]">Futó előadások:</h2>
           <div className="grid gap-2">
             {covers.map((cover, index) => {
               const isActive = index === activeIndex;
