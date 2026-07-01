@@ -46,7 +46,10 @@ export default async function HomePage() {
     },
   });
   const calendarDate = upcomingEvents[0]?.startsAt ?? now;
-  const eventDateKeys = upcomingEvents.map((event) => getDateKey(event.startsAt));
+  const calendarEvents = upcomingEvents.map((event) => ({
+    dateKey: getDateKey(event.startsAt),
+    title: event.runningPerformance.title,
+  }));
 
   return (
     <main>
@@ -63,14 +66,14 @@ export default async function HomePage() {
             </h1>
           </div>
 
-          <HomeRevealGroup className="home-reveal-group grid gap-8 min-[920px]:grid-cols-[1.15fr_1fr] min-[920px]:items-stretch">
+          <HomeRevealGroup className="home-reveal-group grid gap-8 min-[920px]:grid-cols-[1.38fr_0.7fr] min-[920px]:items-stretch">
             <div className="home-reveal-calendar h-full">
-              <HomeCalendar eventDateKeys={eventDateKeys} initialDate={getDateKey(calendarDate)} />
+              <HomeCalendar events={calendarEvents} initialDate={getDateKey(calendarDate)} />
             </div>
 
             <div className="h-full min-h-0">
               {upcomingEvents.length > 0 ? (
-                <div className="event-list-scrollbar grid h-full snap-y snap-mandatory auto-rows-[calc((100%-60px)/6)] gap-3 overflow-y-scroll overscroll-contain pr-2">
+                <div className="event-list-scrollbar grid h-full snap-y snap-mandatory auto-rows-[calc((100%_-_60px)/6)] gap-3 overflow-y-scroll overscroll-contain pr-2">
                   {upcomingEvents.map((event, index) => {
                     const day = new Intl.DateTimeFormat("hu-RO", { day: "2-digit" }).format(event.startsAt);
                     const month = new Intl.DateTimeFormat("hu-RO", { month: "short" }).format(event.startsAt);
@@ -92,7 +95,7 @@ export default async function HomePage() {
                             <span className="truncate text-thread-red">{date}</span>
                             <span className="ml-auto truncate text-right text-muted">{event.location}</span>
                           </span>
-                          <span className="truncate font-serif text-[clamp(22px,3vw,32px)] font-bold leading-tight text-charcoal">
+                          <span className="truncate font-serif text-[clamp(15px,1.6vw,18px)] font-bold leading-tight text-charcoal">
                             {event.runningPerformance.title}
                           </span>
                         </span>
