@@ -62,7 +62,7 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
             <span className="absolute inset-0 bg-charcoal/32" />
             {activePerformance?.ticketUrl ? (
               <a
-                className="relative z-[1] bg-thread-red px-6 py-3 text-[14px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_20%)] transition hover:bg-charcoal"
+                className="relative z-[1] bg-thread-red px-6 py-3 text-[14px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_20%)] transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
                 href={activePerformance.ticketUrl}
                 rel="noreferrer"
                 target="_blank"

@@ -123,7 +123,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
               {hasEvent ? <span className="absolute inset-0 bg-charcoal/36" /> : null}
               {ticketUrl ? (
                 <a
-                  className="absolute left-2 top-2 z-[1] bg-thread-red px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition hover:bg-charcoal"
+                  className="absolute left-2 top-2 z-[1] bg-thread-red px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
                   href={ticketUrl}
                   rel="noreferrer"
                   target="_blank"
