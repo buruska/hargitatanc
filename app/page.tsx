@@ -51,6 +51,43 @@ export default async function HomePage() {
     summary: performance.summary,
     title: performance.title,
   }));
+  const events = await prisma.event.findMany({
+    where: {
+      startsAt: {
+        gte: now,
+      },
+    },
+    orderBy: {
+      startsAt: "asc",
+    },
+    select: {
+      coverImageUrl: true,
+      endsAt: true,
+      id: true,
+      startsAt: true,
+      summary: true,
+      title: true,
+    },
+  });
+  const heroEvents = events.map((event) => ({
+    endsAt: event.endsAt?.toISOString() ?? null,
+    id: event.id,
+    startsAt: event.startsAt.toISOString(),
+    title: event.title,
+  }));
+  const eventHeroCovers = events.flatMap((event) => {
+    if (!event.coverImageUrl) {
+      return [];
+    }
+
+    return [{
+      coverImageUrl: event.coverImageUrl,
+      id: `event-${event.id}`,
+      summary: event.summary,
+      title: event.title,
+    }];
+  });
+  const carouselCovers = [...heroCovers, ...eventHeroCovers];
   const upcomingEvents = await prisma.runningPerformanceEvent.findMany({
     where: {
       startsAt: {
@@ -89,7 +126,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <HeroCoverCarousel covers={heroCovers} showTitleList />
+      <HeroCoverCarousel carouselCovers={carouselCovers} covers={heroCovers} events={heroEvents} showTitleList />
 
       <section className="border-t border-line bg-[linear-gradient(180deg,#fff8ea_0%,#f8f1e3_48%,#efe5d2_100%)] px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
         <div className="mx-auto max-w-[1180px]">

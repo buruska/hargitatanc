@@ -26,8 +26,10 @@ model Event {
   title       String
   slug        String   @unique
   startsAt    DateTime
+  endsAt      DateTime?
   location    String
   summary     String
+  coverImageUrl String?
   isFeatured  Boolean  @default(false)
   isBookable  Boolean  @default(true)
   createdAt   DateTime @default(now())
