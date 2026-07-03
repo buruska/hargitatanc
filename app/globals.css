@@ -69,6 +69,13 @@
   animation: home-list-fade 300ms ease-out;
 }
 
+.hero-side-panel {
+  opacity: 0;
+  transform: translateX(56px);
+  animation: hero-panel-slide-in 620ms ease-out forwards;
+  animation-delay: calc(var(--hero-panel-index, 0) * 140ms + 220ms);
+}
+
 @keyframes home-list-fade {
   from {
     opacity: 0;
@@ -81,10 +88,23 @@
   }
 }
 
+@keyframes hero-panel-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(56px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-reveal-calendar,
   .home-reveal-event,
-  .home-list-transition {
+  .home-list-transition,
+  .hero-side-panel {
     opacity: 1;
     transform: none;
     animation: none;

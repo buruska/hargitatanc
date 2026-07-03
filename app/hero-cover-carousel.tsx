@@ -97,7 +97,7 @@ export function HeroCoverCarousel({
       ))}
       {showTitleList ? (
         <div className="absolute right-[clamp(18px,4vw,56px)] top-[128px] z-[1] grid w-[min(360px,calc(100vw-36px))] gap-4">
-          <aside className="bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm">
+          <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:0]">
             <h2 className="mb-6 font-serif text-[24px] leading-none tracking-[0.035em]">Futó előadások:</h2>
             <div className="grid gap-2">
               {covers.map((cover, index) => {
@@ -123,7 +123,7 @@ export function HeroCoverCarousel({
               })}
             </div>
           </aside>
-          <aside className="bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm">
+          <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:1]">
             <h2 className="mb-5 font-serif text-[24px] leading-none tracking-[0.035em]">Rendezvények:</h2>
             {events.length > 0 ? (
               <div className="grid max-h-[220px] gap-2 overflow-y-auto pr-1">
