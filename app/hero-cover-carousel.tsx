@@ -31,6 +31,24 @@ export function HeroCoverCarousel({
   const [selectedCover, setSelectedCover] = useState<HeroCover | null>(null);
 
   useEffect(() => {
+    if (!selectedCover) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSelectedCover(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedCover]);
+
+  useEffect(() => {
     if (covers.length < 2) {
       return;
     }
