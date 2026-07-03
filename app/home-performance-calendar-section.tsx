@@ -22,20 +22,25 @@ type ActivePerformance = {
   title: string;
 };
 
+type ActivePerformanceState = ActivePerformance & {
+  source: "calendar" | "list";
+};
+
 type HomePerformanceCalendarSectionProps = {
   events: HomePerformanceEvent[];
   initialDate: string;
 };
 
 export function HomePerformanceCalendarSection({ events, initialDate }: HomePerformanceCalendarSectionProps) {
-  const [activePerformance, setActivePerformance] = useState<ActivePerformance | null>(null);
+  const [activePerformance, setActivePerformance] = useState<ActivePerformanceState | null>(null);
+  const isCalendarFiltered = activePerformance?.source === "calendar";
   const visibleEvents = useMemo(() => {
-    if (!activePerformance) {
+    if (!isCalendarFiltered || !activePerformance) {
       return events;
     }
 
     return events.filter((event) => event.dateKey === activePerformance.dateKey);
-  }, [activePerformance, events]);
+  }, [activePerformance, events, isCalendarFiltered]);
 
   return (
     <HomeRevealGroup
@@ -48,7 +53,11 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
             activePerformance ? "pointer-events-none opacity-0" : "opacity-100"
           }`}
         >
-          <HomeCalendar events={events} initialDate={initialDate} onPerformanceHover={setActivePerformance} />
+          <HomeCalendar
+            events={events}
+            initialDate={initialDate}
+            onPerformanceHover={(performance) => setActivePerformance({ ...performance, source: "calendar" })}
+          />
         </div>
         <div
           className={`absolute inset-0 transition-opacity duration-300 ease-out ${
@@ -60,6 +69,11 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
             style={activePerformance ? { backgroundImage: `url(${activePerformance.coverImageUrl})` } : undefined}
           >
             <span className="absolute inset-0 bg-charcoal/32" />
+            {activePerformance ? (
+              <h2 className="absolute bottom-6 left-6 right-6 z-[1] font-serif text-[clamp(28px,4vw,48px)] font-bold leading-tight text-surface-strong drop-shadow-[0_2px_14px_rgb(33_31_27_/_48%)]">
+                {activePerformance.title}
+              </h2>
+            ) : null}
             {activePerformance?.ticketUrl ? (
               <a
                 className="relative z-[1] bg-thread-red px-6 py-3 text-[14px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_20%)] transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
@@ -77,13 +91,19 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
       <div className="h-full min-h-0 transition-all duration-300 ease-out">
         {visibleEvents.length > 0 ? (
           <div
-            key={activePerformance?.dateKey ?? "all-events"}
+            key={isCalendarFiltered ? activePerformance?.dateKey : "all-events"}
             className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pr-2 transition-all duration-300 ease-out ${
-              activePerformance ? "auto-rows-max content-start" : "auto-rows-[calc((100%_-_60px)/6)]"
+              isCalendarFiltered ? "auto-rows-max content-start" : "auto-rows-[calc((100%_-_60px)/6)]"
             }`}
           >
             {visibleEvents.map((event, index) => (
-              <PerformanceListItem event={event} index={index} isFiltered={Boolean(activePerformance)} key={event.id} />
+              <PerformanceListItem
+                event={event}
+                index={index}
+                isFiltered={isCalendarFiltered}
+                key={event.id}
+                onPerformanceHover={(performance) => setActivePerformance({ ...performance, source: "list" })}
+              />
             ))}
           </div>
         ) : (
@@ -100,10 +120,12 @@ function PerformanceListItem({
   event,
   index,
   isFiltered,
+  onPerformanceHover,
 }: {
   event: HomePerformanceEvent;
   index: number;
   isFiltered: boolean;
+  onPerformanceHover: (performance: ActivePerformance) => void;
 }) {
   const startsAt = new Date(event.startsAt);
   const day = new Intl.DateTimeFormat("hu-RO", { day: "2-digit" }).format(startsAt);
@@ -155,13 +177,30 @@ function PerformanceListItem({
     <div
       className="home-reveal-event snap-start"
       style={{ transitionDelay: `${index * 85}ms` }}
+      onMouseEnter={() =>
+        onPerformanceHover({
+          coverImageUrl: event.coverImageUrl,
+          dateKey: event.dateKey,
+          ticketUrl: event.ticketUrl,
+          title: event.title,
+        })
+      }
     >
       {event.ticketUrl ? (
         <a
-          className="flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-thread-red hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)]"
+          className="group relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-thread-red hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)]"
           href={event.ticketUrl}
+          rel="noreferrer"
+          target="_blank"
         >
-          {eventContent}
+          <span className="flex min-w-0 flex-1 transition duration-200 group-hover:opacity-0">
+            {eventContent}
+          </span>
+          <span className="absolute inset-0 grid place-items-center opacity-0 transition duration-200 group-hover:opacity-100">
+            <span className="bg-thread-red px-6 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 group-hover:scale-105 group-active:scale-95">
+              Jegyek
+            </span>
+          </span>
         </a>
       ) : (
         <article className="flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out">
