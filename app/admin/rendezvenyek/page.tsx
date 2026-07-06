@@ -2,6 +2,8 @@ import Image from "next/image";
 import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, panel } from "@/lib/styles";
+import { DeleteEventModal } from "./delete-event-modal";
+import { EditEventModal } from "./edit-event-modal";
 import { NewEventModal } from "./new-event-modal";
 
 export default async function AdminRendezvenyekPage() {
@@ -41,19 +43,33 @@ export default async function AdminRendezvenyekPage() {
               <div className="aspect-[4/3] border-2 border-charcoal bg-surface" />
             )}
             <div>
-              <p className="text-sm font-extrabold text-thread-red">
-                {new Intl.DateTimeFormat("hu-RO", {
-                  dateStyle: "full",
-                  timeStyle: "short",
-                }).format(event.startsAt)}
-                {event.endsAt
-                  ? ` - ${new Intl.DateTimeFormat("hu-RO", {
+              <div className="flex flex-col gap-3 min-[760px]:flex-row min-[760px]:items-start min-[760px]:justify-between">
+                <div>
+                  <p className="text-sm font-extrabold text-thread-red">
+                    {new Intl.DateTimeFormat("hu-RO", {
                       dateStyle: "full",
                       timeStyle: "short",
-                    }).format(event.endsAt)}`
-                  : null}
-              </p>
-              <h2 className="mt-2 font-serif text-2xl font-bold leading-tight">{event.title}</h2>
+                    }).format(event.startsAt)}
+                    {event.endsAt
+                      ? ` - ${new Intl.DateTimeFormat("hu-RO", {
+                          dateStyle: "full",
+                          timeStyle: "short",
+                        }).format(event.endsAt)}`
+                      : null}
+                  </p>
+                  <h2 className="mt-2 font-serif text-2xl font-bold leading-tight">{event.title}</h2>
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <EditEventModal
+                    endsAt={event.endsAt?.toISOString() ?? null}
+                    id={event.id}
+                    startsAt={event.startsAt.toISOString()}
+                    summary={event.summary}
+                    title={event.title}
+                  />
+                  <DeleteEventModal id={event.id} title={event.title} />
+                </div>
+              </div>
               <p className="mt-2 text-muted">{event.summary}</p>
             </div>
           </article>
