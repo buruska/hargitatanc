@@ -10,6 +10,7 @@ const adminNavigation = [
   { href: "/admin/futo-eloadasok", label: "Futó előadások" },
   { href: "/admin/rendezvenyek", label: "Rendezvények" },
   { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
+  { href: "/admin/tarsulat", label: "Társulat" },
 ];
 
 export async function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
