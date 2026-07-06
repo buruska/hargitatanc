@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 const navigation = [
   { href: "/", label: "Főoldal" },
-  { href: "/tarsulat", label: "Társulat" },
+  { href: "/tarsulat", label: "Rólunk" },
   { href: "/hirek", label: "Hírek" },
   { href: "/esemenyeink", label: "Eseményeink" },
   { href: "/galeria", label: "Galéria" },

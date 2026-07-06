@@ -14,7 +14,7 @@ export default async function TarsulatPage() {
 
   return (
     <main className={contentPage}>
-      <p className={eyebrow}>Társulat</p>
+      <p className={eyebrow}>Rólunk</p>
       <h1 className={`${h1} mb-48`}>Hargita Székely Néptáncszínház</h1>
       {profile?.groupImageUrl ? (
         <div className="mt-10 flex justify-center">

@@ -38,7 +38,7 @@ async function main() {
     create: {
       title: "Elindult az új honlap tervezése",
       slug: "elindult-az-uj-honlap-tervezese",
-      excerpt: "Modern, mobilbarát felület készül a társulat híreinek, eseményeinek és galériáinak.",
+      excerpt: "Modern, mobilbarát felület készül a hírek, események és galériák bemutatására.",
       content: "Ez egy minta hír, amelyet később az admin felületről lehet majd szerkeszteni.",
     },
   });
@@ -47,7 +47,7 @@ async function main() {
     {
       name: "Tánckar",
       role: "Előadóművészek",
-      bio: "A társulat táncos közösségének bemutatkozó kártyája. A későbbi admin felületen név szerinti tagokra bontható.",
+      bio: "A táncos közösség bemutatkozó kártyája. A későbbi admin felületen név szerinti tagokra bontható.",
       sortOrder: 10,
     },
     {
@@ -105,7 +105,7 @@ async function main() {
     {
       title: "Portrék",
       slug: "portrek",
-      description: "Társulati és alkotói portrék gyűjteménye.",
+      description: "Rólunk oldalhoz kapcsolódó és alkotói portrék gyűjteménye.",
     },
     {
       title: "Archívum",

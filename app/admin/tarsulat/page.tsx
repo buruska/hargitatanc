@@ -16,7 +16,7 @@ export default async function AdminTarsulatPage() {
 
   return (
     <AdminShell>
-      <h1 className={adminTitle}>Társulat</h1>
+      <h1 className={adminTitle}>Rólunk</h1>
       <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-3`}>
         <GroupImageUploadModal />
         <button className={buttonPrimary} type="button">
@@ -30,7 +30,7 @@ export default async function AdminTarsulatPage() {
         <div className={`${panel} mt-6 w-full max-w-[360px] p-4`}>
           <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális csoportkép</p>
           <Image
-            alt="Társulat csoportkép"
+            alt="Rólunk csoportkép"
             className="aspect-[16/10] w-full border-2 border-line-strong object-cover"
             height={225}
             src={profile.groupImageUrl}
