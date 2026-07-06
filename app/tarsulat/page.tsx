@@ -3,20 +3,47 @@ import { HomeRevealGroup } from "../home-reveal-group";
 import { prisma } from "@/lib/prisma";
 import { contentPage, eyebrow, h1 } from "@/lib/styles";
 import { DirectorProfileCard } from "./director-profile-card";
+import { MemberProfileCard } from "./member-profile-card";
+
+const MEMBER_CATEGORY_NAMES = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
+
+function isDancerRole(role: string) {
+  return role.trim().toLocaleLowerCase("hu-HU") === "táncos";
+}
 
 export default async function TarsulatPage() {
-  const profile = await prisma.companyProfile.findUnique({
-    select: {
-      directorBio: true,
-      directorImageUrl: true,
-      directorName: true,
-      groupImageUrl: true,
-      introText: true,
-    },
-    where: {
-      id: "main",
-    },
-  });
+  const [profile, members] = await Promise.all([
+    prisma.companyProfile.findUnique({
+      select: {
+        directorBio: true,
+        directorImageUrl: true,
+        directorName: true,
+        groupImageUrl: true,
+        introText: true,
+      },
+      where: {
+        id: "main",
+      },
+    }),
+    prisma.member.findMany({
+      orderBy: [
+        {
+          sortOrder: "asc",
+        },
+        {
+          name: "asc",
+        },
+      ],
+      select: {
+        bio: true,
+        id: true,
+        imageUrl: true,
+        name: true,
+        role: true,
+      },
+    }),
+  ]);
+  const dancers = members.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name) && isDancerRole(member.role));
 
   return (
     <main className={contentPage}>
@@ -55,6 +82,22 @@ export default async function TarsulatPage() {
             </div>
           </section>
         </HomeRevealGroup>
+      ) : null}
+      {dancers.length > 0 ? (
+        <section className="relative left-1/2 mt-32 w-[70vw] -translate-x-1/2">
+          <h2 className="mb-8 font-serif text-[clamp(17px,2.5vw,32px)] font-bold leading-[1.02] text-charcoal">Tagjaink</h2>
+          <div className="grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
+            {dancers.map((member) => (
+              <MemberProfileCard
+                bio={member.bio ?? ""}
+                imageUrl={member.imageUrl}
+                key={member.id}
+                name={member.name}
+                role={member.role}
+              />
+            ))}
+          </div>
+        </section>
       ) : null}
     </main>
   );
