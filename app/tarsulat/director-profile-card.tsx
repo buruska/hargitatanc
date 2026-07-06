@@ -42,7 +42,7 @@ export function DirectorProfileCard({ bio, imageUrl, name }: DirectorProfileCard
 
   const modal = (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-charcoal/70 px-4 py-8"
+      className="fixed inset-0 z-[100] grid place-items-center bg-charcoal/70 px-4 py-8 backdrop-blur-md"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
