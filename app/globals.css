@@ -40,7 +40,8 @@
 }
 
 .home-reveal-calendar,
-.home-reveal-event {
+.home-reveal-event,
+.home-reveal-title-from-right {
   opacity: 0;
   will-change: opacity, transform;
 }
@@ -59,8 +60,26 @@
     transform 520ms ease;
 }
 
+.home-reveal-title-from-right {
+  transform: translateX(64px);
+  transition:
+    opacity 620ms ease,
+    transform 620ms ease;
+}
+
+.home-news-card {
+  opacity: 0;
+  transform: translateY(72px);
+  transition:
+    opacity 620ms ease,
+    transform 620ms ease;
+  will-change: opacity, transform;
+}
+
 .home-reveal-group[data-revealed="true"] .home-reveal-calendar,
-.home-reveal-group[data-revealed="true"] .home-reveal-event {
+.home-reveal-group[data-revealed="true"] .home-reveal-event,
+.home-reveal-group[data-revealed="true"] .home-reveal-title-from-right,
+.home-reveal-group[data-revealed="true"] .home-news-card {
   opacity: 1;
   transform: translate(0, 0);
 }
@@ -74,6 +93,60 @@
   transform: translateX(56px);
   animation: hero-panel-slide-in 620ms ease-out forwards;
   animation-delay: calc(var(--hero-panel-index, 0) * 140ms + 220ms);
+}
+
+.rich-text-editor .ProseMirror {
+  min-height: 260px;
+  outline: none;
+}
+
+.rich-text-editor .ProseMirror > * + * {
+  margin-top: 0.85rem;
+}
+
+.rich-text-editor .ProseMirror h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.rich-text-editor .ProseMirror h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.16;
+}
+
+.rich-text-editor .ProseMirror ul,
+.rich-text-editor .ProseMirror ol {
+  padding-left: 1.35rem;
+}
+
+.rich-text-editor .ProseMirror ul {
+  list-style: disc;
+}
+
+.rich-text-editor .ProseMirror ol {
+  list-style: decimal;
+}
+
+.rich-text-editor .ProseMirror blockquote {
+  border-left: 4px solid #b32620;
+  color: #695f50;
+  padding-left: 1rem;
+}
+
+.rich-text-editor .ProseMirror a {
+  color: #14616a;
+  text-decoration: underline;
+}
+
+.rich-text-editor .ProseMirror img {
+  border: 2px solid #211f1b;
+  display: block;
+  height: auto;
+  max-width: 100%;
 }
 
 @keyframes home-list-fade {
@@ -103,6 +176,8 @@
 @media (prefers-reduced-motion: reduce) {
   .home-reveal-calendar,
   .home-reveal-event,
+  .home-reveal-title-from-right,
+  .home-news-card,
   .home-list-transition,
   .hero-side-panel {
     opacity: 1;

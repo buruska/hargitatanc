@@ -60,6 +60,8 @@ export default async function AdminFutoEloadasokPage() {
               <PerformanceEventsToggle
                 events={performance.events.map((event) => ({
                   ...event,
+                  performanceCoverImageUrl: performance.coverImageUrl,
+                  performanceTitle: performance.title,
                   startsAt: event.startsAt.toISOString(),
                 }))}
               />

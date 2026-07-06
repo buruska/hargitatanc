@@ -21,6 +21,11 @@ export type PerformanceEventFormState = {
   success?: boolean;
 };
 
+export type PerformanceNewsFormState = {
+  error?: string;
+  success?: boolean;
+};
+
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "performances");
 
@@ -50,6 +55,19 @@ async function createUniqueSlug(title: string, currentId?: string) {
     slug = `${baseSlug}-${index}`;
     index += 1;
   }
+}
+
+async function createUniqueNewsSlug(title: string) {
+  const baseSlug = slugify(title);
+  let slug = baseSlug;
+  let index = 2;
+
+  while (await prisma.newsPost.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${index}`;
+    index += 1;
+  }
+
+  return slug;
 }
 
 function getImageExtension(file: File) {
@@ -407,6 +425,53 @@ export async function deleteRunningPerformanceEventAction(
 
   revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function createPerformanceNewsAction(
+  _state: PerformanceNewsFormState,
+  formData: FormData,
+): Promise<PerformanceNewsFormState> {
+  const title = String(formData.get("title") ?? "").trim();
+  const startsAtValue = String(formData.get("startsAt") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+  const coverImageUrl = String(formData.get("coverImageUrl") ?? "").trim();
+  const content = String(formData.get("content") ?? "").trim();
+  const startsAt = new Date(startsAtValue);
+
+  if (!title) {
+    return { error: "Add meg a hír címét." };
+  }
+
+  if (!startsAtValue || Number.isNaN(startsAt.getTime())) {
+    return { error: "Hiányzik vagy érvénytelen a fellépés dátuma." };
+  }
+
+  if (!location) {
+    return { error: "Hiányzik a fellépés helyszíne." };
+  }
+
+  if (!content || content === "<p></p>") {
+    return { error: "Írd meg a hír szövegét a mentéshez." };
+  }
+
+  const slug = await createUniqueNewsSlug(title);
+  const excerpt = location;
+  const contentWithDefaultCover = coverImageUrl ? `<img src="${coverImageUrl}" alt="">${content}` : content;
+
+  await prisma.newsPost.create({
+    data: {
+      title,
+      slug,
+      excerpt,
+      content: contentWithDefaultCover,
+      publishedAt: startsAt,
+    },
+  });
+
+  revalidatePath("/admin/hirek-es-beszamolok");
+  revalidatePath("/hirek");
 
   return { success: true };
 }

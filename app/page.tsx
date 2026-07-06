@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { HeroCoverCarousel } from "./hero-cover-carousel";
 import { HomePerformanceCalendarSection } from "./home-performance-calendar-section";
+import { HomeRevealGroup } from "./home-reveal-group";
 import { prisma } from "@/lib/prisma";
 
 function getDateKey(date: Date) {
@@ -8,6 +10,10 @@ function getDateKey(date: Date) {
   const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+function getFirstImageSrc(value: string) {
+  return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null;
 }
 
 export default async function HomePage() {
@@ -153,12 +159,36 @@ export default async function HomePage() {
   );
   const nextCalendarEvent = calendarEvents.find((event) => !event.isPast);
   const calendarDate = nextCalendarEvent ? new Date(nextCalendarEvent.startsAt) : now;
+  const hasCarouselCovers = carouselCovers.length > 0;
+  const newsPosts = await prisma.newsPost.findMany({
+    orderBy: {
+      publishedAt: "desc",
+    },
+    take: 4,
+    select: {
+      content: true,
+      excerpt: true,
+      id: true,
+      publishedAt: true,
+      title: true,
+    },
+  });
 
   return (
-    <main>
-      <HeroCoverCarousel carouselCovers={carouselCovers} covers={heroCovers} events={heroEvents} showTitleList />
+    <main className="relative">
+      {hasCarouselCovers ? (
+        <div className="relative h-screen">
+          <HeroCoverCarousel
+            carouselCovers={carouselCovers}
+            className="fixed inset-0 z-0 h-screen w-full overflow-hidden"
+            covers={heroCovers}
+            events={heroEvents}
+            showTitleList
+          />
+        </div>
+      ) : null}
 
-      <section className="border-t border-line bg-[linear-gradient(180deg,#fff8ea_0%,#f8f1e3_48%,#efe5d2_100%)] px-[clamp(18px,4vw,56px)] py-16 text-charcoal">
+      <section className="relative z-[2] border-t border-line bg-[linear-gradient(180deg,#fff8ea_0%,#f8f1e3_48%,#efe5d2_100%)] px-[clamp(18px,4vw,56px)] py-16 text-charcoal shadow-[0_-32px_60px_rgb(33_31_27_/_18%)]">
         <div className="mx-auto max-w-[1180px]">
           <div className="mb-12 grid gap-0 border-b border-line pb-12 pt-12 text-left">
             <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
@@ -171,6 +201,69 @@ export default async function HomePage() {
 
           <HomePerformanceCalendarSection events={calendarEvents} initialDate={getDateKey(calendarDate)} />
         </div>
+      </section>
+
+      <section className="relative z-[2] px-[clamp(18px,4vw,56px)] py-20 text-charcoal">
+        <HomeRevealGroup className="home-reveal-group mx-auto max-w-[1180px]">
+          <div className="home-reveal-title-from-right bg-surface-strong px-[clamp(22px,4vw,42px)] py-12 text-left shadow-[12px_12px_0_rgb(33_31_27_/_20%)]">
+            <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
+              Aktuális
+            </p>
+            <h2 className="pt-6 font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
+              Hírek és beszámolók
+            </h2>
+          </div>
+          {newsPosts.length > 0 ? (
+            <div className="mt-10 grid gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
+              {newsPosts.map((post, index) => {
+                const imageSrc = getFirstImageSrc(post.content);
+
+                return (
+                  <article
+                    className="home-news-card flex min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center shadow-[10px_10px_0_rgb(33_31_27_/_18%)]"
+                    key={post.id}
+                    style={{ transitionDelay: `${index * 110 + 180}ms` }}
+                  >
+                    <time className="block font-serif text-[16px] leading-tight text-charcoal">
+                      {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(post.publishedAt)}
+                    </time>
+                    <h3 className="mt-3 font-serif text-[clamp(22px,2.2vw,28px)] font-bold italic leading-tight text-thread-red">
+                      {post.title}
+                    </h3>
+                    {post.excerpt ? (
+                      <p className="mt-3 text-[15px] font-extrabold leading-snug text-charcoal">
+                        {post.excerpt}
+                      </p>
+                    ) : null}
+                    <span className="mx-auto my-5 block h-[16px] w-[112px] rounded-[50%] border-t-[3px] border-pine" />
+                    <div className="mt-auto">
+                      {imageSrc ? (
+                        <Image
+                          alt=""
+                          className="aspect-[4/3] w-full border-2 border-line-strong object-cover"
+                          height={240}
+                          src={imageSrc}
+                          unoptimized={imageSrc.startsWith("data:")}
+                          width={320}
+                        />
+                      ) : (
+                        <div className="grid aspect-[4/3] place-items-center border-2 border-line-strong bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
+                          Hír
+                        </div>
+                      )}
+                      <a
+                        className="mt-4 inline-flex min-h-[42px] items-center justify-center bg-thread-red px-5 py-2 text-[12px] font-extrabold uppercase tracking-[0.12em] text-surface-strong transition hover:bg-charcoal"
+                        href="/hirek"
+                      >
+                        Hír elolvasása
+                      </a>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : null}
+        </HomeRevealGroup>
       </section>
     </main>
   );
