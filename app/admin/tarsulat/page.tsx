@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { adminTitle, panel } from "@/lib/styles";
+import { adminTitle, buttonPrimary, panel } from "@/lib/styles";
 import { AdminShell } from "../admin-shell";
 import { DirectorEditModal } from "./director-edit-modal";
 import { GroupImageUploadModal } from "./group-image-upload-modal";
@@ -19,11 +19,26 @@ export default async function AdminTarsulatPage() {
       id: "main",
     },
   });
+  const members = await prisma.member.findMany({
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        name: "asc",
+      },
+    ],
+    where: {
+      name: {
+        in: ["Tánckar", "Munkatársak"],
+      },
+    },
+  });
 
   return (
     <AdminShell>
       <h1 className={adminTitle}>Rólunk</h1>
-      <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-3`}>
+      <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-4`}>
         <GroupImageUploadModal />
         <IntroTextEditModal introText={profile?.introText ?? ""} />
         <DirectorEditModal
@@ -31,6 +46,9 @@ export default async function AdminTarsulatPage() {
           directorImageUrl={profile?.directorImageUrl ?? null}
           directorName={profile?.directorName ?? ""}
         />
+        <a className={buttonPrimary} href="#tagjaink">
+          Tagjaink
+        </a>
       </div>
       {profile?.groupImageUrl ? (
         <div className={`${panel} mt-6 w-full max-w-[360px] p-4`}>
@@ -75,6 +93,44 @@ export default async function AdminTarsulatPage() {
           </div>
         </div>
       ) : null}
+      <section className="mt-10 scroll-mt-28" id="tagjaink">
+        <div className="mb-5 flex flex-col items-start justify-between gap-4 min-[680px]:flex-row min-[680px]:items-center">
+          <h2 className="font-serif text-[clamp(26px,3vw,38px)] font-bold leading-tight text-charcoal">Tagjaink</h2>
+          <button className={buttonPrimary} type="button">
+            Új tag hozzáadása
+          </button>
+        </div>
+        {members.length > 0 ? (
+          <div className="grid gap-4">
+            {members.map((member) => (
+              <article className={`${panel} grid gap-4 p-4 min-[680px]:grid-cols-[120px_1fr]`} key={member.id}>
+                {member.imageUrl ? (
+                  <Image
+                    alt={`${member.name} portré`}
+                    className="aspect-square w-full max-w-[120px] border-2 border-line-strong object-cover"
+                    height={120}
+                    src={member.imageUrl}
+                    width={120}
+                  />
+                ) : (
+                  <div className="grid aspect-square w-full max-w-[120px] place-items-center border-2 border-line-strong bg-surface-strong font-serif text-3xl font-bold text-thread-red">
+                    {member.name.charAt(0)}
+                  </div>
+                )}
+                <div className="grid content-center gap-2">
+                  <div>
+                    <h3 className="font-serif text-2xl font-bold leading-tight text-charcoal">{member.name}</h3>
+                    <p className="text-sm font-extrabold text-thread-red">{member.role}</p>
+                  </div>
+                  {member.bio ? <p className="text-[15px] font-bold leading-relaxed text-muted">{member.bio}</p> : null}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className={`${panel} p-5 text-sm font-extrabold text-muted`}>Még nincsenek tagok rögzítve.</div>
+        )}
+      </section>
     </AdminShell>
   );
 }
