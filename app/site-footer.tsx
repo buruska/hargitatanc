@@ -8,8 +8,8 @@ export function SiteFooter() {
 
   return (
     <footer
-      className={`flex flex-col items-start justify-between border-t-[5px] border-t-thread-red bg-charcoal px-[clamp(18px,4vw,56px)] py-[22px] text-surface min-[861px]:flex-row min-[861px]:items-center ${
-        isAdminPage ? "fixed inset-x-0 bottom-0 z-10" : ""
+      className={`relative z-40 flex flex-col items-start justify-between border-t-[5px] border-t-thread-red bg-charcoal px-[clamp(18px,4vw,56px)] py-[22px] text-surface min-[861px]:flex-row min-[861px]:items-center ${
+        isAdminPage ? "fixed inset-x-0 bottom-0 z-40" : ""
       }`}
     >
       <div>
