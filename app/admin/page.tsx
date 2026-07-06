@@ -26,7 +26,7 @@ export default async function AdminPage() {
         <div className="absolute inset-0 -z-10 bg-charcoal/55" />
         <section className={`${panel} w-full max-w-[460px] p-[26px]`}>
           <p className={eyebrow}>Admin</p>
-          <h1 className="mb-[18px] font-serif text-[clamp(21px,3.5vw,41px)] font-bold leading-[0.98]">Belépés</h1>
+          <h1 className="mb-[18px] font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">Belépés</h1>
           <LoginForm />
         </section>
       </main>

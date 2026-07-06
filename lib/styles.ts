@@ -4,11 +4,11 @@ export const contentPage = `${page} mx-auto max-w-[980px]`;
 
 export const eyebrow = "mb-3 text-[13px] font-extrabold uppercase tracking-normal text-thread-red";
 
-export const h1 = "mb-[22px] font-serif text-[clamp(42px,7vw,82px)] font-bold leading-[0.98]";
+export const h1 = "mb-[22px] font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]";
 
-export const adminTitle = "mb-[18px] font-serif text-[clamp(24px,3.5vw,42px)] font-bold leading-[1.05]";
+export const adminTitle = "mb-[18px] font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]";
 
-export const h2 = "font-serif text-[clamp(28px,4vw,46px)] font-bold leading-[1.08]";
+export const h2 = "font-serif text-[clamp(22px,2.2vw,28px)] font-bold leading-[1.08]";
 
 export const h3 = "font-serif text-[23px] font-bold leading-[1.15]";
 
