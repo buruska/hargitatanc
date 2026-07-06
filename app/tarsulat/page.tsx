@@ -43,7 +43,9 @@ export default async function TarsulatPage() {
       },
     }),
   ]);
-  const dancers = members.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name) && isDancerRole(member.role));
+  const visibleMembers = members.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name));
+  const dancers = visibleMembers.filter((member) => isDancerRole(member.role));
+  const staffMembers = visibleMembers.filter((member) => !isDancerRole(member.role));
 
   return (
     <main className={contentPage}>
@@ -94,6 +96,22 @@ export default async function TarsulatPage() {
                 key={member.id}
                 name={member.name}
                 role={member.role}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+      {staffMembers.length > 0 ? (
+        <section className="relative left-1/2 mt-24 w-[70vw] -translate-x-1/2">
+          <div className="grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
+            {staffMembers.map((member) => (
+              <MemberProfileCard
+                bio={member.bio ?? ""}
+                imageUrl={member.imageUrl}
+                key={member.id}
+                name={member.name}
+                role={member.role}
+                variant="green"
               />
             ))}
           </div>

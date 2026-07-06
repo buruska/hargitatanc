@@ -9,13 +9,16 @@ type MemberProfileCardProps = {
   imageUrl: string | null;
   name: string;
   role: string;
+  variant?: "red" | "green";
 };
 
-export function MemberProfileCard({ bio, imageUrl, name, role }: MemberProfileCardProps) {
+export function MemberProfileCard({ bio, imageUrl, name, role, variant = "red" }: MemberProfileCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+  const accentBackground = variant === "green" ? "bg-pine" : "bg-thread-red";
+  const accentText = variant === "green" ? "text-pine" : "text-thread-red";
 
   useEffect(() => {
     setIsMounted(true);
@@ -68,11 +71,11 @@ export function MemberProfileCard({ bio, imageUrl, name, role }: MemberProfileCa
               <h2 className="font-serif text-[clamp(30px,4vw,48px)] font-bold leading-[1.05] text-charcoal" id={titleId}>
                 {name}
               </h2>
-              <p className="mt-2 font-serif text-[18px] font-bold leading-tight text-thread-red">{role}</p>
+              <p className={`mt-2 font-serif text-[18px] font-bold leading-tight ${accentText}`}>{role}</p>
             </div>
             <button
               aria-label="Modal bezárása"
-              className="grid size-9 shrink-0 place-items-center border border-line bg-surface-strong text-[20px] font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+              className={`grid size-9 shrink-0 place-items-center border border-line bg-surface-strong text-[20px] font-extrabold ${accentText} transition hover:border-pine hover:bg-pine hover:text-surface-strong`}
               ref={closeButtonRef}
               type="button"
               onClick={() => setIsOpen(false)}
@@ -129,13 +132,13 @@ export function MemberProfileCard({ bio, imageUrl, name, role }: MemberProfileCa
             )}
           </span>
           <span className="absolute -bottom-11 left-2 block w-full shadow-[6px_6px_0_rgb(33_31_27_/_12%)] transition-all duration-300 ease-out group-hover:bottom-0 group-hover:left-0 group-hover:shadow-none">
-            <span className="relative block bg-thread-red px-3 py-2.5 text-center font-sans text-[18px] font-extrabold leading-tight text-surface-strong">
+            <span className={`relative block ${accentBackground} px-3 py-2.5 text-center font-sans text-[18px] font-extrabold leading-tight text-surface-strong`}>
               <span className="block transition-opacity duration-200 group-hover:opacity-0">{name}</span>
               <span className="absolute inset-x-3 top-1/2 block -translate-y-1/2 text-[12px] tracking-[0.18em] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                 BŐVEBBEN
               </span>
             </span>
-            <span className="block max-h-10 overflow-hidden bg-surface-strong px-3 py-2 text-center font-serif text-[15px] font-bold leading-tight text-thread-red transition-all duration-300 ease-out group-hover:max-h-0 group-hover:py-0 group-hover:opacity-0">
+            <span className={`block max-h-10 overflow-hidden bg-surface-strong px-3 py-2 text-center font-serif text-[15px] font-bold leading-tight ${accentText} transition-all duration-300 ease-out group-hover:max-h-0 group-hover:py-0 group-hover:opacity-0`}>
               {role}
             </span>
           </span>
