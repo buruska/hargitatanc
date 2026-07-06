@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type HeroCover = {
   id: string;
@@ -40,7 +40,9 @@ export function HeroCoverCarousel({
 }: HeroCoverCarouselProps) {
   const displayedCovers = carouselCovers ?? covers;
   const [activeIndex, setActiveIndex] = useState(0);
+  const [areTitlePanelsCovered, setAreTitlePanelsCovered] = useState(false);
   const [selectedCover, setSelectedCover] = useState<HeroCover | null>(null);
+  const titleListRef = useRef<HTMLDivElement | null>(null);
   const activeCover = displayedCovers[activeIndex];
   const activeEventId = activeCover?.id.startsWith("event-") ? activeCover.id.replace(/^event-/, "") : null;
   const hasTitleListItems = covers.length > 0 || events.length > 0;
@@ -77,6 +79,35 @@ export function HeroCoverCarousel({
     };
   }, [displayedCovers.length]);
 
+  useEffect(() => {
+    if (!showTitleList || !hasTitleListItems) {
+      setAreTitlePanelsCovered(false);
+      return;
+    }
+
+    function updateTitlePanelVisibility() {
+      const titleList = titleListRef.current;
+
+      if (!titleList) {
+        return;
+      }
+
+      const calendarTop = window.innerHeight - window.scrollY;
+      const titleListBottom = titleList.getBoundingClientRect().bottom;
+
+      setAreTitlePanelsCovered(calendarTop <= titleListBottom);
+    }
+
+    updateTitlePanelVisibility();
+    window.addEventListener("scroll", updateTitlePanelVisibility, { passive: true });
+    window.addEventListener("resize", updateTitlePanelVisibility);
+
+    return () => {
+      window.removeEventListener("scroll", updateTitlePanelVisibility);
+      window.removeEventListener("resize", updateTitlePanelVisibility);
+    };
+  }, [hasTitleListItems, showTitleList]);
+
   if (displayedCovers.length === 0) {
     return null;
   }
@@ -97,7 +128,12 @@ export function HeroCoverCarousel({
         />
       ))}
       {showTitleList && hasTitleListItems ? (
-        <div className="absolute right-[clamp(18px,4vw,56px)] top-[128px] z-[1] grid w-[min(360px,calc(100vw-36px))] gap-4">
+        <div
+          className={`absolute right-[clamp(18px,4vw,56px)] top-[128px] z-[1] grid w-[min(360px,calc(100vw-36px))] gap-4 transition duration-300 ease-out ${
+            areTitlePanelsCovered ? "pointer-events-none translate-x-4 opacity-0" : "translate-x-0 opacity-100"
+          }`}
+          ref={titleListRef}
+        >
           {covers.length > 0 ? (
             <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:0]">
               <h2 className="mb-6 font-serif text-[24px] leading-none tracking-[0.035em]">Futó előadások:</h2>
