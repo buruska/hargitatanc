@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { HomeRevealGroup } from "../home-reveal-group";
 import { prisma } from "@/lib/prisma";
 import { contentPage, eyebrow, h1 } from "@/lib/styles";
 
@@ -6,6 +7,7 @@ export default async function TarsulatPage() {
   const profile = await prisma.companyProfile.findUnique({
     select: {
       groupImageUrl: true,
+      introText: true,
     },
     where: {
       id: "main",
@@ -20,12 +22,22 @@ export default async function TarsulatPage() {
         <div className="mt-10 flex justify-center">
           <Image
             alt="Hargita Székely Néptáncszínház csoportkép"
-            className="w-full max-w-[820px] border-2 border-line-strong object-cover shadow-[12px_12px_0_rgb(33_31_27_/_14%)]"
-            height={520}
+            className="w-full max-w-[902px] border-2 border-line-strong object-cover shadow-[12px_12px_0_rgb(33_31_27_/_14%)]"
+            height={572}
             src={profile.groupImageUrl}
-            width={820}
+            width={902}
           />
         </div>
+      ) : null}
+      {profile?.introText ? (
+        <HomeRevealGroup className="home-reveal-group mt-24">
+          <section className="about-intro-reveal mx-auto w-[90%]">
+            <div
+              className="rich-text-editor text-[clamp(18px,2vw,22px)] font-bold leading-relaxed text-charcoal"
+              dangerouslySetInnerHTML={{ __html: profile.introText }}
+            />
+          </section>
+        </HomeRevealGroup>
       ) : null}
     </main>
   );

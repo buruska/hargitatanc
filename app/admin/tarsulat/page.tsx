@@ -3,11 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { adminTitle, buttonPrimary, panel } from "@/lib/styles";
 import { AdminShell } from "../admin-shell";
 import { GroupImageUploadModal } from "./group-image-upload-modal";
+import { IntroTextEditModal } from "./intro-text-edit-modal";
 
 export default async function AdminTarsulatPage() {
   const profile = await prisma.companyProfile.findUnique({
     select: {
       groupImageUrl: true,
+      introText: true,
     },
     where: {
       id: "main",
@@ -19,9 +21,7 @@ export default async function AdminTarsulatPage() {
       <h1 className={adminTitle}>Rólunk</h1>
       <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-3`}>
         <GroupImageUploadModal />
-        <button className={buttonPrimary} type="button">
-          Bemutató szöveg módosítása
-        </button>
+        <IntroTextEditModal introText={profile?.introText ?? ""} />
         <button className={buttonPrimary} type="button">
           Igazgató adatainak módosítása
         </button>
@@ -35,6 +35,15 @@ export default async function AdminTarsulatPage() {
             height={225}
             src={profile.groupImageUrl}
             width={360}
+          />
+        </div>
+      ) : null}
+      {profile?.introText ? (
+        <div className={`${panel} mt-6 p-5`}>
+          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális bemutató szöveg</p>
+          <div
+            className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted"
+            dangerouslySetInnerHTML={{ __html: profile.introText }}
           />
         </div>
       ) : null}

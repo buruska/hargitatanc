@@ -14,6 +14,11 @@ export type GroupImageFormState = {
   status: "idle" | "error" | "success";
 };
 
+export type IntroTextFormState = {
+  message: string;
+  status: "idle" | "error" | "success";
+};
+
 function getImageExtension(file: File) {
   const extension = path.extname(file.name).toLowerCase();
 
@@ -112,4 +117,33 @@ export async function uploadGroupImageAction(
   revalidatePath("/tarsulat");
 
   return { message: "A csoportkép feltöltve.", status: "success" };
+}
+
+export async function updateIntroTextAction(
+  _state: IntroTextFormState,
+  formData: FormData,
+): Promise<IntroTextFormState> {
+  const introText = String(formData.get("introText") ?? "").trim();
+
+  if (!introText || introText === "<p></p>") {
+    return { message: "Add meg a bemutató szöveget.", status: "error" };
+  }
+
+  await prisma.companyProfile.upsert({
+    create: {
+      id: "main",
+      introText,
+    },
+    update: {
+      introText,
+    },
+    where: {
+      id: "main",
+    },
+  });
+
+  revalidatePath("/admin/tarsulat");
+  revalidatePath("/tarsulat");
+
+  return { message: "A bemutató szöveg mentve.", status: "success" };
 }

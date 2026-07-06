@@ -41,6 +41,7 @@
 
 .home-reveal-calendar,
 .home-reveal-event,
+.about-intro-reveal,
 .home-reveal-title-from-right {
   opacity: 0;
   will-change: opacity, transform;
@@ -65,6 +66,13 @@
   transition:
     opacity 620ms ease,
     transform 620ms ease;
+}
+
+.about-intro-reveal {
+  transform: translateY(56px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease;
 }
 
 .home-news-card {
@@ -104,6 +112,7 @@
 
 .home-reveal-group[data-revealed="true"] .home-reveal-calendar,
 .home-reveal-group[data-revealed="true"] .home-reveal-event,
+.home-reveal-group[data-revealed="true"] .about-intro-reveal,
 .home-reveal-group[data-revealed="true"] .home-reveal-title-from-right,
 .home-reveal-group[data-revealed="true"] .home-news-card {
   opacity: 1;
@@ -239,6 +248,7 @@
 @media (prefers-reduced-motion: reduce) {
   .home-reveal-calendar,
   .home-reveal-event,
+  .about-intro-reveal,
   .home-reveal-title-from-right,
   .home-news-card,
   .home-list-transition,
