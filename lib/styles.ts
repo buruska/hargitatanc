@@ -1,4 +1,4 @@
-export const page = "px-[clamp(18px,4vw,56px)] pb-[72px] pt-[42px]";
+export const page = "px-[clamp(18px,4vw,56px)] pb-[72px] pt-[124px]";
 
 export const contentPage = `${page} mx-auto max-w-[980px]`;
 

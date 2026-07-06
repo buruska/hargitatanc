@@ -1,25 +1,35 @@
 import { prisma } from "@/lib/prisma";
-import { card, contentPage, eyebrow, gridTwo, h1, h2, leadSpaced, meta } from "@/lib/styles";
+import { eyebrow, h1 } from "@/lib/styles";
+import { NewsSearchList } from "./news-search-list";
+
+function getFirstImageSrc(value: string) {
+  return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null;
+}
 
 export default async function HirekPage() {
   const posts = await prisma.newsPost.findMany({
     orderBy: { publishedAt: "desc" },
+    select: {
+      content: true,
+      excerpt: true,
+      id: true,
+      publishedAt: true,
+      title: true,
+    },
   });
+  const newsPosts = posts.map((post) => ({
+    excerpt: post.excerpt,
+    id: post.id,
+    imageSrc: getFirstImageSrc(post.content),
+    publishedAt: post.publishedAt.toISOString(),
+    title: post.title,
+  }));
 
   return (
-    <main className={contentPage}>
+    <main className="mx-auto max-w-[1180px] px-[clamp(18px,4vw,56px)] pb-[72px] pt-[124px]">
       <p className={eyebrow}>Hírek</p>
       <h1 className={h1}>Friss hírek és beszámolók</h1>
-      <p className={leadSpaced}>Itt jelenik meg az összes publikált hír időrendben.</p>
-      <section className={gridTwo}>
-        {posts.map((post) => (
-          <article className={card} key={post.id}>
-            <span className={meta}>{new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(post.publishedAt)}</span>
-            <h2 className={h2}>{post.title}</h2>
-            <p>{post.excerpt}</p>
-          </article>
-        ))}
-      </section>
+      <NewsSearchList posts={newsPosts} />
     </main>
   );
 }
