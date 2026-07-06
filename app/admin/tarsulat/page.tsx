@@ -5,6 +5,10 @@ import { AdminShell } from "../admin-shell";
 import { DirectorEditModal } from "./director-edit-modal";
 import { GroupImageUploadModal } from "./group-image-upload-modal";
 import { IntroTextEditModal } from "./intro-text-edit-modal";
+import { MemberRowActions } from "./member-row-actions";
+import { NewMemberModal } from "./new-member-modal";
+
+const memberCategoryNames = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
 
 export default async function AdminTarsulatPage() {
   const profile = await prisma.companyProfile.findUnique({
@@ -30,10 +34,12 @@ export default async function AdminTarsulatPage() {
     ],
     where: {
       name: {
-        in: ["Tánckar", "Munkatársak"],
+        notIn: memberCategoryNames,
       },
     },
   });
+  const dancerMembers = members.filter((member) => member.role.trim().toLowerCase() === "táncos");
+  const staffMembers = members.filter((member) => member.role.trim().toLowerCase() !== "táncos");
 
   return (
     <AdminShell>
@@ -96,41 +102,74 @@ export default async function AdminTarsulatPage() {
       <section className="mt-10 scroll-mt-28" id="tagjaink">
         <div className="mb-5 flex flex-col items-start justify-between gap-4 min-[680px]:flex-row min-[680px]:items-center">
           <h2 className="font-serif text-[clamp(26px,3vw,38px)] font-bold leading-tight text-charcoal">Tagjaink</h2>
-          <button className={buttonPrimary} type="button">
-            Új tag hozzáadása
-          </button>
+          <NewMemberModal />
         </div>
-        {members.length > 0 ? (
-          <div className="grid gap-4">
-            {members.map((member) => (
-              <article className={`${panel} grid gap-4 p-4 min-[680px]:grid-cols-[120px_1fr]`} key={member.id}>
-                {member.imageUrl ? (
-                  <Image
-                    alt={`${member.name} portré`}
-                    className="aspect-square w-full max-w-[120px] border-2 border-line-strong object-cover"
-                    height={120}
-                    src={member.imageUrl}
-                    width={120}
-                  />
-                ) : (
-                  <div className="grid aspect-square w-full max-w-[120px] place-items-center border-2 border-line-strong bg-surface-strong font-serif text-3xl font-bold text-thread-red">
-                    {member.name.charAt(0)}
-                  </div>
-                )}
-                <div className="grid content-center gap-2">
-                  <div>
-                    <h3 className="font-serif text-2xl font-bold leading-tight text-charcoal">{member.name}</h3>
-                    <p className="text-sm font-extrabold text-thread-red">{member.role}</p>
-                  </div>
-                  {member.bio ? <p className="text-[15px] font-bold leading-relaxed text-muted">{member.bio}</p> : null}
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className={`${panel} p-5 text-sm font-extrabold text-muted`}>Még nincsenek tagok rögzítve.</div>
-        )}
+        <div className="grid gap-6">
+          <MemberListSection emptyText="Még nincsenek táncosok rögzítve." members={dancerMembers} title="Tánckar" />
+          <MemberListSection emptyText="Még nincsenek munkatársak rögzítve." members={staffMembers} title="Munkatársak" />
+        </div>
       </section>
     </AdminShell>
+  );
+}
+
+type MemberListItem = {
+  bio: string | null;
+  id: string;
+  imageUrl: string | null;
+  name: string;
+  role: string;
+};
+
+function MemberListSection({
+  emptyText,
+  members,
+  title,
+}: {
+  emptyText: string;
+  members: MemberListItem[];
+  title: string;
+}) {
+  return (
+    <section className={`${panel} p-5`}>
+      <h3 className="mb-4 font-serif text-2xl font-bold leading-tight text-charcoal">{title}</h3>
+      {members.length > 0 ? (
+        <div className="grid gap-4">
+          {members.map((member, index) => (
+            <article
+              className="grid gap-4 border-t border-line pt-4 first:border-t-0 first:pt-0 min-[780px]:grid-cols-[86px_minmax(0,1fr)_auto]"
+              key={member.id}
+            >
+              {member.imageUrl ? (
+                <Image
+                  alt={`${member.name} portré`}
+                  className="aspect-square w-full max-w-[86px] border-2 border-line-strong object-cover"
+                  height={86}
+                  src={member.imageUrl}
+                  width={86}
+                />
+              ) : (
+                <div className="grid aspect-square w-full max-w-[86px] place-items-center border-2 border-line-strong bg-surface-strong font-serif text-3xl font-bold text-thread-red">
+                  {member.name.charAt(0)}
+                </div>
+              )}
+              <div className="grid content-center">
+                <h4 className="font-serif text-2xl font-bold leading-tight text-charcoal">{member.name}</h4>
+                <p className="text-sm font-extrabold text-thread-red">{member.role}</p>
+              </div>
+              <div className="self-center">
+                <MemberRowActions
+                  canMoveDown={index < members.length - 1}
+                  canMoveUp={index > 0}
+                  member={member}
+                />
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm font-extrabold text-muted">{emptyText}</p>
+      )}
+    </section>
   );
 }

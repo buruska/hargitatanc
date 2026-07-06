@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "company");
+const MEMBER_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "members");
+const MEMBER_CATEGORY_NAMES = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
 
 export type GroupImageFormState = {
   message: string;
@@ -20,6 +22,11 @@ export type IntroTextFormState = {
 };
 
 export type DirectorFormState = {
+  message: string;
+  status: "idle" | "error" | "success";
+};
+
+export type MemberFormState = {
   message: string;
   status: "idle" | "error" | "success";
 };
@@ -70,6 +77,18 @@ async function saveDirectorImage(directorImage: File) {
   return directorImageUrl;
 }
 
+async function saveMemberImage(memberImage: File) {
+  const extension = getImageExtension(memberImage);
+  const fileName = `tag-${randomUUID()}${extension}`;
+  const filePath = path.join(MEMBER_UPLOAD_DIR, fileName);
+  const memberImageUrl = `/uploads/members/${fileName}`;
+
+  await mkdir(MEMBER_UPLOAD_DIR, { recursive: true });
+  await writeFile(filePath, Buffer.from(await memberImage.arrayBuffer()));
+
+  return memberImageUrl;
+}
+
 async function deleteGroupImage(groupImageUrl: string | null) {
   if (!groupImageUrl?.startsWith("/uploads/company/")) {
     return;
@@ -86,6 +105,28 @@ async function deleteGroupImage(groupImageUrl: string | null) {
       throw error;
     }
   }
+}
+
+async function deleteMemberImage(memberImageUrl: string | null) {
+  if (!memberImageUrl?.startsWith("/uploads/members/")) {
+    return;
+  }
+
+  const filePath = path.join(process.cwd(), "public", memberImageUrl.replace(/^\//, ""));
+
+  try {
+    await unlink(filePath);
+  } catch (error) {
+    const fileError = error as NodeJS.ErrnoException;
+
+    if (fileError.code !== "ENOENT") {
+      throw error;
+    }
+  }
+}
+
+function isDancerRole(role: string) {
+  return role.trim().toLowerCase() === "táncos";
 }
 
 export async function uploadGroupImageAction(
@@ -230,4 +271,238 @@ export async function updateDirectorAction(
   revalidatePath("/tarsulat");
 
   return { message: "Az igazgató adatai mentve.", status: "success" };
+}
+
+export async function createMemberAction(
+  _state: MemberFormState,
+  formData: FormData,
+): Promise<MemberFormState> {
+  const name = String(formData.get("name") ?? "").trim();
+  const role = String(formData.get("role") ?? "").trim();
+  const bio = String(formData.get("bio") ?? "").trim();
+  const memberImage = formData.get("memberImage");
+
+  if (!name) {
+    return { message: "Add meg a tag nevét.", status: "error" };
+  }
+
+  if (!(memberImage instanceof File) || memberImage.size === 0) {
+    return { message: "Válassz ki egy képet.", status: "error" };
+  }
+
+  if (!memberImage.type.startsWith("image/")) {
+    return { message: "Csak képfájl tölthető fel.", status: "error" };
+  }
+
+  if (memberImage.size > MAX_IMAGE_SIZE) {
+    return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+  }
+
+  if (!role) {
+    return { message: "Add meg a pozíciót.", status: "error" };
+  }
+
+  if (!bio || bio === "<p></p>") {
+    return { message: "Add meg a leírást.", status: "error" };
+  }
+
+  const imageUrl = await saveMemberImage(memberImage);
+  const lastMember = await prisma.member.findFirst({
+    orderBy: {
+      sortOrder: "desc",
+    },
+    select: {
+      sortOrder: true,
+    },
+  });
+
+  await prisma.member.create({
+    data: {
+      bio,
+      imageUrl,
+      name,
+      role,
+      sortOrder: (lastMember?.sortOrder ?? 100) + 10,
+    },
+  });
+
+  revalidatePath("/admin/tarsulat");
+  revalidatePath("/tarsulat");
+
+  return { message: "Az új tag mentve.", status: "success" };
+}
+
+export async function updateMemberAction(
+  _state: MemberFormState,
+  formData: FormData,
+): Promise<MemberFormState> {
+  const id = String(formData.get("id") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const role = String(formData.get("role") ?? "").trim();
+  const bio = String(formData.get("bio") ?? "").trim();
+  const memberImage = formData.get("memberImage");
+
+  if (!id) {
+    return { message: "Hiányzó tagazonosító.", status: "error" };
+  }
+
+  if (!name) {
+    return { message: "Add meg a tag nevét.", status: "error" };
+  }
+
+  if (!role) {
+    return { message: "Add meg a pozíciót.", status: "error" };
+  }
+
+  if (!bio || bio === "<p></p>") {
+    return { message: "Add meg a leírást.", status: "error" };
+  }
+
+  const currentMember = await prisma.member.findUnique({
+    select: {
+      imageUrl: true,
+    },
+    where: {
+      id,
+    },
+  });
+
+  if (!currentMember) {
+    return { message: "A tag nem található.", status: "error" };
+  }
+
+  let imageUrl = currentMember.imageUrl;
+  let shouldDeletePreviousImage = false;
+
+  if (memberImage instanceof File && memberImage.size > 0) {
+    if (!memberImage.type.startsWith("image/")) {
+      return { message: "Csak képfájl tölthető fel.", status: "error" };
+    }
+
+    if (memberImage.size > MAX_IMAGE_SIZE) {
+      return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+    }
+
+    imageUrl = await saveMemberImage(memberImage);
+    shouldDeletePreviousImage = true;
+  }
+
+  await prisma.member.update({
+    data: {
+      bio,
+      imageUrl,
+      name,
+      role,
+    },
+    where: {
+      id,
+    },
+  });
+
+  if (shouldDeletePreviousImage) {
+    await deleteMemberImage(currentMember.imageUrl);
+  }
+
+  revalidatePath("/admin/tarsulat");
+  revalidatePath("/tarsulat");
+
+  return { message: "A tag adatai mentve.", status: "success" };
+}
+
+export async function deleteMemberAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    return;
+  }
+
+  const member = await prisma.member.findUnique({
+    select: {
+      imageUrl: true,
+    },
+    where: {
+      id,
+    },
+  });
+
+  if (!member) {
+    return;
+  }
+
+  await prisma.member.delete({
+    where: {
+      id,
+    },
+  });
+  await deleteMemberImage(member.imageUrl);
+
+  revalidatePath("/admin/tarsulat");
+  revalidatePath("/tarsulat");
+}
+
+export async function moveMemberAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  const direction = String(formData.get("direction") ?? "");
+
+  if (!id || !["up", "down"].includes(direction)) {
+    return;
+  }
+
+  const members = await prisma.member.findMany({
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        name: "asc",
+      },
+    ],
+    select: {
+      id: true,
+      role: true,
+      sortOrder: true,
+    },
+    where: {
+      name: {
+        notIn: MEMBER_CATEGORY_NAMES,
+      },
+    },
+  });
+  const currentMember = members.find((member) => member.id === id);
+
+  if (!currentMember) {
+    return;
+  }
+
+  const currentIsDancer = isDancerRole(currentMember.role);
+  const groupMembers = members.filter((member) => isDancerRole(member.role) === currentIsDancer);
+  const currentIndex = groupMembers.findIndex((member) => member.id === id);
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  const targetMember = groupMembers[targetIndex];
+
+  if (!targetMember) {
+    return;
+  }
+
+  await prisma.$transaction([
+    prisma.member.update({
+      data: {
+        sortOrder: targetMember.sortOrder,
+      },
+      where: {
+        id: currentMember.id,
+      },
+    }),
+    prisma.member.update({
+      data: {
+        sortOrder: currentMember.sortOrder,
+      },
+      where: {
+        id: targetMember.id,
+      },
+    }),
+  ]);
+
+  revalidatePath("/admin/tarsulat");
+  revalidatePath("/tarsulat");
 }
