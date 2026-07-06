@@ -8,11 +8,20 @@ type HomeCalendarProps = {
   events: {
     coverImageUrl: string;
     dateKey: string;
+    isPast: boolean;
+    kind: "performance" | "event";
     ticketUrl: string;
     title: string;
   }[];
   initialDate: string;
-  onPerformanceHover?: (performance: { coverImageUrl: string; dateKey: string; ticketUrl: string; title: string }) => void;
+  onPerformanceHover?: (performance: {
+    coverImageUrl: string;
+    dateKey: string;
+    isPast: boolean;
+    kind: "performance" | "event";
+    ticketUrl: string;
+    title: string;
+  }) => void;
 };
 
 function getDateKey(date: Date) {
@@ -42,10 +51,10 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
     return new Date(year, month - 1, day);
   });
   const eventsByDate = useMemo(() => {
-    return events.reduce<Record<string, { coverImageUrl: string; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
+    return events.reduce<Record<string, { coverImageUrl: string; isPast: boolean; kind: "performance" | "event"; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
       groupedEvents[event.dateKey] = [
         ...(groupedEvents[event.dateKey] ?? []),
-        { coverImageUrl: event.coverImageUrl, ticketUrl: event.ticketUrl, title: event.title },
+        { coverImageUrl: event.coverImageUrl, isPast: event.isPast, kind: event.kind, ticketUrl: event.ticketUrl, title: event.title },
       ];
       return groupedEvents;
     }, {});
@@ -100,13 +109,18 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
           const isCurrentMonth = calendarDay.getMonth() === currentMonth;
           const firstEvent = dayEvents[0];
           const coverImageUrl = firstEvent?.coverImageUrl;
-          const ticketUrl = dayEvents.find((event) => event.ticketUrl)?.ticketUrl;
+          const ticketEvent = dayEvents.find((event) => !event.isPast && event.ticketUrl);
+          const ticketUrl = ticketEvent?.ticketUrl;
+          const hasPastEvent = dayEvents.some((event) => event.isPast);
+          const hasOnlyPastEvents = hasEvent && dayEvents.every((event) => event.isPast);
 
           return (
             <div
               className={`relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition-all duration-300 ease-out ${
                 isCurrentMonth ? "bg-surface-strong text-charcoal" : "bg-surface text-muted/35"
-              } ${hasEvent ? "bg-cover bg-center text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""}`}
+              } ${hasEvent ? "bg-cover bg-center text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""} ${
+                hasOnlyPastEvents ? "grayscale opacity-65" : ""
+              }`}
               key={dateKey}
               style={coverImageUrl ? { backgroundImage: `url(${coverImageUrl})` } : undefined}
               onMouseEnter={() => {
@@ -114,16 +128,20 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
                   onPerformanceHover?.({
                     coverImageUrl: firstEvent.coverImageUrl,
                     dateKey,
+                    isPast: firstEvent.isPast,
+                    kind: firstEvent.kind,
                     ticketUrl: firstEvent.ticketUrl,
                     title: firstEvent.title,
                   });
                 }
               }}
             >
-              {hasEvent ? <span className="absolute inset-0 bg-charcoal/36" /> : null}
+              {hasEvent ? <span className={`absolute inset-0 ${hasOnlyPastEvents ? "bg-stone-800/62" : "bg-charcoal/36"}`} /> : null}
               {ticketUrl ? (
                 <a
-                  className="absolute left-2 top-2 z-[1] bg-thread-red px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
+                  className={`absolute left-2 top-2 z-[1] px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition duration-200 hover:scale-105 active:scale-95 ${
+                    ticketEvent?.kind === "event" ? "bg-pine hover:bg-white/50 hover:text-pine" : "bg-thread-red hover:bg-white/50 hover:text-thread-red"
+                  }`}
                   href={ticketUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -135,12 +153,17 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
               {hasEvent ? (
                 <div className="absolute bottom-2 left-2 right-2 grid gap-0.5 text-left">
                   {dayEvents.slice(0, 2).map((event, index) => (
-                    <span className="truncate text-[12px] font-extrabold leading-tight text-surface-strong" key={`${event.title}-${index}`}>
+                    <span
+                      className={`truncate border-l-2 pl-1.5 text-[12px] font-extrabold leading-tight text-surface-strong ${
+                        event.isPast ? "border-muted/70 text-surface-strong/72" : event.kind === "event" ? "border-pine" : "border-thread-red"
+                      }`}
+                      key={`${event.title}-${index}`}
+                    >
                       {event.title}
                     </span>
                   ))}
                   {dayEvents.length > 2 ? (
-                    <span className="text-[11px] font-extrabold leading-tight text-surface-strong/80">
+                    <span className={`text-[11px] font-extrabold leading-tight ${hasPastEvent ? "text-surface-strong/65" : "text-surface-strong/80"}`}>
                       +{dayEvents.length - 2} további
                     </span>
                   ) : null}

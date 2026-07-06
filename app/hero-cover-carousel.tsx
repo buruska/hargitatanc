@@ -43,6 +43,7 @@ export function HeroCoverCarousel({
   const [selectedCover, setSelectedCover] = useState<HeroCover | null>(null);
   const activeCover = displayedCovers[activeIndex];
   const activeEventId = activeCover?.id.startsWith("event-") ? activeCover.id.replace(/^event-/, "") : null;
+  const hasTitleListItems = covers.length > 0 || events.length > 0;
 
   useEffect(() => {
     if (!selectedCover) {
@@ -95,37 +96,39 @@ export function HeroCoverCarousel({
           src={cover.coverImageUrl}
         />
       ))}
-      {showTitleList ? (
+      {showTitleList && hasTitleListItems ? (
         <div className="absolute right-[clamp(18px,4vw,56px)] top-[128px] z-[1] grid w-[min(360px,calc(100vw-36px))] gap-4">
-          <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:0]">
-            <h2 className="mb-6 font-serif text-[24px] leading-none tracking-[0.035em]">Futó előadások:</h2>
-            <div className="grid gap-2">
-              {covers.map((cover, index) => {
-                const isActive = index === activeIndex;
+          {covers.length > 0 ? (
+            <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:0]">
+              <h2 className="mb-6 font-serif text-[24px] leading-none tracking-[0.035em]">Futó előadások:</h2>
+              <div className="grid gap-2">
+                {covers.map((cover, index) => {
+                  const isActive = index === activeIndex;
 
-                return (
-                  <button
-                    className={`border-l-2 px-3 py-2 text-left font-serif text-[18px] leading-tight tracking-[0.025em] transition duration-200 ${
-                      isActive
-                        ? "border-thread-red bg-white/12 text-surface-strong"
-                        : "border-white/25 text-surface-strong/72 hover:border-thread-red hover:text-surface-strong"
-                    }`}
-                    key={cover.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveIndex(index);
-                      setSelectedCover(cover);
-                    }}
-                  >
-                    {cover.title}
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-          <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:1]">
-            <h2 className="mb-5 font-serif text-[24px] leading-none tracking-[0.035em]">Rendezvények:</h2>
-            {events.length > 0 ? (
+                  return (
+                    <button
+                      className={`border-l-2 px-3 py-2 text-left font-serif text-[18px] leading-tight tracking-[0.025em] transition duration-200 ${
+                        isActive
+                          ? "border-thread-red bg-white/12 text-surface-strong"
+                          : "border-white/25 text-surface-strong/72 hover:border-thread-red hover:text-surface-strong"
+                      }`}
+                      key={cover.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveIndex(index);
+                        setSelectedCover(cover);
+                      }}
+                    >
+                      {cover.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+          ) : null}
+          {events.length > 0 ? (
+            <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:1]">
+              <h2 className="mb-5 font-serif text-[24px] leading-none tracking-[0.035em]">Rendezvények:</h2>
               <div className="grid max-h-[220px] gap-2 overflow-y-auto pr-1">
                 {events.map((event) => {
                   const eventCoverIndex = displayedCovers.findIndex((cover) => cover.id === `event-${event.id}`);
@@ -157,12 +160,8 @@ export function HeroCoverCarousel({
                   );
                 })}
               </div>
-            ) : (
-              <p className="border-l-2 border-white/25 px-3 py-2 text-[14px] font-bold text-surface-strong/68">
-                Jelenleg nincs meghirdetett rendezvény.
-              </p>
-            )}
-          </aside>
+            </aside>
+          ) : null}
         </div>
       ) : null}
       {selectedCover ? (

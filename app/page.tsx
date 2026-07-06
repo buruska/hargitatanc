@@ -69,6 +69,18 @@ export default async function HomePage() {
       title: true,
     },
   });
+  const calendarEventsData = await prisma.event.findMany({
+    orderBy: {
+      startsAt: "asc",
+    },
+    select: {
+      coverImageUrl: true,
+      id: true,
+      startsAt: true,
+      summary: true,
+      title: true,
+    },
+  });
   const heroEvents = events.map((event) => ({
     endsAt: event.endsAt?.toISOString() ?? null,
     id: event.id,
@@ -88,16 +100,10 @@ export default async function HomePage() {
     }];
   });
   const carouselCovers = [...heroCovers, ...eventHeroCovers];
-  const upcomingEvents = await prisma.runningPerformanceEvent.findMany({
-    where: {
-      startsAt: {
-        gte: now,
-      },
-    },
+  const performanceEvents = await prisma.runningPerformanceEvent.findMany({
     orderBy: {
       startsAt: "asc",
     },
-    take: 50,
     select: {
       id: true,
       startsAt: true,
@@ -112,17 +118,41 @@ export default async function HomePage() {
       },
     },
   });
-  const calendarDate = upcomingEvents[0]?.startsAt ?? now;
-  const calendarEvents = upcomingEvents.map((event) => ({
+  const calendarPerformanceEvents = performanceEvents.map((event) => ({
     coverImageUrl: event.runningPerformance.coverImageUrl,
     dateKey: getDateKey(event.startsAt),
     id: event.id,
+    isPast: event.startsAt < now,
+    kind: "performance" as const,
     location: event.location,
     startsAt: event.startsAt.toISOString(),
     summary: event.runningPerformance.summary,
     ticketUrl: event.ticketUrl,
     title: event.runningPerformance.title,
   }));
+  const calendarStandaloneEvents = calendarEventsData.flatMap((event) => {
+    if (!event.coverImageUrl) {
+      return [];
+    }
+
+    return [{
+      coverImageUrl: event.coverImageUrl,
+      dateKey: getDateKey(event.startsAt),
+      id: event.id,
+      isPast: event.startsAt < now,
+      kind: "event" as const,
+      location: "",
+      startsAt: event.startsAt.toISOString(),
+      summary: event.summary,
+      ticketUrl: "",
+      title: event.title,
+    }];
+  });
+  const calendarEvents = [...calendarPerformanceEvents, ...calendarStandaloneEvents].sort(
+    (firstEvent, secondEvent) => new Date(firstEvent.startsAt).getTime() - new Date(secondEvent.startsAt).getTime(),
+  );
+  const nextCalendarEvent = calendarEvents.find((event) => !event.isPast);
+  const calendarDate = nextCalendarEvent ? new Date(nextCalendarEvent.startsAt) : now;
 
   return (
     <main>
@@ -135,7 +165,7 @@ export default async function HomePage() {
               Naptár
             </p>
             <h1 className="pt-6 pb-12 font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
-              Közelgő fellépések
+              Közelgő fellépések és rendezvények
             </h1>
           </div>
 

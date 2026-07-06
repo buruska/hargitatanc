@@ -8,6 +8,8 @@ export type HomePerformanceEvent = {
   coverImageUrl: string;
   dateKey: string;
   id: string;
+  isPast: boolean;
+  kind: "performance" | "event";
   location: string;
   startsAt: string;
   summary: string;
@@ -18,6 +20,8 @@ export type HomePerformanceEvent = {
 type ActivePerformance = {
   coverImageUrl: string;
   dateKey: string;
+  isPast: boolean;
+  kind: "performance" | "event";
   ticketUrl: string;
   title: string;
 };
@@ -36,11 +40,13 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
   const [selectedEvent, setSelectedEvent] = useState<HomePerformanceEvent | null>(null);
   const isCalendarFiltered = activePerformance?.source === "calendar";
   const visibleEvents = useMemo(() => {
+    const upcomingEvents = events.filter((event) => !event.isPast);
+
     if (!isCalendarFiltered || !activePerformance) {
-      return events;
+      return upcomingEvents;
     }
 
-    return events.filter((event) => event.dateKey === activePerformance.dateKey);
+    return upcomingEvents.filter((event) => event.dateKey === activePerformance.dateKey);
   }, [activePerformance, events, isCalendarFiltered]);
 
   return (
@@ -67,10 +73,12 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
             }`}
           >
             <div
-              className="relative grid h-full place-items-center overflow-hidden border border-line bg-cover bg-center opacity-100 shadow-[0_18px_35px_rgb(33_31_27_/_10%)] transition-all duration-300 ease-out"
+              className={`relative grid h-full place-items-center overflow-hidden border border-line bg-cover bg-center opacity-100 shadow-[0_18px_35px_rgb(33_31_27_/_10%)] transition-all duration-300 ease-out ${
+                activePerformance?.isPast ? "grayscale opacity-75" : ""
+              }`}
               style={activePerformance ? { backgroundImage: `url(${activePerformance.coverImageUrl})` } : undefined}
             >
-              <span className="absolute inset-0 bg-charcoal/32" />
+              <span className={`absolute inset-0 ${activePerformance?.isPast ? "bg-stone-800/58" : "bg-charcoal/32"}`} />
               {activePerformance ? (
                 <h2 className="absolute bottom-6 left-6 right-6 z-[1] font-serif text-[clamp(28px,4vw,48px)] font-bold leading-tight text-surface-strong drop-shadow-[0_2px_14px_rgb(33_31_27_/_48%)]">
                   {activePerformance.title}
@@ -147,10 +155,15 @@ function PerformanceListItem({
     hour: "2-digit",
     minute: "2-digit",
   }).format(startsAt);
+  const isStandaloneEvent = event.kind === "event";
+  const accentText = event.isPast ? "text-muted" : isStandaloneEvent ? "text-pine" : "text-thread-red";
+  const accentBg = event.isPast ? "bg-muted" : isStandaloneEvent ? "bg-pine" : "bg-thread-red";
+  const accentBorder = event.isPast ? "border-muted" : isStandaloneEvent ? "border-pine" : "border-thread-red";
+  const hoverBorder = event.isPast ? "group-hover:border-muted" : isStandaloneEvent ? "group-hover:border-pine" : "group-hover:border-thread-red";
   const eventContent = (
     <>
       {isFiltered ? null : (
-        <time className="grid min-h-[72px] min-w-[86px] place-items-center border-r border-thread-red/25 bg-thread-red px-4 text-center text-surface-strong">
+        <time className={`grid min-h-[72px] min-w-[86px] place-items-center border-r px-4 text-center text-surface-strong ${accentBg} ${isStandaloneEvent ? "border-pine/25" : "border-thread-red/25"}`}>
           <span className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-surface-strong/78">
             {month}
           </span>
@@ -160,13 +173,13 @@ function PerformanceListItem({
       <span className={`grid min-w-0 flex-1 px-4 py-3 ${isFiltered ? "gap-2 pb-5" : "gap-1"}`}>
         {isFiltered ? (
           <span className="grid gap-1 text-[13px] font-extrabold">
-            <span className="truncate text-thread-red">{date}</span>
-            <span className="truncate text-muted">{event.location}</span>
+            <span className={`truncate ${accentText}`}>{date}</span>
+            {event.location ? <span className="truncate text-muted">{event.location}</span> : null}
           </span>
         ) : (
           <span className="flex min-w-0 items-center justify-between gap-3 text-[13px] font-extrabold">
-            <span className="truncate text-thread-red">{weekdayAndTime}</span>
-            <span className="ml-auto truncate text-right text-muted">{event.location}</span>
+            <span className={`truncate ${accentText}`}>{weekdayAndTime}</span>
+            {event.location ? <span className="ml-auto truncate text-right text-muted">{event.location}</span> : null}
           </span>
         )}
         <span className="truncate font-serif text-[clamp(15px,1.6vw,18px)] font-bold leading-tight text-charcoal">
@@ -189,19 +202,23 @@ function PerformanceListItem({
         onPerformanceHover({
           coverImageUrl: event.coverImageUrl,
           dateKey: event.dateKey,
+          isPast: event.isPast,
+          kind: event.kind,
           ticketUrl: event.ticketUrl,
           title: event.title,
         })
       }
     >
-      <article className="relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out group-hover:-translate-y-0.5 group-hover:border-thread-red group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)]">
+      <article className={`relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out group-hover:-translate-y-0.5 ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
+        event.isPast ? "grayscale opacity-65" : ""
+      }`}>
         <span className="flex min-w-0 flex-1 transition duration-200 group-hover:opacity-0">
           {eventContent}
         </span>
         <span className="pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-3 px-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
           {event.ticketUrl ? (
             <a
-              className="bg-thread-red px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95"
+              className={`${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
               href={event.ticketUrl}
               rel="noreferrer"
               target="_blank"
@@ -210,7 +227,7 @@ function PerformanceListItem({
             </a>
           ) : null}
           <button
-            className="border border-thread-red bg-surface-strong px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-thread-red shadow-[0_12px_24px_rgb(33_31_27_/_10%)] transition duration-200 hover:scale-105 hover:bg-white active:scale-95"
+            className={`border ${accentBorder} bg-surface-strong px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] ${accentText} shadow-[0_12px_24px_rgb(33_31_27_/_10%)] transition duration-200 hover:scale-105 hover:bg-white active:scale-95`}
             type="button"
             onClick={onOpenDetails}
           >
@@ -229,6 +246,10 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
     hour: "2-digit",
     minute: "2-digit",
   }).format(startsAt);
+  const isStandaloneEvent = event.kind === "event";
+  const accentText = isStandaloneEvent ? "text-pine" : "text-thread-red";
+  const accentBg = isStandaloneEvent ? "bg-pine" : "bg-thread-red";
+  const accentBorderHover = isStandaloneEvent ? "hover:border-pine hover:bg-pine" : "hover:border-thread-red hover:bg-thread-red";
 
   useEffect(() => {
     function handleKeyDown(keyboardEvent: KeyboardEvent) {
@@ -262,7 +283,7 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
           <span className="absolute inset-0 bg-charcoal/38" />
           <button
             aria-label="Modal bezárása"
-            className="absolute right-4 top-4 z-[1] grid size-9 place-items-center border border-line bg-surface-strong text-[20px] font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+            className={`absolute right-4 top-4 z-[1] grid size-9 place-items-center border border-line bg-surface-strong text-[20px] font-extrabold ${accentText} transition ${accentBorderHover} hover:text-surface-strong`}
             type="button"
             onClick={onClose}
           >
@@ -273,7 +294,7 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
           </h2>
         </div>
         <div className="grid gap-5 p-6">
-          <div className="grid gap-1 text-[14px] font-extrabold text-thread-red">
+          <div className={`grid gap-1 text-[14px] font-extrabold ${accentText}`}>
             <time dateTime={event.startsAt}>{date}</time>
             <span>{time}</span>
           </div>
@@ -282,7 +303,7 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
           </p>
           {event.ticketUrl ? (
             <a
-              className="inline-flex w-fit bg-thread-red px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95"
+              className={`inline-flex w-fit ${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
               href={event.ticketUrl}
               rel="noreferrer"
               target="_blank"
