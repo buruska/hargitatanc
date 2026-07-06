@@ -220,43 +220,58 @@ export default async function HomePage() {
 
                 return (
                   <article
-                    className="home-news-card flex min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center shadow-[10px_10px_0_rgb(33_31_27_/_18%)]"
+                    className="home-news-card min-h-[430px]"
                     key={post.id}
                     style={{ transitionDelay: `${index * 110 + 180}ms` }}
                   >
-                    <time className="block font-serif text-[16px] leading-tight text-charcoal">
-                      {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(post.publishedAt)}
-                    </time>
-                    <h3 className="mt-3 font-serif text-[clamp(22px,2.2vw,28px)] font-bold italic leading-tight text-thread-red">
-                      {post.title}
-                    </h3>
-                    {post.excerpt ? (
-                      <p className="mt-3 text-[15px] font-extrabold leading-snug text-charcoal">
-                        {post.excerpt}
-                      </p>
-                    ) : null}
-                    <span className="mx-auto my-5 block h-[16px] w-[112px] rounded-[50%] border-t-[3px] border-pine" />
-                    <div className="mt-auto">
-                      {imageSrc ? (
-                        <Image
-                          alt=""
-                          className="aspect-[4/3] w-full border-2 border-line-strong object-cover"
-                          height={240}
-                          src={imageSrc}
-                          unoptimized={imageSrc.startsWith("data:")}
-                          width={320}
-                        />
-                      ) : (
-                        <div className="grid aspect-[4/3] place-items-center border-2 border-line-strong bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
-                          Hír
+                    <div className="home-news-card-flip relative min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
+                      <div className="home-news-card-face home-news-card-front flex min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
+                        <time className="block font-serif text-[16px] leading-tight text-charcoal">
+                          {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(post.publishedAt)}
+                        </time>
+                        <h3 className="mt-3 font-serif text-[clamp(22px,2.2vw,28px)] font-bold italic leading-tight text-thread-red">
+                          {post.title}
+                        </h3>
+                        {post.excerpt ? (
+                          <p className="mt-3 text-[15px] font-extrabold leading-snug text-charcoal">
+                            {post.excerpt}
+                          </p>
+                        ) : null}
+                        <span className="mx-auto my-5 block h-[16px] w-[112px] rounded-[50%] border-t-[3px] border-pine" />
+                        <div className="mt-auto">
+                          {imageSrc ? (
+                            <Image
+                              alt=""
+                              className="aspect-[4/3] w-full border-2 border-line-strong object-cover"
+                              height={240}
+                              src={imageSrc}
+                              unoptimized={imageSrc.startsWith("data:")}
+                              width={320}
+                            />
+                          ) : (
+                            <div className="grid aspect-[4/3] place-items-center border-2 border-line-strong bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
+                              Hír
+                            </div>
+                          )}
                         </div>
-                      )}
-                      <a
-                        className="mt-4 inline-flex min-h-[42px] items-center justify-center bg-thread-red px-5 py-2 text-[12px] font-extrabold uppercase tracking-[0.12em] text-surface-strong transition hover:bg-charcoal"
-                        href="/hirek"
-                      >
-                        Hír elolvasása
-                      </a>
+                      </div>
+                      <div className="home-news-card-face home-news-card-back absolute inset-0 grid min-h-[430px] place-items-center px-6 py-8 text-center text-surface-strong">
+                        <div className="grid justify-items-center gap-8">
+                          <Image
+                            alt="Hargita Nemzeti Szekler Nepi Egyuttes"
+                            className="h-auto w-[132px] rounded-full border-2 border-surface-strong bg-surface-strong object-contain p-2"
+                            height={132}
+                            src="/logo.png"
+                            width={132}
+                          />
+                          <a
+                            className="inline-flex min-h-[44px] items-center justify-center border-2 border-surface-strong px-7 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] text-surface-strong transition hover:bg-surface-strong hover:text-thread-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface-strong"
+                            href="/hirek"
+                          >
+                            Olvasás
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </article>
                 );
