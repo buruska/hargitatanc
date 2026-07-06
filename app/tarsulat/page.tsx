@@ -6,6 +6,8 @@ import { contentPage, eyebrow, h1 } from "@/lib/styles";
 export default async function TarsulatPage() {
   const profile = await prisma.companyProfile.findUnique({
     select: {
+      directorImageUrl: true,
+      directorName: true,
       groupImageUrl: true,
       introText: true,
     },
@@ -31,11 +33,38 @@ export default async function TarsulatPage() {
       ) : null}
       {profile?.introText ? (
         <HomeRevealGroup className="home-reveal-group mt-24">
-          <section className="about-intro-reveal relative left-1/2 w-[90vw] -translate-x-1/2">
+          <section className="relative left-1/2 w-[90vw] -translate-x-1/2">
             <div
-              className="rich-text-editor text-[clamp(18px,2vw,22px)] font-bold leading-relaxed text-charcoal"
-              dangerouslySetInnerHTML={{ __html: profile.introText }}
-            />
+              className={`grid items-start gap-10 ${
+                profile.directorImageUrl ? "min-[980px]:grid-cols-[minmax(0,1fr)_minmax(240px,340px)]" : ""
+              }`}
+            >
+              <div
+                className="about-intro-reveal rich-text-editor text-[clamp(18px,2vw,22px)] font-bold leading-relaxed text-charcoal"
+                dangerouslySetInnerHTML={{ __html: profile.introText }}
+              />
+              {profile.directorImageUrl ? (
+                <figure className="about-director-reveal relative mb-14 w-full max-w-[340px] justify-self-end border-2 border-line-strong shadow-[12px_12px_0_rgb(33_31_27_/_14%)]">
+                  <Image
+                    alt={profile.directorName ? `${profile.directorName} igazgató` : "Igazgató"}
+                    className="aspect-[4/5] w-full object-cover"
+                    height={425}
+                    src={profile.directorImageUrl}
+                    width={340}
+                  />
+                  {profile.directorName ? (
+                    <figcaption className="absolute -bottom-12 left-2.5 w-full shadow-[8px_8px_0_rgb(33_31_27_/_12%)]">
+                      <span className="block bg-thread-red px-4 py-3 text-center font-serif text-[clamp(16px,2vw,20px)] font-bold leading-tight text-surface-strong">
+                        {profile.directorName}
+                      </span>
+                      <span className="block w-full bg-surface-strong px-4 py-2 text-center font-serif text-sm font-bold leading-tight text-thread-red">
+                        igazgató
+                      </span>
+                    </figcaption>
+                  ) : null}
+                </figure>
+              ) : null}
+            </div>
           </section>
         </HomeRevealGroup>
       ) : null}
