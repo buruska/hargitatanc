@@ -19,6 +19,11 @@ export type IntroTextFormState = {
   status: "idle" | "error" | "success";
 };
 
+export type DirectorFormState = {
+  message: string;
+  status: "idle" | "error" | "success";
+};
+
 function getImageExtension(file: File) {
   const extension = path.extname(file.name).toLowerCase();
 
@@ -51,6 +56,18 @@ async function saveGroupImage(groupImage: File) {
   await writeFile(filePath, Buffer.from(await groupImage.arrayBuffer()));
 
   return groupImageUrl;
+}
+
+async function saveDirectorImage(directorImage: File) {
+  const extension = getImageExtension(directorImage);
+  const fileName = `igazgato-${randomUUID()}${extension}`;
+  const filePath = path.join(UPLOAD_DIR, fileName);
+  const directorImageUrl = `/uploads/company/${fileName}`;
+
+  await mkdir(UPLOAD_DIR, { recursive: true });
+  await writeFile(filePath, Buffer.from(await directorImage.arrayBuffer()));
+
+  return directorImageUrl;
 }
 
 async function deleteGroupImage(groupImageUrl: string | null) {
@@ -146,4 +163,71 @@ export async function updateIntroTextAction(
   revalidatePath("/tarsulat");
 
   return { message: "A bemutató szöveg mentve.", status: "success" };
+}
+
+export async function updateDirectorAction(
+  _state: DirectorFormState,
+  formData: FormData,
+): Promise<DirectorFormState> {
+  const directorName = String(formData.get("directorName") ?? "").trim();
+  const directorBio = String(formData.get("directorBio") ?? "").trim();
+  const directorImage = formData.get("directorImage");
+
+  if (!directorName) {
+    return { message: "Add meg az igazgató nevét.", status: "error" };
+  }
+
+  if (!directorBio || directorBio === "<p></p>") {
+    return { message: "Add meg az igazgató leírását.", status: "error" };
+  }
+
+  const currentProfile = await prisma.companyProfile.findUnique({
+    select: {
+      directorImageUrl: true,
+    },
+    where: {
+      id: "main",
+    },
+  });
+  let directorImageUrl = currentProfile?.directorImageUrl ?? null;
+  let shouldDeletePreviousImage = false;
+
+  if (directorImage instanceof File && directorImage.size > 0) {
+    if (!directorImage.type.startsWith("image/")) {
+      return { message: "Csak képfájl tölthető fel.", status: "error" };
+    }
+
+    if (directorImage.size > MAX_IMAGE_SIZE) {
+      return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+    }
+
+    directorImageUrl = await saveDirectorImage(directorImage);
+    shouldDeletePreviousImage = true;
+  }
+
+  await prisma.companyProfile.upsert({
+    create: {
+      directorBio,
+      directorImageUrl,
+      directorName,
+      id: "main",
+    },
+    update: {
+      directorBio,
+      directorImageUrl,
+      directorName,
+    },
+    where: {
+      id: "main",
+    },
+  });
+
+  if (shouldDeletePreviousImage) {
+    await deleteGroupImage(currentProfile?.directorImageUrl ?? null);
+  }
+
+  revalidatePath("/admin/tarsulat");
+  revalidatePath("/tarsulat");
+
+  return { message: "Az igazgató adatai mentve.", status: "success" };
 }

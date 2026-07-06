@@ -31,7 +31,7 @@ export default async function TarsulatPage() {
       ) : null}
       {profile?.introText ? (
         <HomeRevealGroup className="home-reveal-group mt-24">
-          <section className="about-intro-reveal mx-auto w-[90%]">
+          <section className="about-intro-reveal relative left-1/2 w-[90vw] -translate-x-1/2">
             <div
               className="rich-text-editor text-[clamp(18px,2vw,22px)] font-bold leading-relaxed text-charcoal"
               dangerouslySetInnerHTML={{ __html: profile.introText }}
