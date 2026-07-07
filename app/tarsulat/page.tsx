@@ -3,7 +3,7 @@ import { HomeRevealGroup } from "../home-reveal-group";
 import { prisma } from "@/lib/prisma";
 import { contentPage, eyebrow, h1 } from "@/lib/styles";
 import { DirectorProfileCard } from "./director-profile-card";
-import { MemberProfileCard } from "./member-profile-card";
+import { MemberSearchList } from "./member-search-list";
 
 const MEMBER_CATEGORY_NAMES = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
 
@@ -85,37 +85,8 @@ export default async function TarsulatPage() {
           </section>
         </HomeRevealGroup>
       ) : null}
-      {dancers.length > 0 ? (
-        <section className="relative left-1/2 mt-32 w-[70vw] -translate-x-1/2">
-          <h2 className="mb-8 font-serif text-[clamp(17px,2.5vw,32px)] font-bold leading-[1.02] text-charcoal">Tagjaink</h2>
-          <div className="grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
-            {dancers.map((member) => (
-              <MemberProfileCard
-                bio={member.bio ?? ""}
-                imageUrl={member.imageUrl}
-                key={member.id}
-                name={member.name}
-                role={member.role}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
-      {staffMembers.length > 0 ? (
-        <section className="relative left-1/2 mt-24 w-[70vw] -translate-x-1/2">
-          <div className="grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
-            {staffMembers.map((member) => (
-              <MemberProfileCard
-                bio={member.bio ?? ""}
-                imageUrl={member.imageUrl}
-                key={member.id}
-                name={member.name}
-                role={member.role}
-                variant="green"
-              />
-            ))}
-          </div>
-        </section>
+      {dancers.length > 0 || staffMembers.length > 0 ? (
+        <MemberSearchList dancers={dancers} staffMembers={staffMembers} />
       ) : null}
     </main>
   );
