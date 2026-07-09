@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, panel } from "@/lib/styles";
+import { AddGalleryImagesModal } from "./add-gallery-images-modal";
 import { DeletePerformanceModal } from "./delete-performance-modal";
 import { EditPerformanceModal } from "./edit-performance-modal";
 import { NewPerformanceEventModal } from "./new-performance-event-modal";
@@ -73,9 +74,20 @@ export default async function AdminFutoEloadasokPage() {
               <div className="mt-3">
                 <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
               </div>
-              {performance.galleryImages.length > 0 ? (
-                <div className="mt-4">
-                  <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-petrol">Galéria:</p>
+              <PerformanceEventsToggle
+                events={performance.events.map((event) => ({
+                  ...event,
+                  performanceCoverImageUrl: performance.coverImageUrl,
+                  performanceTitle: performance.title,
+                  startsAt: event.startsAt.toISOString(),
+                }))}
+              />
+              <div className="mt-4">
+                <div className="mb-2 flex flex-col items-start justify-between gap-2 min-[520px]:flex-row min-[520px]:items-center">
+                  <p className="text-xs font-extrabold uppercase tracking-normal text-petrol">Galéria:</p>
+                  <AddGalleryImagesModal performanceId={performance.id} performanceTitle={performance.title} />
+                </div>
+                {performance.galleryImages.length > 0 ? (
                   <div className="grid gap-2">
                     {performance.galleryImages.map((galleryImage, index) => (
                       <article className="grid gap-2 border border-line bg-surface-strong p-2 min-[620px]:grid-cols-[92px_1fr] min-[620px]:items-center" key={galleryImage.id}>
@@ -119,16 +131,12 @@ export default async function AdminFutoEloadasokPage() {
                       </article>
                     ))}
                   </div>
-                </div>
-              ) : null}
-              <PerformanceEventsToggle
-                events={performance.events.map((event) => ({
-                  ...event,
-                  performanceCoverImageUrl: performance.coverImageUrl,
-                  performanceTitle: performance.title,
-                  startsAt: event.startsAt.toISOString(),
-                }))}
-              />
+                ) : (
+                  <p className="border border-line bg-surface-strong px-3 py-2 text-sm font-bold text-muted">
+                    Ehhez a darabhoz még nincs galériakép hozzáadva.
+                  </p>
+                )}
+              </div>
             </div>
             <div className="grid gap-2">
               <EditPerformanceModal id={performance.id} summary={performance.summary} title={performance.title} />

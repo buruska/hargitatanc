@@ -21,6 +21,11 @@ export type DeleteGalleryImageState = {
   success?: boolean;
 };
 
+export type AddGalleryImagesState = {
+  error?: string;
+  success?: boolean;
+};
+
 export type PerformanceEventFormState = {
   error?: string;
   success?: boolean;
@@ -346,6 +351,73 @@ export async function deleteRunningPerformanceGalleryImageAction(
   });
 
   await deleteCoverImage(galleryImage.imageUrl);
+
+  revalidatePath("/");
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function addRunningPerformanceGalleryImagesAction(
+  _state: AddGalleryImagesState,
+  formData: FormData,
+): Promise<AddGalleryImagesState> {
+  const runningPerformanceId = String(formData.get("runningPerformanceId") ?? "").trim();
+  const galleryImages = formData
+    .getAll("galleryImages")
+    .filter((file): file is File => file instanceof File && file.size > 0);
+
+  if (!runningPerformanceId) {
+    return { error: "Hiányzik az előadás azonosítója." };
+  }
+
+  if (galleryImages.length === 0) {
+    return { error: "Válassz ki legalább egy képet." };
+  }
+
+  const invalidGalleryImage = galleryImages.find((galleryImage) => !galleryImage.type.startsWith("image/"));
+
+  if (invalidGalleryImage) {
+    return { error: "A galéria képei csak képfájlok lehetnek." };
+  }
+
+  const oversizedGalleryImage = galleryImages.find((galleryImage) => galleryImage.size > MAX_IMAGE_SIZE);
+
+  if (oversizedGalleryImage) {
+    return { error: "Egy galériakép legfeljebb 5 MB lehet." };
+  }
+
+  const performance = await prisma.runningPerformance.findUnique({
+    where: {
+      id: runningPerformanceId,
+    },
+    select: {
+      slug: true,
+      _count: {
+        select: {
+          galleryImages: true,
+        },
+      },
+    },
+  });
+
+  if (!performance) {
+    return { error: "Az előadás már nem található." };
+  }
+
+  const galleryImageUrls = await Promise.all(
+    galleryImages.map((galleryImage, index) =>
+      saveGalleryImage(galleryImage, performance.slug, performance._count.galleryImages + index),
+    ),
+  );
+
+  await prisma.runningPerformanceGalleryImage.createMany({
+    data: galleryImageUrls.map((imageUrl, index) => ({
+      runningPerformanceId,
+      imageUrl,
+      sortOrder: performance._count.galleryImages + index,
+    })),
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");
