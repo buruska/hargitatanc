@@ -118,7 +118,27 @@ export default async function HomePage() {
       title: event.title,
     }];
   });
-  const carouselCovers = [...heroCovers, ...eventHeroCovers];
+  const defaultCoverImages = heroCovers.length === 0 && eventHeroCovers.length === 0
+    ? await prisma.defaultCoverImage.findMany({
+        orderBy: [
+          {
+            sortOrder: "asc",
+          },
+          {
+            createdAt: "asc",
+          },
+        ],
+      })
+    : [];
+  const defaultHeroCovers = defaultCoverImages.map((coverImage, index) => ({
+    coverImageUrl: coverImage.imageUrl,
+    id: coverImage.id,
+    summary: "",
+    title: `Alap borítókép ${index + 1}`,
+  }));
+  const carouselCovers = [...heroCovers, ...eventHeroCovers, ...defaultHeroCovers];
+  const titleListCovers = defaultHeroCovers.length > 0 ? [] : heroCovers;
+  const titleListEvents = defaultHeroCovers.length > 0 ? [] : heroEvents;
   const performanceEvents = await prisma.runningPerformanceEvent.findMany({
     orderBy: {
       startsAt: "asc",
@@ -197,8 +217,8 @@ export default async function HomePage() {
           <HeroCoverCarousel
             carouselCovers={carouselCovers}
             className="fixed inset-0 z-0 h-screen w-full overflow-hidden"
-            covers={heroCovers}
-            events={heroEvents}
+            covers={titleListCovers}
+            events={titleListEvents}
             showTitleList
           />
         </div>

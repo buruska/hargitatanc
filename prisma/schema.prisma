@@ -103,3 +103,10 @@ model GalleryAlbum {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model DefaultCoverImage {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
