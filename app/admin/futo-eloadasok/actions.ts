@@ -16,6 +16,11 @@ export type DeletePerformanceState = {
   success?: boolean;
 };
 
+export type DeleteGalleryImageState = {
+  error?: string;
+  success?: boolean;
+};
+
 export type PerformanceEventFormState = {
   error?: string;
   success?: boolean;
@@ -104,6 +109,18 @@ async function saveCoverImage(coverImage: File, slug: string) {
   return coverImageUrl;
 }
 
+async function saveGalleryImage(galleryImage: File, slug: string, index: number) {
+  const extension = getImageExtension(galleryImage);
+  const fileName = `${slug}-galeria-${index + 1}-${randomUUID()}${extension}`;
+  const filePath = path.join(UPLOAD_DIR, fileName);
+  const imageUrl = `/uploads/performances/${fileName}`;
+
+  await mkdir(UPLOAD_DIR, { recursive: true });
+  await writeFile(filePath, Buffer.from(await galleryImage.arrayBuffer()));
+
+  return imageUrl;
+}
+
 async function deleteCoverImage(coverImageUrl: string) {
   if (!coverImageUrl.startsWith("/uploads/performances/")) {
     return;
@@ -129,6 +146,9 @@ export async function createRunningPerformanceAction(
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const coverImage = formData.get("coverImage");
+  const galleryImages = formData
+    .getAll("galleryImages")
+    .filter((file): file is File => file instanceof File && file.size > 0);
 
   if (!title || !summary) {
     return { error: "Add meg az előadás címét és rövid leírását." };
@@ -146,8 +166,23 @@ export async function createRunningPerformanceAction(
     return { error: "A borítókép legfeljebb 5 MB lehet." };
   }
 
+  const invalidGalleryImage = galleryImages.find((galleryImage) => !galleryImage.type.startsWith("image/"));
+
+  if (invalidGalleryImage) {
+    return { error: "A galéria képei csak képfájlok lehetnek." };
+  }
+
+  const oversizedGalleryImage = galleryImages.find((galleryImage) => galleryImage.size > MAX_IMAGE_SIZE);
+
+  if (oversizedGalleryImage) {
+    return { error: "Egy galériakép legfeljebb 5 MB lehet." };
+  }
+
   const slug = await createUniqueSlug(title);
   const coverImageUrl = await saveCoverImage(coverImage, slug);
+  const galleryImageUrls = await Promise.all(
+    galleryImages.map((galleryImage, index) => saveGalleryImage(galleryImage, slug, index)),
+  );
 
   await prisma.runningPerformance.create({
     data: {
@@ -155,6 +190,12 @@ export async function createRunningPerformanceAction(
       slug,
       summary,
       coverImageUrl,
+      galleryImages: {
+        create: galleryImageUrls.map((imageUrl, sortOrder) => ({
+          imageUrl,
+          sortOrder,
+        })),
+      },
     },
   });
 
@@ -186,6 +227,11 @@ export async function updateRunningPerformanceAction(
     },
     select: {
       coverImageUrl: true,
+      galleryImages: {
+        select: {
+          imageUrl: true,
+        },
+      },
     },
   });
 
@@ -243,6 +289,11 @@ export async function deleteRunningPerformanceAction(
     },
     select: {
       coverImageUrl: true,
+      galleryImages: {
+        select: {
+          imageUrl: true,
+        },
+      },
     },
   });
 
@@ -257,11 +308,109 @@ export async function deleteRunningPerformanceAction(
   });
 
   await deleteCoverImage(performance.coverImageUrl);
+  await Promise.all(performance.galleryImages.map((galleryImage) => deleteCoverImage(galleryImage.imageUrl)));
 
   revalidatePath("/");
   revalidatePath("/admin/futo-eloadasok");
 
   return { success: true };
+}
+
+export async function deleteRunningPerformanceGalleryImageAction(
+  _state: DeleteGalleryImageState,
+  formData: FormData,
+): Promise<DeleteGalleryImageState> {
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) {
+    return { error: "Hiányzik a törlendő kép azonosítója." };
+  }
+
+  const galleryImage = await prisma.runningPerformanceGalleryImage.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      imageUrl: true,
+    },
+  });
+
+  if (!galleryImage) {
+    return { error: "A kép már nem található." };
+  }
+
+  await prisma.runningPerformanceGalleryImage.delete({
+    where: {
+      id,
+    },
+  });
+
+  await deleteCoverImage(galleryImage.imageUrl);
+
+  revalidatePath("/");
+  revalidatePath("/admin/futo-eloadasok");
+
+  return { success: true };
+}
+
+export async function moveRunningPerformanceGalleryImageAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  const direction = String(formData.get("direction") ?? "").trim();
+  const runningPerformanceId = String(formData.get("runningPerformanceId") ?? "").trim();
+
+  if (!id || !runningPerformanceId || !["up", "down"].includes(direction)) {
+    return;
+  }
+
+  const galleryImages = await prisma.runningPerformanceGalleryImage.findMany({
+    where: {
+      runningPerformanceId,
+    },
+    orderBy: [
+      {
+        sortOrder: "asc",
+      },
+      {
+        createdAt: "asc",
+      },
+    ],
+  });
+  const currentIndex = galleryImages.findIndex((galleryImage) => galleryImage.id === id);
+
+  if (currentIndex < 0) {
+    return;
+  }
+
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+  if (targetIndex < 0 || targetIndex >= galleryImages.length) {
+    return;
+  }
+
+  const reorderedGalleryImages = [...galleryImages];
+  const [movedGalleryImage] = reorderedGalleryImages.splice(currentIndex, 1);
+
+  if (!movedGalleryImage) {
+    return;
+  }
+
+  reorderedGalleryImages.splice(targetIndex, 0, movedGalleryImage);
+
+  await prisma.$transaction(
+    reorderedGalleryImages.map((galleryImage, sortOrder) =>
+      prisma.runningPerformanceGalleryImage.update({
+        where: {
+          id: galleryImage.id,
+        },
+        data: {
+          sortOrder,
+        },
+      }),
+    ),
+  );
+
+  revalidatePath("/");
+  revalidatePath("/admin/futo-eloadasok");
 }
 
 export async function createRunningPerformanceEventAction(

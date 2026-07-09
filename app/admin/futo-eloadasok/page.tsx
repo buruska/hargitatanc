@@ -7,6 +7,8 @@ import { EditPerformanceModal } from "./edit-performance-modal";
 import { NewPerformanceEventModal } from "./new-performance-event-modal";
 import { NewPerformanceModal } from "./new-performance-modal";
 import { PerformanceEventsToggle } from "./performance-events-toggle";
+import { moveRunningPerformanceGalleryImageAction } from "./actions";
+import { DeleteGalleryImageModal } from "./delete-gallery-image-modal";
 
 export default async function AdminFutoEloadasokPage() {
   const performances = await prisma.runningPerformance.findMany({
@@ -18,6 +20,20 @@ export default async function AdminFutoEloadasokPage() {
       title: true,
       summary: true,
       coverImageUrl: true,
+      galleryImages: {
+        orderBy: [
+          {
+            sortOrder: "asc",
+          },
+          {
+            createdAt: "asc",
+          },
+        ],
+        select: {
+          id: true,
+          imageUrl: true,
+        },
+      },
       events: {
         orderBy: {
           startsAt: "asc",
@@ -57,6 +73,54 @@ export default async function AdminFutoEloadasokPage() {
               <div className="mt-3">
                 <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
               </div>
+              {performance.galleryImages.length > 0 ? (
+                <div className="mt-4">
+                  <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-petrol">Galéria:</p>
+                  <div className="grid gap-2">
+                    {performance.galleryImages.map((galleryImage, index) => (
+                      <article className="grid gap-2 border border-line bg-surface-strong p-2 min-[620px]:grid-cols-[92px_1fr] min-[620px]:items-center" key={galleryImage.id}>
+                        <Image
+                          alt=""
+                          className="aspect-[16/10] w-full border-2 border-line-strong object-cover"
+                          height={58}
+                          src={galleryImage.imageUrl}
+                          width={92}
+                        />
+                        <div className="flex flex-col gap-2 min-[620px]:flex-row min-[620px]:items-center min-[620px]:justify-between">
+                          <p className="truncate text-xs font-bold text-muted">{galleryImage.imageUrl}</p>
+                          <div className="flex shrink-0 flex-wrap gap-2">
+                            <form action={moveRunningPerformanceGalleryImageAction}>
+                              <input name="id" type="hidden" value={galleryImage.id} />
+                              <input name="runningPerformanceId" type="hidden" value={performance.id} />
+                              <input name="direction" type="hidden" value="up" />
+                              <button
+                                className="inline-flex min-h-8 items-center justify-center border border-line bg-surface px-3 py-1 text-xs font-extrabold text-pine transition hover:border-charcoal hover:text-charcoal disabled:cursor-not-allowed disabled:opacity-45"
+                                type="submit"
+                                disabled={index === 0}
+                              >
+                                Fel
+                              </button>
+                            </form>
+                            <form action={moveRunningPerformanceGalleryImageAction}>
+                              <input name="id" type="hidden" value={galleryImage.id} />
+                              <input name="runningPerformanceId" type="hidden" value={performance.id} />
+                              <input name="direction" type="hidden" value="down" />
+                              <button
+                                className="inline-flex min-h-8 items-center justify-center border border-line bg-surface px-3 py-1 text-xs font-extrabold text-pine transition hover:border-charcoal hover:text-charcoal disabled:cursor-not-allowed disabled:opacity-45"
+                                type="submit"
+                                disabled={index === performance.galleryImages.length - 1}
+                              >
+                                Le
+                              </button>
+                            </form>
+                            <DeleteGalleryImageModal id={galleryImage.id} imageUrl={galleryImage.imageUrl} />
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <PerformanceEventsToggle
                 events={performance.events.map((event) => ({
                   ...event,

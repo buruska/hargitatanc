@@ -49,7 +49,7 @@ export function NewPerformanceModal() {
   return (
     <>
       <button className={buttonPrimary} type="button" onClick={() => setIsOpen(true)}>
-        Új előadás hozzáadása
+        Új darab hozzáadása
       </button>
 
       {isOpen ? (
@@ -62,7 +62,7 @@ export function NewPerformanceModal() {
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <h2 className="font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]" id={titleId}>
-                Új előadás hozzáadása
+                Új darab hozzáadása
               </h2>
               <button
                 aria-label="Modal bezárása"
@@ -97,6 +97,16 @@ export function NewPerformanceModal() {
               <label className={label}>
                 Rövid leírás
                 <textarea className={`${input} min-h-32 resize-y`} name="summary" required />
+              </label>
+              <label className={label}>
+                Galéria hozzáadása
+                <input
+                  className="min-h-[46px] border-2 border-line-strong bg-surface-strong px-3 py-2.5 font-sans text-charcoal file:mr-4 file:border-0 file:bg-thread-red file:px-3 file:py-2 file:font-extrabold file:text-surface-strong"
+                  name="galleryImages"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                />
               </label>
               <div className="flex flex-col gap-3 min-[520px]:flex-row min-[520px]:justify-end">
                 <button className={buttonSecondary} type="button" onClick={() => setIsOpen(false)}>
