@@ -12,6 +12,18 @@ function getDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function getDateKeysBetween(startDate: Date, endDate: Date) {
+  const firstDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const lastDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+  const dateKeys: string[] = [];
+
+  for (const currentDate = new Date(firstDate); currentDate <= lastDate; currentDate.setDate(currentDate.getDate() + 1)) {
+    dateKeys.push(getDateKey(currentDate));
+  }
+
+  return dateKeys;
+}
+
 function getFirstImageSrc(value: string) {
   return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null;
 }
@@ -81,6 +93,7 @@ export default async function HomePage() {
     },
     select: {
       coverImageUrl: true,
+      endsAt: true,
       id: true,
       startsAt: true,
       summary: true,
@@ -142,10 +155,11 @@ export default async function HomePage() {
     }
 
     return [{
+      calendarDateKeys: getDateKeysBetween(event.startsAt, event.endsAt ?? event.startsAt),
       coverImageUrl: event.coverImageUrl,
       dateKey: getDateKey(event.startsAt),
       id: event.id,
-      isPast: event.startsAt < now,
+      isPast: (event.endsAt ?? event.startsAt) < now,
       kind: "event" as const,
       location: "",
       startsAt: event.startsAt.toISOString(),

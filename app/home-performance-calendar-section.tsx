@@ -5,6 +5,7 @@ import { HomeCalendar } from "./home-calendar";
 import { HomeRevealGroup } from "./home-reveal-group";
 
 export type HomePerformanceEvent = {
+  calendarDateKeys?: string[];
   coverImageUrl: string;
   dateKey: string;
   id: string;
@@ -18,6 +19,7 @@ export type HomePerformanceEvent = {
 };
 
 type ActivePerformance = {
+  calendarDateKeys?: string[];
   coverImageUrl: string;
   dateKey: string;
   isPast: boolean;
@@ -46,7 +48,7 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
       return upcomingEvents;
     }
 
-    return upcomingEvents.filter((event) => event.dateKey === activePerformance.dateKey);
+    return upcomingEvents.filter((event) => (event.calendarDateKeys ?? [event.dateKey]).includes(activePerformance.dateKey));
   }, [activePerformance, events, isCalendarFiltered]);
 
   return (
@@ -155,15 +157,14 @@ function PerformanceListItem({
     hour: "2-digit",
     minute: "2-digit",
   }).format(startsAt);
-  const isStandaloneEvent = event.kind === "event";
-  const accentText = event.isPast ? "text-muted" : isStandaloneEvent ? "text-pine" : "text-thread-red";
-  const accentBg = event.isPast ? "bg-muted" : isStandaloneEvent ? "bg-pine" : "bg-thread-red";
-  const accentBorder = event.isPast ? "border-muted" : isStandaloneEvent ? "border-pine" : "border-thread-red";
-  const hoverBorder = event.isPast ? "group-hover:border-muted" : isStandaloneEvent ? "group-hover:border-pine" : "group-hover:border-thread-red";
+  const accentText = event.isPast ? "text-muted" : "text-thread-red";
+  const accentBg = event.isPast ? "bg-muted" : "bg-thread-red";
+  const accentBorder = event.isPast ? "border-muted" : "border-thread-red";
+  const hoverBorder = event.isPast ? "group-hover:border-muted" : "group-hover:border-thread-red";
   const eventContent = (
     <>
       {isFiltered ? null : (
-        <time className={`grid min-h-[72px] min-w-[86px] place-items-center border-r px-4 text-center text-surface-strong ${accentBg} ${isStandaloneEvent ? "border-pine/25" : "border-thread-red/25"}`}>
+        <time className={`grid min-h-[72px] min-w-[86px] place-items-center border-r px-4 text-center text-surface-strong ${accentBg} border-thread-red/25`}>
           <span className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-surface-strong/78">
             {month}
           </span>
@@ -201,6 +202,7 @@ function PerformanceListItem({
       onMouseEnter={() =>
         onPerformanceHover({
           coverImageUrl: event.coverImageUrl,
+          calendarDateKeys: event.calendarDateKeys,
           dateKey: event.dateKey,
           isPast: event.isPast,
           kind: event.kind,
@@ -246,10 +248,9 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
     hour: "2-digit",
     minute: "2-digit",
   }).format(startsAt);
-  const isStandaloneEvent = event.kind === "event";
-  const accentText = isStandaloneEvent ? "text-pine" : "text-thread-red";
-  const accentBg = isStandaloneEvent ? "bg-pine" : "bg-thread-red";
-  const accentBorderHover = isStandaloneEvent ? "hover:border-pine hover:bg-pine" : "hover:border-thread-red hover:bg-thread-red";
+  const accentText = "text-thread-red";
+  const accentBg = "bg-thread-red";
+  const accentBorderHover = "hover:border-thread-red hover:bg-thread-red";
 
   useEffect(() => {
     function handleKeyDown(keyboardEvent: KeyboardEvent) {

@@ -173,7 +173,7 @@ export function HeroCoverCarousel({
                   return (
                     <button
                       className={`border-l-2 px-3 py-2 text-left transition duration-200 ${
-                        isActive ? "border-pine bg-white/12" : "border-white/25 hover:border-pine"
+                        isActive ? "border-thread-red bg-white/12" : "border-white/25 hover:border-thread-red"
                       }`}
                       key={event.id}
                       type="button"
