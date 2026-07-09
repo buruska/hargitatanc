@@ -21,7 +21,7 @@ export default async function AdminPage() {
     });
 
     return (
-      <main className="relative isolate grid min-h-screen place-items-center overflow-hidden px-[18px] py-[120px]">
+      <main className="relative isolate grid min-h-screen place-items-center overflow-hidden px-[18px] pb-[170px] pt-[120px]">
         <HeroCoverCarousel covers={performances} className="absolute inset-0 -z-20 h-full w-full overflow-hidden" />
         <div className="absolute inset-0 -z-10 bg-charcoal/55" />
         <section className={`${panel} w-full max-w-[460px] p-[26px]`}>
