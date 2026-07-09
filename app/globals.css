@@ -118,6 +118,21 @@
   transform: rotateY(180deg);
 }
 
+.member-card-reveal {
+  opacity: 0;
+  transform: translateY(54px);
+  transition:
+    opacity 620ms ease,
+    transform 620ms ease;
+  transition-delay: calc(var(--member-reveal-index, 0) * 70ms);
+  will-change: opacity, transform;
+}
+
+.member-card-reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .home-reveal-group[data-revealed="true"] .home-reveal-calendar,
 .home-reveal-group[data-revealed="true"] .home-reveal-event,
 .home-reveal-group[data-revealed="true"] .about-intro-reveal,
@@ -261,6 +276,7 @@
   .about-director-reveal,
   .home-reveal-title-from-right,
   .home-news-card,
+  .member-card-reveal,
   .home-list-transition,
   .hero-side-panel,
   .loading-logo-spin,

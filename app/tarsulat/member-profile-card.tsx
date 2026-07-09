@@ -111,7 +111,7 @@ export function MemberProfileCard({ bio, imageUrl, name, role, variant = "red" }
 
   return (
     <>
-      <article className="group relative mb-10 w-full max-w-[238px] justify-self-center border-2 border-line-strong shadow-[8px_8px_0_rgb(33_31_27_/_14%)]">
+      <article className="group relative mb-10 w-full max-w-[420px] justify-self-center border-2 border-line-strong shadow-[8px_8px_0_rgb(33_31_27_/_14%)]">
         <button
           aria-label={`${name} adatainak megnyitása`}
           className="block w-full cursor-pointer text-left"
@@ -123,9 +123,9 @@ export function MemberProfileCard({ bio, imageUrl, name, role, variant = "red" }
               <Image
                 alt={`${name} ${role}`}
                 className="aspect-[4/5] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                height={298}
+                height={525}
                 src={imageUrl}
-                width={238}
+                width={420}
               />
             ) : (
               placeholder

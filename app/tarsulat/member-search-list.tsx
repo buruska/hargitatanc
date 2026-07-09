@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { MemberProfileCard } from "./member-profile-card";
+import { MemberRevealCard } from "./member-reveal-card";
 
 type MemberCard = {
   bio: string | null;
@@ -58,7 +59,7 @@ export function MemberSearchList({ dancers, staffMembers }: MemberSearchListProp
   const hasResults = filteredDancers.length > 0 || filteredStaffMembers.length > 0;
 
   return (
-    <section className="relative left-1/2 mt-32 w-[70vw] -translate-x-1/2">
+    <section className="relative left-1/2 mt-32 w-[85vw] -translate-x-1/2">
       <div className="mb-8 flex flex-wrap items-start justify-between gap-6">
         <h2 className="font-serif text-[clamp(17px,2.5vw,32px)] font-bold leading-[1.02] text-charcoal">Tagjaink</h2>
         <label className="mt-16 block w-full max-w-[280px]">
@@ -76,45 +77,48 @@ export function MemberSearchList({ dancers, staffMembers }: MemberSearchListProp
       {hasResults ? (
         <>
           {trimmedQuery ? (
-            <div className="grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
-              {filteredMembers.map((member) => (
-                <MemberProfileCard
-                  bio={member.bio ?? ""}
-                  imageUrl={member.imageUrl}
-                  key={member.id}
-                  name={member.name}
-                  role={member.role}
-                  variant={member.variant}
-                />
+            <div className="grid grid-cols-1 gap-x-8 gap-y-14 min-[720px]:grid-cols-2 min-[1180px]:grid-cols-4">
+              {filteredMembers.map((member, index) => (
+                <MemberRevealCard index={index} key={member.id}>
+                  <MemberProfileCard
+                    bio={member.bio ?? ""}
+                    imageUrl={member.imageUrl}
+                    name={member.name}
+                    role={member.role}
+                    variant={member.variant}
+                  />
+                </MemberRevealCard>
               ))}
             </div>
           ) : (
             <>
               {filteredDancers.length > 0 ? (
-                <div className="grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
-                  {filteredDancers.map((member) => (
-                    <MemberProfileCard
-                      bio={member.bio ?? ""}
-                      imageUrl={member.imageUrl}
-                      key={member.id}
-                      name={member.name}
-                      role={member.role}
-                    />
+                <div className="grid grid-cols-1 gap-x-8 gap-y-14 min-[720px]:grid-cols-2 min-[1180px]:grid-cols-4">
+                  {filteredDancers.map((member, index) => (
+                    <MemberRevealCard index={index} key={member.id}>
+                      <MemberProfileCard
+                        bio={member.bio ?? ""}
+                        imageUrl={member.imageUrl}
+                        name={member.name}
+                        role={member.role}
+                      />
+                    </MemberRevealCard>
                   ))}
                 </div>
               ) : null}
 
               {filteredStaffMembers.length > 0 ? (
-                <div className="mt-24 grid grid-cols-1 gap-x-7 gap-y-14 min-[560px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1180px]:grid-cols-4">
-                  {filteredStaffMembers.map((member) => (
-                    <MemberProfileCard
-                      bio={member.bio ?? ""}
-                      imageUrl={member.imageUrl}
-                      key={member.id}
-                      name={member.name}
-                      role={member.role}
-                      variant="green"
-                    />
+                <div className="mt-24 grid grid-cols-1 gap-x-8 gap-y-14 min-[720px]:grid-cols-2 min-[1180px]:grid-cols-4">
+                  {filteredStaffMembers.map((member, index) => (
+                    <MemberRevealCard index={index} key={member.id}>
+                      <MemberProfileCard
+                        bio={member.bio ?? ""}
+                        imageUrl={member.imageUrl}
+                        name={member.name}
+                        role={member.role}
+                        variant="green"
+                      />
+                    </MemberRevealCard>
                   ))}
                 </div>
               ) : null}
