@@ -204,7 +204,7 @@ export async function createRunningPerformanceAction(
     },
   });
 
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -273,7 +273,7 @@ export async function updateRunningPerformanceAction(
   });
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -316,7 +316,7 @@ export async function deleteRunningPerformanceAction(
   await Promise.all(performance.galleryImages.map((galleryImage) => deleteCoverImage(galleryImage.imageUrl)));
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -353,7 +353,7 @@ export async function deleteRunningPerformanceGalleryImageAction(
   await deleteCoverImage(galleryImage.imageUrl);
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -420,7 +420,7 @@ export async function addRunningPerformanceGalleryImagesAction(
   });
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -482,7 +482,7 @@ export async function moveRunningPerformanceGalleryImageAction(formData: FormDat
   );
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 }
 
 export async function createRunningPerformanceEventAction(
@@ -544,7 +544,7 @@ export async function createRunningPerformanceEventAction(
   });
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -610,7 +610,7 @@ export async function updateRunningPerformanceEventAction(
   });
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
@@ -645,7 +645,7 @@ export async function deleteRunningPerformanceEventAction(
   });
 
   revalidatePath("/");
-  revalidatePath("/admin/futo-eloadasok");
+  revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
 }
