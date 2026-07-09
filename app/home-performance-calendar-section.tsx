@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { HomeCalendar } from "./home-calendar";
 import { HomeRevealGroup } from "./home-reveal-group";
 
@@ -25,6 +26,7 @@ type HomePerformanceCalendarSectionProps = {
 
 export function HomePerformanceCalendarSection({ events, initialDate }: HomePerformanceCalendarSectionProps) {
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<HomePerformanceEvent | null>(null);
   const isCalendarFiltered = activeEventId !== null;
   const visibleEvents = useMemo(() => {
@@ -36,6 +38,10 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
 
     return upcomingEvents.filter((event) => event.id === activeEventId);
   }, [activeEventId, events]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <>
@@ -77,7 +83,9 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
         </div>
       </HomeRevealGroup>
 
-      {selectedEvent ? <PerformanceDetailsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} /> : null}
+      {selectedEvent && isMounted
+        ? createPortal(<PerformanceDetailsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />, document.body)
+        : null}
     </>
   );
 }
@@ -223,7 +231,7 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-50 grid place-items-center bg-charcoal/70 px-4 py-8 backdrop-blur-sm"
+      className="fixed inset-0 z-[200] grid place-items-center bg-charcoal/70 px-4 py-8 backdrop-blur-sm"
       role="dialog"
       onMouseDown={onClose}
     >
