@@ -9,6 +9,7 @@ type HomeCalendarProps = {
     calendarDateKeys?: string[];
     coverImageUrl: string;
     dateKey: string;
+    id: string;
     isPast: boolean;
     kind: "performance" | "event";
     ticketUrl: string;
@@ -19,6 +20,7 @@ type HomeCalendarProps = {
     calendarDateKeys?: string[];
     coverImageUrl: string;
     dateKey: string;
+    id: string;
     isPast: boolean;
     kind: "performance" | "event";
     ticketUrl: string;
@@ -53,13 +55,13 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
     return new Date(year, month - 1, day);
   });
   const eventsByDate = useMemo(() => {
-    return events.reduce<Record<string, { calendarDateKeys?: string[]; coverImageUrl: string; isPast: boolean; kind: "performance" | "event"; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
+    return events.reduce<Record<string, { calendarDateKeys?: string[]; coverImageUrl: string; id: string; isPast: boolean; kind: "performance" | "event"; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
       const dateKeys = event.calendarDateKeys ?? [event.dateKey];
 
       dateKeys.forEach((dateKey) => {
         groupedEvents[dateKey] = [
           ...(groupedEvents[dateKey] ?? []),
-          { calendarDateKeys: event.calendarDateKeys, coverImageUrl: event.coverImageUrl, isPast: event.isPast, kind: event.kind, ticketUrl: event.ticketUrl, title: event.title },
+          { calendarDateKeys: event.calendarDateKeys, coverImageUrl: event.coverImageUrl, id: event.id, isPast: event.isPast, kind: event.kind, ticketUrl: event.ticketUrl, title: event.title },
         ];
       });
 
@@ -136,6 +138,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
                     coverImageUrl: firstEvent.coverImageUrl,
                     dateKey,
                     calendarDateKeys: firstEvent.calendarDateKeys,
+                    id: firstEvent.id,
                     isPast: firstEvent.isPast,
                     kind: firstEvent.kind,
                     ticketUrl: firstEvent.ticketUrl,
@@ -163,7 +166,19 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
                       className={`truncate border-l-2 pl-1.5 text-[12px] font-extrabold leading-tight text-surface-strong ${
                         event.isPast ? "border-muted/70 text-surface-strong/72" : "border-thread-red"
                       }`}
-                      key={`${event.title}-${index}`}
+                      key={`${event.id}-${index}`}
+                      onMouseEnter={() =>
+                        onPerformanceHover?.({
+                          calendarDateKeys: event.calendarDateKeys,
+                          coverImageUrl: event.coverImageUrl,
+                          dateKey,
+                          id: event.id,
+                          isPast: event.isPast,
+                          kind: event.kind,
+                          ticketUrl: event.ticketUrl,
+                          title: event.title,
+                        })
+                      }
                     >
                       {event.title}
                     </span>

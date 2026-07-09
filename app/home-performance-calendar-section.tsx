@@ -18,92 +18,43 @@ export type HomePerformanceEvent = {
   title: string;
 };
 
-type ActivePerformance = {
-  calendarDateKeys?: string[];
-  coverImageUrl: string;
-  dateKey: string;
-  isPast: boolean;
-  kind: "performance" | "event";
-  ticketUrl: string;
-  title: string;
-};
-
-type ActivePerformanceState = ActivePerformance & {
-  source: "calendar" | "list";
-};
-
 type HomePerformanceCalendarSectionProps = {
   events: HomePerformanceEvent[];
   initialDate: string;
 };
 
 export function HomePerformanceCalendarSection({ events, initialDate }: HomePerformanceCalendarSectionProps) {
-  const [activePerformance, setActivePerformance] = useState<ActivePerformanceState | null>(null);
+  const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<HomePerformanceEvent | null>(null);
-  const isCalendarFiltered = activePerformance?.source === "calendar";
+  const isCalendarFiltered = activeEventId !== null;
   const visibleEvents = useMemo(() => {
     const upcomingEvents = events.filter((event) => !event.isPast);
 
-    if (!isCalendarFiltered || !activePerformance) {
+    if (!activeEventId) {
       return upcomingEvents;
     }
 
-    return upcomingEvents.filter((event) => (event.calendarDateKeys ?? [event.dateKey]).includes(activePerformance.dateKey));
-  }, [activePerformance, events, isCalendarFiltered]);
+    return upcomingEvents.filter((event) => event.id === activeEventId);
+  }, [activeEventId, events]);
 
   return (
     <>
       <HomeRevealGroup
         className="home-reveal-group grid gap-8 transition-all duration-300 ease-out min-[920px]:h-[540px] min-[920px]:grid-cols-[1.38fr_0.7fr] min-[920px]:items-stretch"
-        onMouseLeave={() => setActivePerformance(null)}
+        onMouseLeave={() => setActiveEventId(null)}
       >
-        <div className="home-reveal-calendar relative h-full min-h-[420px] transition-all duration-300 ease-out min-[920px]:min-h-0">
-          <div
-            className={`absolute inset-0 transition-opacity duration-300 ease-out ${
-              activePerformance ? "pointer-events-none opacity-0" : "opacity-100"
-            }`}
-          >
-            <HomeCalendar
-              events={events}
-              initialDate={initialDate}
-              onPerformanceHover={(performance) => setActivePerformance({ ...performance, source: "calendar" })}
-            />
-          </div>
-          <div
-            className={`absolute inset-0 transition-opacity duration-300 ease-out ${
-              activePerformance ? "opacity-100" : "pointer-events-none opacity-0"
-            }`}
-          >
-            <div
-              className={`relative grid h-full place-items-center overflow-hidden border border-line bg-cover bg-center opacity-100 shadow-[0_18px_35px_rgb(33_31_27_/_10%)] transition-all duration-300 ease-out ${
-                activePerformance?.isPast ? "grayscale opacity-75" : ""
-              }`}
-              style={activePerformance ? { backgroundImage: `url(${activePerformance.coverImageUrl})` } : undefined}
-            >
-              <span className={`absolute inset-0 ${activePerformance?.isPast ? "bg-stone-800/58" : "bg-charcoal/32"}`} />
-              {activePerformance ? (
-                <h2 className="absolute bottom-6 left-6 right-6 z-[1] font-serif text-[clamp(28px,4vw,48px)] font-bold leading-tight text-surface-strong drop-shadow-[0_2px_14px_rgb(33_31_27_/_48%)]">
-                  {activePerformance.title}
-                </h2>
-              ) : null}
-              {isCalendarFiltered && activePerformance?.ticketUrl ? (
-                <a
-                  className="relative z-[1] bg-thread-red px-6 py-3 text-[14px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_20%)] transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
-                  href={activePerformance.ticketUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Jegyek
-                </a>
-              ) : null}
-            </div>
-          </div>
+        <div className="home-reveal-calendar h-full min-h-[420px] transition-all duration-300 ease-out min-[920px]:min-h-0">
+          <HomeCalendar
+            events={events}
+            initialDate={initialDate}
+            onPerformanceHover={(performance) => setActiveEventId(performance.id)}
+          />
         </div>
 
         <div className="h-full min-h-0 transition-all duration-300 ease-out">
           {visibleEvents.length > 0 ? (
             <div
-              key={isCalendarFiltered ? activePerformance?.dateKey : "all-events"}
+              key={activeEventId ?? "all-events"}
               className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pr-2 transition-all duration-300 ease-out ${
                 isCalendarFiltered ? "auto-rows-max content-start" : "auto-rows-[calc((100%_-_60px)/6)]"
               }`}
@@ -115,7 +66,6 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
                   isFiltered={isCalendarFiltered}
                   key={event.id}
                   onOpenDetails={() => setSelectedEvent(event)}
-                  onPerformanceHover={(performance) => setActivePerformance({ ...performance, source: "list" })}
                 />
               ))}
             </div>
@@ -137,21 +87,15 @@ function PerformanceListItem({
   index,
   isFiltered,
   onOpenDetails,
-  onPerformanceHover,
 }: {
   event: HomePerformanceEvent;
   index: number;
   isFiltered: boolean;
   onOpenDetails: () => void;
-  onPerformanceHover: (performance: ActivePerformance) => void;
 }) {
   const startsAt = new Date(event.startsAt);
   const day = new Intl.DateTimeFormat("hu-RO", { day: "2-digit" }).format(startsAt);
   const month = new Intl.DateTimeFormat("hu-RO", { month: "short" }).format(startsAt);
-  const date = new Intl.DateTimeFormat("hu-RO", {
-    dateStyle: "full",
-    timeStyle: "short",
-  }).format(startsAt);
   const weekdayAndTime = new Intl.DateTimeFormat("hu-RO", {
     weekday: "long",
     hour: "2-digit",
@@ -161,36 +105,57 @@ function PerformanceListItem({
   const accentBg = event.isPast ? "bg-muted" : "bg-thread-red";
   const accentBorder = event.isPast ? "border-muted" : "border-thread-red";
   const hoverBorder = event.isPast ? "group-hover:border-muted" : "group-hover:border-thread-red";
+
+  if (isFiltered) {
+    return (
+      <div
+        className="home-reveal-event snap-start"
+        style={{ transitionDelay: `${index * 85}ms` }}
+      >
+        <article className="grid gap-4 border border-line-strong bg-surface-strong p-4 shadow-[0_10px_24px_rgb(33_31_27_/_7%)]">
+          <h3 className="font-serif text-[clamp(24px,3vw,34px)] font-bold leading-tight text-charcoal">
+            {event.title}
+          </h3>
+          <div
+            aria-label={event.title}
+            className="aspect-[16/10] border-2 border-line-strong bg-cover bg-center"
+            role="img"
+            style={{ backgroundImage: `url(${event.coverImageUrl})` }}
+          />
+          {event.ticketUrl ? (
+            <a
+              className="inline-flex w-fit items-center justify-center bg-thread-red px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 hover:bg-charcoal active:scale-95"
+              href={event.ticketUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Jegyvásárlás
+            </a>
+          ) : null}
+          <p className="text-[15px] font-bold leading-relaxed text-muted">
+            {event.summary}
+          </p>
+        </article>
+      </div>
+    );
+  }
+
   const eventContent = (
     <>
-      {isFiltered ? null : (
-        <time className={`grid min-h-[72px] min-w-[86px] place-items-center border-r px-4 text-center text-surface-strong ${accentBg} border-thread-red/25`}>
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-surface-strong/78">
-            {month}
-          </span>
-          <span className="font-serif text-[34px] font-bold leading-none">{day}</span>
-        </time>
-      )}
-      <span className={`grid min-w-0 flex-1 px-4 py-3 ${isFiltered ? "gap-2 pb-5" : "gap-1"}`}>
-        {isFiltered ? (
-          <span className="grid gap-1 text-[13px] font-extrabold">
-            <span className={`truncate ${accentText}`}>{date}</span>
-            {event.location ? <span className="truncate text-muted">{event.location}</span> : null}
-          </span>
-        ) : (
-          <span className="flex min-w-0 items-center justify-between gap-3 text-[13px] font-extrabold">
-            <span className={`truncate ${accentText}`}>{weekdayAndTime}</span>
-            {event.location ? <span className="ml-auto truncate text-right text-muted">{event.location}</span> : null}
-          </span>
-        )}
+      <time className={`grid min-h-[72px] min-w-[86px] place-items-center border-r px-4 text-center text-surface-strong ${accentBg} border-thread-red/25`}>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-surface-strong/78">
+          {month}
+        </span>
+        <span className="font-serif text-[34px] font-bold leading-none">{day}</span>
+      </time>
+      <span className="grid min-w-0 flex-1 gap-1 px-4 py-3">
+        <span className="flex min-w-0 items-center justify-between gap-3 text-[13px] font-extrabold">
+          <span className={`truncate ${accentText}`}>{weekdayAndTime}</span>
+          {event.location ? <span className="ml-auto truncate text-right text-muted">{event.location}</span> : null}
+        </span>
         <span className="truncate font-serif text-[clamp(15px,1.6vw,18px)] font-bold leading-tight text-charcoal">
           {event.title}
         </span>
-        {isFiltered ? (
-          <span className="line-clamp-3 text-[13px] font-bold leading-snug text-muted">
-            {event.summary}
-          </span>
-        ) : null}
       </span>
     </>
   );
@@ -199,17 +164,6 @@ function PerformanceListItem({
     <div
       className="home-reveal-event group snap-start"
       style={{ transitionDelay: `${index * 85}ms` }}
-      onMouseEnter={() =>
-        onPerformanceHover({
-          coverImageUrl: event.coverImageUrl,
-          calendarDateKeys: event.calendarDateKeys,
-          dateKey: event.dateKey,
-          isPast: event.isPast,
-          kind: event.kind,
-          ticketUrl: event.ticketUrl,
-          title: event.title,
-        })
-      }
     >
       <article className={`relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out group-hover:-translate-y-0.5 ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
         event.isPast ? "grayscale opacity-65" : ""
