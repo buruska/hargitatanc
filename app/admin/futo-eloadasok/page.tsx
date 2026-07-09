@@ -35,7 +35,7 @@ export default async function AdminFutoEloadasokPage() {
   return (
     <AdminShell>
       <div className="flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
-        <h1 className={adminTitle}>Futó előadások</h1>
+        <h1 className={adminTitle}>Játszott darabok</h1>
         <NewPerformanceModal />
       </div>
 

@@ -7,7 +7,7 @@ import { InactivityLogoutTimer } from "./inactivity-logout";
 
 const adminNavigation = [
   { href: "/admin/statisztikak", label: "Statisztikák" },
-  { href: "/admin/futo-eloadasok", label: "Futó előadások" },
+  { href: "/admin/futo-eloadasok", label: "Játszott darabok" },
   { href: "/admin/rendezvenyek", label: "Rendezvények" },
   { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
   { href: "/admin/tarsulat", label: "Rólunk" },
