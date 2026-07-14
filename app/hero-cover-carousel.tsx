@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 
@@ -44,11 +45,16 @@ export function HeroCoverCarousel({
   const displayedCovers = carouselCovers ?? covers;
   const [activeIndex, setActiveIndex] = useState(0);
   const [areTitlePanelsCovered, setAreTitlePanelsCovered] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [selectedCover, setSelectedCover] = useState<HeroCover | null>(null);
   const titleListRef = useRef<HTMLDivElement | null>(null);
   const activeCover = displayedCovers[activeIndex];
   const activeEventId = activeCover?.id.startsWith("event-") ? activeCover.id.replace(/^event-/, "") : null;
   const hasTitleListItems = covers.length > 0 || events.length > 0;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!selectedCover) {
@@ -203,10 +209,10 @@ export function HeroCoverCarousel({
           ) : null}
         </div>
       ) : null}
-      {selectedCover ? (
+      {selectedCover && isMounted ? createPortal(
         <div
           aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-charcoal/70 px-4 py-8 backdrop-blur-sm"
+          className="fixed inset-0 z-[220] grid place-items-center bg-charcoal/70 px-4 py-8 backdrop-blur-sm"
           role="dialog"
           onMouseDown={() => setSelectedCover(null)}
         >
@@ -276,7 +282,7 @@ export function HeroCoverCarousel({
             </p>
           </div>
         </div>
-      ) : null}
+      , document.body) : null}
     </div>
   );
 }
