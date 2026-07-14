@@ -31,6 +31,7 @@ type HomeCalendarProps = {
     ticketUrl: string;
     title: string;
   }) => void;
+  onPerformanceOpen?: (performanceId: string) => void;
 };
 
 function getDateKey(date: Date) {
@@ -54,7 +55,7 @@ function getCalendarDays(date: Date) {
   });
 }
 
-export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCalendarProps) {
+export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerformanceOpen }: HomeCalendarProps) {
   const [visibleDate, setVisibleDate] = useState(() => {
     const [year, month, day] = initialDate.split("-").map(Number);
     return new Date(year, month - 1, day);
@@ -130,7 +131,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
 
           return (
             <div
-              className={`relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition-all duration-300 ease-out ${
+              className={`group relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition-all duration-300 ease-out ${
                 isCurrentMonth ? "bg-surface-strong text-charcoal" : "bg-surface text-muted/35"
               } ${hasEvent ? "bg-cover bg-center text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""} ${
                 hasOnlyPastEvents ? "grayscale opacity-65" : ""
@@ -155,6 +156,15 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
               }}
             >
               {hasEvent ? <span className={`absolute inset-0 ${hasOnlyPastEvents ? "bg-stone-800/62" : "bg-charcoal/36"}`} /> : null}
+              {hasEvent && firstEvent ? (
+                <button
+                  className="absolute inset-x-2 top-1/2 z-[2] mx-auto hidden min-h-7 w-fit -translate-y-1/2 border border-surface-strong bg-surface-strong px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-thread-red opacity-0 shadow-[0_8px_18px_rgb(33_31_27_/_18%)] transition duration-200 hover:bg-thread-red hover:text-surface-strong group-hover:inline-flex group-hover:opacity-100"
+                  type="button"
+                  onClick={() => onPerformanceOpen?.(firstEvent.id)}
+                >
+                  Részletek
+                </button>
+              ) : null}
               {ticketUrl ? (
                 <a
                   className="absolute left-2 top-2 z-[1] bg-thread-red px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"

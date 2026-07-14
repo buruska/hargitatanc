@@ -57,6 +57,13 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
             events={events}
             initialDate={initialDate}
             onPerformanceHover={(performance) => setActiveEventId(performance.id)}
+            onPerformanceOpen={(performanceId) => {
+              const event = events.find((currentEvent) => currentEvent.id === performanceId);
+
+              if (event) {
+                setSelectedEvent(event);
+              }
+            }}
           />
         </div>
 
