@@ -236,6 +236,8 @@ export async function createRunningPerformanceAction(
     },
   });
 
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
@@ -305,6 +307,8 @@ export async function updateRunningPerformanceAction(
   });
 
   revalidatePath("/");
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
@@ -348,6 +352,8 @@ export async function deleteRunningPerformanceAction(
   await Promise.all(performance.galleryImages.map((galleryImage) => deleteCoverImage(galleryImage.imageUrl)));
 
   revalidatePath("/");
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
@@ -385,6 +391,8 @@ export async function deleteRunningPerformanceGalleryImageAction(
   await deleteCoverImage(galleryImage.imageUrl);
 
   revalidatePath("/");
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
@@ -452,6 +460,8 @@ export async function addRunningPerformanceGalleryImagesAction(
   });
 
   revalidatePath("/");
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
 
   return { success: true };
@@ -514,6 +524,8 @@ export async function moveRunningPerformanceGalleryImageAction(formData: FormDat
   );
 
   revalidatePath("/");
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
 }
 

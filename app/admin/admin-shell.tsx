@@ -9,6 +9,7 @@ const adminNavigation = [
   { href: "/admin/statisztikak", label: "Statisztikák" },
   { href: "/admin/alapbeallitasok", label: "Alapbeállítások" },
   { href: "/admin/jatszott-darabok", label: "Játszott darabok" },
+  { href: "/admin/galeriak", label: "Galériák" },
   { href: "/admin/rendezvenyek", label: "Rendezvények" },
   { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
   { href: "/admin/tarsulat", label: "Rólunk" },

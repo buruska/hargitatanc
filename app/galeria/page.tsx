@@ -27,6 +27,7 @@ export default async function GaleriaPage() {
       title: true,
     },
     where: {
+      galleryIsPublished: true,
       galleryImages: {
         some: {},
       },

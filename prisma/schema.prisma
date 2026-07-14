@@ -50,6 +50,7 @@ model RunningPerformance {
   slug          String   @unique
   summary       String
   coverImageUrl String
+  galleryIsPublished Boolean @default(true)
   events        RunningPerformanceEvent[]
   galleryImages RunningPerformanceGalleryImage[]
   createdAt     DateTime @default(now())
