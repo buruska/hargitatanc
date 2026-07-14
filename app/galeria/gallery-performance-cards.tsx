@@ -1,0 +1,247 @@
+"use client";
+
+import Image from "next/image";
+import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
+
+type GalleryImage = {
+  id: string;
+  imageUrl: string;
+};
+
+type GalleryPerformance = {
+  id: string;
+  title: string;
+  coverImageUrl: string;
+  galleryImages: GalleryImage[];
+};
+
+type GalleryPerformanceCardsProps = {
+  performances: GalleryPerformance[];
+};
+
+export function GalleryPerformanceCards({ performances }: GalleryPerformanceCardsProps) {
+  if (performances.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="mt-9 grid grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
+      {performances.map((performance) => (
+        <GalleryPerformanceCard key={performance.id} performance={performance} />
+      ))}
+    </section>
+  );
+}
+
+function GalleryPerformanceCard({ performance }: { performance: GalleryPerformance }) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const previewImages = performance.galleryImages.slice(0, 4);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  return (
+    <article className="group relative border-2 border-line-strong bg-surface-strong p-3 shadow-[8px_8px_0_rgb(33_31_27_/_8%)]">
+      <h2 className="mb-3 font-serif text-[clamp(20px,1.7vw,28px)] font-bold leading-tight text-charcoal">
+        {performance.title}
+      </h2>
+      <button
+        aria-label={`${performance.title} galéria megnyitása`}
+        className="relative block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-thread-red"
+        type="button"
+        onClick={() => setIsViewerOpen(true)}
+      >
+        <span className="block transition duration-300 group-hover:blur-[2px]">
+          <Image
+            alt={performance.title}
+            className="aspect-[16/9] w-full border-2 border-line-strong object-cover"
+            height={760}
+            src={performance.coverImageUrl}
+            width={1280}
+          />
+          <span className="mt-2 grid grid-cols-2 gap-2">
+            {previewImages.map((image) => (
+              <Image
+                alt={performance.title}
+                className="aspect-[4/3] w-full border border-line-strong object-cover"
+                height={180}
+                key={image.id}
+                src={image.imageUrl}
+                width={240}
+              />
+            ))}
+          </span>
+        </span>
+        <span className="pointer-events-none absolute inset-0 grid place-items-center bg-charcoal/0 opacity-0 transition duration-300 group-hover:bg-charcoal/24 group-hover:opacity-100">
+          <span className="border-2 border-thread-red bg-surface-strong px-5 py-3 text-[12px] font-extrabold uppercase tracking-[0.12em] text-thread-red shadow-[6px_6px_0_rgb(33_31_27_/_18%)]">
+            Megnézem
+          </span>
+        </span>
+      </button>
+      {isViewerOpen && isMounted
+        ? createPortal(
+            <GalleryImageViewer performance={performance} onClose={() => setIsViewerOpen(false)} />,
+            document.body,
+          )
+        : null}
+    </article>
+  );
+}
+
+function GalleryImageViewer({
+  performance,
+  onClose,
+}: {
+  performance: GalleryPerformance;
+  onClose: () => void;
+}) {
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [slide, setSlide] = useState<{ direction: -1 | 1; phase: "idle" | "in" | "out" }>({
+    direction: 1,
+    phase: "idle",
+  });
+  const animationTimeoutRef = useRef<number | null>(null);
+  const activeImage = performance.galleryImages[activeImageIndex];
+  const hasMultipleImages = performance.galleryImages.length > 1;
+  const slideClass =
+    slide.phase === "out"
+      ? slide.direction === 1
+        ? "-translate-x-8"
+        : "translate-x-8"
+      : slide.phase === "in"
+        ? slide.direction === 1
+          ? "translate-x-8"
+          : "-translate-x-8"
+        : "translate-x-0";
+
+  function shiftImage(direction: -1 | 1) {
+    if (!hasMultipleImages) {
+      return;
+    }
+
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+
+    setSlide({ direction, phase: "out" });
+
+    animationTimeoutRef.current = window.setTimeout(() => {
+      setActiveImageIndex((currentIndex) => {
+        const nextIndex = currentIndex + direction;
+
+        if (nextIndex < 0) {
+          return performance.galleryImages.length - 1;
+        }
+
+        if (nextIndex >= performance.galleryImages.length) {
+          return 0;
+        }
+
+        return nextIndex;
+      });
+      setSlide({ direction, phase: "in" });
+      window.requestAnimationFrame(() => {
+        setSlide({ direction, phase: "idle" });
+      });
+    }, 120);
+  }
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+
+      if (event.key === "ArrowLeft") {
+        shiftImage(-1);
+      }
+
+      if (event.key === "ArrowRight") {
+        shiftImage(1);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        window.clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  if (!activeImage) {
+    return null;
+  }
+
+  return (
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-[220] grid place-items-center bg-charcoal/78 px-4 py-8 backdrop-blur-sm"
+      role="dialog"
+      onMouseDown={onClose}
+    >
+      <section
+        className="relative grid max-h-[min(840px,calc(100vh-64px))] w-[min(1040px,100%)] grid-rows-[auto_1fr_auto] overflow-hidden border border-line-strong bg-surface-strong text-charcoal shadow-[12px_12px_0_rgb(33_31_27_/_22%)]"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
+          <h2 className="font-serif text-[clamp(24px,3vw,38px)] font-bold leading-tight">
+            {performance.title}
+          </h2>
+          <button
+            aria-label="Modal bezárása"
+            className="grid size-9 shrink-0 place-items-center border border-line bg-surface text-[20px] font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+            type="button"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+        <div className="relative min-h-[320px] overflow-hidden bg-charcoal">
+          <div className={`absolute inset-0 grid place-items-center transition duration-150 ease-out ${slideClass}`}>
+            <Image
+              alt={performance.title}
+              className="max-h-full w-full object-contain"
+              height={900}
+              src={activeImage.imageUrl}
+              width={1400}
+            />
+          </div>
+          {hasMultipleImages ? (
+            <>
+              <button
+                aria-label="Előző kép"
+                className="absolute left-4 top-1/2 grid size-11 -translate-y-1/2 place-items-center border border-line bg-surface-strong text-[30px] font-extrabold leading-none text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+                type="button"
+                onClick={() => shiftImage(-1)}
+              >
+                ‹
+              </button>
+              <button
+                aria-label="Következő kép"
+                className="absolute right-4 top-1/2 grid size-11 -translate-y-1/2 place-items-center border border-line bg-surface-strong text-[30px] font-extrabold leading-none text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+                type="button"
+                onClick={() => shiftImage(1)}
+              >
+                ›
+              </button>
+            </>
+          ) : null}
+        </div>
+        <div className="flex items-center justify-center border-t border-line px-5 py-3 text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
+          {activeImageIndex + 1} / {performance.galleryImages.length}
+        </div>
+      </section>
+    </div>
+  );
+}

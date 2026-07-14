@@ -1,31 +1,43 @@
-import { card, contentPage, eyebrow, gridThree, h1, h2, leadSpaced, placeholderPhoto } from "@/lib/styles";
+import { eyebrow, h1 } from "@/lib/styles";
 import { prisma } from "@/lib/prisma";
+import { GalleryPerformanceCards } from "./gallery-performance-cards";
 
 export default async function GaleriaPage() {
-  const albums = await prisma.galleryAlbum.findMany({
-    orderBy: { createdAt: "asc" },
+  const performances = await prisma.runningPerformance.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      coverImageUrl: true,
+      galleryImages: {
+        orderBy: [
+          {
+            sortOrder: "asc",
+          },
+          {
+            createdAt: "asc",
+          },
+        ],
+        select: {
+          id: true,
+          imageUrl: true,
+        },
+      },
+      id: true,
+      title: true,
+    },
+    where: {
+      galleryImages: {
+        some: {},
+      },
+    },
   });
 
   return (
-    <main className={contentPage}>
+    <main className="min-h-[360px] bg-warm-canvas px-[clamp(18px,4vw,56px)] pb-[72px] pt-[124px] text-charcoal">
       <p className={eyebrow}>Galéria</p>
       <h1 className={h1}>Előadásképek és albumok</h1>
-      <p className={leadSpaced}>A galéria később albumokból és képekből épül fel, adminból szerkeszthető sorrenddel.</p>
-      <section className={gridThree}>
-        {albums.map((album) => (
-          <article className={card} key={album.id}>
-            <div className={placeholderPhoto} />
-            <h2 className={h2}>{album.title}</h2>
-            {album.description ? <p>{album.description}</p> : null}
-          </article>
-        ))}
-        {albums.length === 0 ? (
-          <article className={card}>
-            <h2 className={h2}>Még nincs galéria album</h2>
-            <p>Futtasd a seedet, vagy hozz létre albumokat az admin felületen, amint elkészül a szerkesztés.</p>
-          </article>
-        ) : null}
-      </section>
+      <GalleryPerformanceCards performances={performances} />
     </main>
   );
 }
