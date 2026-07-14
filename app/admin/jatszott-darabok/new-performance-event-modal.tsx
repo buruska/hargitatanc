@@ -4,6 +4,7 @@ import { useActionState, useEffect, useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
+import type { TicketMode } from "@/lib/tickets";
 import { createRunningPerformanceEventAction, type PerformanceEventFormState } from "./actions";
 
 type NewPerformanceEventModalProps = {
@@ -45,8 +46,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
   const [isOpen, setIsOpen] = useState(false);
   const [dateTimeValues, setDateTimeValues] = useState(getCurrentDateTimeValues);
   const [locationError, setLocationError] = useState("");
-  const [isMissingTicketUrlConfirmed, setIsMissingTicketUrlConfirmed] = useState(false);
-  const [showMissingTicketUrlWarning, setShowMissingTicketUrlWarning] = useState(false);
+  const [ticketMode, setTicketMode] = useState<TicketMode>("LINK");
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const titleId = useId();
@@ -54,20 +54,17 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
   function openModal() {
     setDateTimeValues(getCurrentDateTimeValues());
     setLocationError("");
-    setIsMissingTicketUrlConfirmed(false);
-    setShowMissingTicketUrlWarning(false);
+    setTicketMode("LINK");
     setIsOpen(true);
   }
 
   function closeModal() {
     setIsOpen(false);
-    setShowMissingTicketUrlWarning(false);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget);
     const location = String(formData.get("location") ?? "").trim();
-    const ticketUrl = String(formData.get("ticketUrl") ?? "").trim();
 
     if (!location) {
       event.preventDefault();
@@ -75,23 +72,8 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
       return;
     }
 
-    if (!ticketUrl && !isMissingTicketUrlConfirmed) {
-      event.preventDefault();
-      setShowMissingTicketUrlWarning(true);
-      return;
-    }
-
     setLocationError("");
-    setShowMissingTicketUrlWarning(false);
     setIsOpen(false);
-  }
-
-  function confirmMissingTicketUrl() {
-    setIsMissingTicketUrlConfirmed(true);
-    setShowMissingTicketUrlWarning(false);
-    window.requestAnimationFrame(() => {
-      formRef.current?.requestSubmit();
-    });
   }
 
   const selectedDate = `${dateTimeValues.year}-${dateTimeValues.month.padStart(2, "0")}-${dateTimeValues.day.padStart(2, "0")}`;
@@ -104,8 +86,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
 
     formRef.current?.reset();
     setIsOpen(false);
-    setIsMissingTicketUrlConfirmed(false);
-    setShowMissingTicketUrlWarning(false);
+    setTicketMode("LINK");
     router.refresh();
   }, [router, state.success]);
 
@@ -170,6 +151,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
               ) : null}
               <input name="runningPerformanceId" type="hidden" value={performanceId} />
               <input name="date" type="hidden" value={selectedDate} />
+              <input name="ticketMode" type="hidden" value={ticketMode} />
               <fieldset className="grid gap-2">
                 <legend className="text-sm font-extrabold text-muted">Dátum</legend>
                 <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-[1fr_1.3fr_1fr]">
@@ -274,44 +256,48 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
                   {locationError || "Helyszín megadása kötelező."}
                 </span>
               </label>
-              <label className={label}>
-                Jegyvásárló link
-                <input
-                  className={input}
-                  name="ticketUrl"
-                  type="url"
-                  placeholder="https://..."
-                  onChange={() => {
-                    setIsMissingTicketUrlConfirmed(false);
-                    setShowMissingTicketUrlWarning(false);
-                  }}
-                />
-              </label>
-              <div
-                className={`border-2 border-[rgb(205_151_35_/_55%)] bg-[rgb(205_151_35_/_14%)] p-3 ${
-                  showMissingTicketUrlWarning ? "grid gap-3" : "hidden"
-                }`}
-              >
-                <p className="text-sm font-extrabold text-[rgb(122_83_18)]">
-                  Biztosan jegyvásárló link nélkül szeretnéd feltölteni a fellépést?
-                </p>
-                <div className="flex flex-col gap-2 min-[420px]:flex-row min-[420px]:justify-end">
-                  <button
-                    className="inline-flex min-h-8 items-center justify-center border border-line bg-surface-strong px-3 py-1.5 text-xs font-extrabold text-muted hover:border-charcoal hover:text-charcoal"
-                    type="button"
-                    onClick={() => setShowMissingTicketUrlWarning(false)}
-                  >
-                    Vissza
-                  </button>
-                  <button
-                    className="inline-flex min-h-8 items-center justify-center border border-charcoal bg-[rgb(205_151_35)] px-3 py-1.5 text-xs font-extrabold text-charcoal hover:bg-[rgb(224_174_55)]"
-                    type="button"
-                    onClick={confirmMissingTicketUrl}
-                  >
-                    Igen, mentés link nélkül
-                  </button>
+              <fieldset className="grid gap-2">
+                <legend className="text-sm font-extrabold text-muted">Jegyvásárlás</legend>
+                <div className="grid gap-2 min-[520px]:grid-cols-2">
+                  {[
+                    { label: "Jegyvásárló link", value: "LINK" },
+                    { label: "Jegyvásárlás a helyszínen", value: "VENUE" },
+                    { label: "Ingyenes előadás", value: "FREE" },
+                    { label: "Egyéb", value: "CUSTOM" },
+                  ].map((option) => (
+                    <label
+                      className={`flex min-h-10 cursor-pointer items-center border px-3 py-2 text-sm font-extrabold transition ${
+                        ticketMode === option.value
+                          ? "border-thread-red bg-[rgb(179_38_32_/_10%)] text-thread-red"
+                          : "border-line bg-surface-strong text-muted hover:border-charcoal hover:text-charcoal"
+                      }`}
+                      key={option.value}
+                    >
+                      <input
+                        checked={ticketMode === option.value}
+                        className="mr-2 size-4 shrink-0 accent-thread-red"
+                        name="ticketModeChoice"
+                        type="checkbox"
+                        value={option.value}
+                        onChange={() => setTicketMode(option.value as TicketMode)}
+                      />
+                      {option.label}
+                    </label>
+                  ))}
                 </div>
-              </div>
+              </fieldset>
+              {ticketMode === "LINK" ? (
+                <label className={label}>
+                  Jegyvásárló link
+                  <input className={input} name="ticketUrl" type="url" placeholder="https://..." required />
+                </label>
+              ) : null}
+              {ticketMode === "CUSTOM" ? (
+                <label className={label}>
+                  Egyéb jegyinformáció
+                  <input className={input} name="ticketText" type="text" placeholder="pl. Regisztráció szükséges" required />
+                </label>
+              ) : null}
               <div className="flex flex-col gap-3 min-[520px]:flex-row min-[520px]:justify-end">
                 <button className={buttonSecondary} type="button" onClick={closeModal}>
                   Mégsem

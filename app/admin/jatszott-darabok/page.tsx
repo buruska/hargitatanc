@@ -36,6 +36,8 @@ export default async function AdminFutoEloadasokPage() {
           id: true,
           startsAt: true,
           location: true,
+          ticketMode: true,
+          ticketText: true,
           ticketUrl: true,
         },
       },

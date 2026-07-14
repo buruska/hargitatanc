@@ -5,6 +5,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { ticketModeValues, type TicketMode } from "@/lib/tickets";
 
 export type PerformanceFormState = {
   error?: string;
@@ -78,6 +79,37 @@ async function createUniqueNewsSlug(title: string) {
   }
 
   return slug;
+}
+
+function getTicketFields(formData: FormData): { ticketMode: TicketMode; ticketText: string; ticketUrl: string } | { error: string } {
+  const rawTicketMode = String(formData.get("ticketMode") ?? "LINK").trim();
+  const ticketMode = ticketModeValues.includes(rawTicketMode as TicketMode) ? (rawTicketMode as TicketMode) : "LINK";
+  const ticketUrl = String(formData.get("ticketUrl") ?? "").trim();
+  const ticketText = String(formData.get("ticketText") ?? "").trim();
+
+  if (ticketMode === "LINK") {
+    if (!ticketUrl) {
+      return { error: "Add meg a jegyvásárló linket." };
+    }
+
+    try {
+      new URL(ticketUrl);
+    } catch {
+      return { error: "Adj meg érvényes jegyvásárló linket." };
+    }
+
+    return { ticketMode, ticketText: "", ticketUrl };
+  }
+
+  if (ticketMode === "CUSTOM") {
+    if (!ticketText) {
+      return { error: "Add meg az egyéb jegyinformáció szövegét." };
+    }
+
+    return { ticketMode, ticketText, ticketUrl: "" };
+  }
+
+  return { ticketMode, ticketText: "", ticketUrl: "" };
 }
 
 function getImageExtension(file: File) {
@@ -493,7 +525,7 @@ export async function createRunningPerformanceEventAction(
   const date = String(formData.get("date") ?? "").trim();
   const time = String(formData.get("time") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
-  const ticketUrl = String(formData.get("ticketUrl") ?? "").trim();
+  const ticketFields = getTicketFields(formData);
 
   if (!runningPerformanceId) {
     return { error: "Hiányzik az előadás azonosítója." };
@@ -513,12 +545,8 @@ export async function createRunningPerformanceEventAction(
     return { error: "Érvénytelen dátum vagy kezdési időpont." };
   }
 
-  if (ticketUrl) {
-    try {
-      new URL(ticketUrl);
-    } catch {
-      return { error: "Adj meg érvényes jegyvásárló linket." };
-    }
+  if ("error" in ticketFields) {
+    return ticketFields;
   }
 
   const performance = await prisma.runningPerformance.findUnique({
@@ -539,7 +567,9 @@ export async function createRunningPerformanceEventAction(
       runningPerformanceId,
       startsAt,
       location,
-      ticketUrl,
+      ticketMode: ticketFields.ticketMode,
+      ticketText: ticketFields.ticketText,
+      ticketUrl: ticketFields.ticketUrl,
     },
   });
 
@@ -557,7 +587,7 @@ export async function updateRunningPerformanceEventAction(
   const date = String(formData.get("date") ?? "").trim();
   const time = String(formData.get("time") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
-  const ticketUrl = String(formData.get("ticketUrl") ?? "").trim();
+  const ticketFields = getTicketFields(formData);
 
   if (!id) {
     return { error: "Hiányzik a módosítandó fellépés azonosítója." };
@@ -577,12 +607,8 @@ export async function updateRunningPerformanceEventAction(
     return { error: "Érvénytelen dátum vagy kezdési időpont." };
   }
 
-  if (ticketUrl) {
-    try {
-      new URL(ticketUrl);
-    } catch {
-      return { error: "Adj meg érvényes jegyvásárló linket." };
-    }
+  if ("error" in ticketFields) {
+    return ticketFields;
   }
 
   const event = await prisma.runningPerformanceEvent.findUnique({
@@ -605,7 +631,9 @@ export async function updateRunningPerformanceEventAction(
     data: {
       startsAt,
       location,
-      ticketUrl,
+      ticketMode: ticketFields.ticketMode,
+      ticketText: ticketFields.ticketText,
+      ticketUrl: ticketFields.ticketUrl,
     },
   });
 

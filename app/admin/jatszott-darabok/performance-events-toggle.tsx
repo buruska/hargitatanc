@@ -7,6 +7,7 @@ import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
 import StarterKit from "@tiptap/starter-kit";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
+import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 import {
   createPerformanceNewsAction,
   deleteRunningPerformanceEventAction,
@@ -22,6 +23,8 @@ type PerformanceEvent = {
   performanceTitle: string;
   startsAt: string;
   location: string;
+  ticketMode: TicketMode;
+  ticketText: string;
   ticketUrl: string;
 };
 
@@ -146,6 +149,8 @@ function EventButton({
   showUploadAction,
 }: Readonly<{ event: PerformanceEvent; muted: boolean; showHoverActions: boolean; showUploadAction: boolean }>) {
   const content = `${dateFormatter.format(new Date(event.startsAt))} · ${event.location}`;
+  const ticketDisplayText = getTicketDisplayText(event);
+  const hasTicketLink = isTicketLink(event);
   const baseClass =
     "flex min-h-[22px] w-full items-center border border-line bg-surface-strong px-2 py-0.5 text-xs font-extrabold transition";
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -157,14 +162,16 @@ function EventButton({
     return (
       <>
         <div className={`${baseClass} group justify-between overflow-hidden text-petrol`}>
-          {event.ticketUrl ? (
+          {hasTicketLink ? (
             <a className="truncate group-hover:hidden" href={event.ticketUrl} rel="noreferrer" target="_blank">
               {content}
             </a>
           ) : (
             <span className="flex w-full min-w-0 items-center justify-between gap-2 text-petrol group-hover:hidden">
               <span className="truncate">{content}</span>
-              <span className="shrink-0 text-[10px] font-extrabold text-pine/75">még nincs jegyvásárló link</span>
+              {ticketDisplayText ? (
+                <span className="shrink-0 text-[10px] font-extrabold text-pine/75">{ticketDisplayText}</span>
+              ) : null}
             </span>
           )}
           <div className="hidden w-full grid-cols-3 gap-1 group-hover:grid">
@@ -216,8 +223,13 @@ function EventButton({
     );
   }
 
-  if (!event.ticketUrl) {
-    return <span className={`${baseClass} text-muted`}>{content}</span>;
+  if (!hasTicketLink) {
+    return (
+      <span className={`${baseClass} justify-between gap-2 text-muted`}>
+        <span className="truncate">{content}</span>
+        {ticketDisplayText ? <span className="shrink-0 text-[10px] font-extrabold text-pine/75">{ticketDisplayText}</span> : null}
+      </span>
+    );
   }
 
   return (
@@ -540,6 +552,7 @@ function EditPerformanceEventModal({
 }>) {
   const [state, formAction, isPending] = useActionState(updateRunningPerformanceEventAction, eventFormInitialState);
   const [dateTimeValues, setDateTimeValues] = useState(() => getDateTimeParts(event.startsAt));
+  const [ticketMode, setTicketMode] = useState<TicketMode>(event.ticketMode);
   const router = useRouter();
   const titleId = useId();
   const selectedDate = `${dateTimeValues.year}-${dateTimeValues.month.padStart(2, "0")}-${dateTimeValues.day.padStart(2, "0")}`;
@@ -551,7 +564,8 @@ function EditPerformanceEventModal({
     }
 
     setDateTimeValues(getDateTimeParts(event.startsAt));
-  }, [event.startsAt, isOpen]);
+    setTicketMode(event.ticketMode);
+  }, [event.startsAt, event.ticketMode, isOpen]);
 
   useEffect(() => {
     if (!state.success) {
@@ -609,6 +623,7 @@ function EditPerformanceEventModal({
           ) : null}
           <input name="id" type="hidden" value={event.id} />
           <input name="date" type="hidden" value={selectedDate} />
+          <input name="ticketMode" type="hidden" value={ticketMode} />
           <fieldset className="grid gap-2">
             <legend className="text-sm font-extrabold text-muted">Dátum</legend>
             <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-[1fr_1.3fr_1fr]">
@@ -700,10 +715,48 @@ function EditPerformanceEventModal({
             Helyszín
             <input className={input} name="location" type="text" defaultValue={event.location} required />
           </label>
-          <label className={label}>
-            Jegyvásárló link
-            <input className={input} name="ticketUrl" type="url" placeholder="https://..." defaultValue={event.ticketUrl} />
-          </label>
+          <fieldset className="grid gap-2">
+            <legend className="text-sm font-extrabold text-muted">Jegyvásárlás</legend>
+            <div className="grid gap-2 min-[520px]:grid-cols-2">
+              {[
+                { label: "Jegyvásárló link", value: "LINK" },
+                { label: "Jegyvásárlás a helyszínen", value: "VENUE" },
+                { label: "Ingyenes előadás", value: "FREE" },
+                { label: "Egyéb", value: "CUSTOM" },
+              ].map((option) => (
+                <label
+                  className={`flex min-h-10 cursor-pointer items-center border px-3 py-2 text-sm font-extrabold transition ${
+                    ticketMode === option.value
+                      ? "border-thread-red bg-[rgb(179_38_32_/_10%)] text-thread-red"
+                      : "border-line bg-surface-strong text-muted hover:border-charcoal hover:text-charcoal"
+                  }`}
+                  key={option.value}
+                >
+                  <input
+                    checked={ticketMode === option.value}
+                    className="mr-2 size-4 shrink-0 accent-thread-red"
+                    name="ticketModeChoice"
+                    type="checkbox"
+                    value={option.value}
+                    onChange={() => setTicketMode(option.value as TicketMode)}
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {ticketMode === "LINK" ? (
+            <label className={label}>
+              Jegyvásárló link
+              <input className={input} name="ticketUrl" type="url" placeholder="https://..." defaultValue={event.ticketUrl} required />
+            </label>
+          ) : null}
+          {ticketMode === "CUSTOM" ? (
+            <label className={label}>
+              Egyéb jegyinformáció
+              <input className={input} name="ticketText" type="text" placeholder="pl. Regisztráció szükséges" defaultValue={event.ticketText} required />
+            </label>
+          ) : null}
           <div className="flex flex-col gap-3 min-[520px]:flex-row min-[520px]:justify-end">
             <button className={buttonSecondary} type="button" onClick={onClose}>
               Mégsem

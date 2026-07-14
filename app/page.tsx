@@ -49,6 +49,8 @@ export default async function HomePage() {
           id: true,
           location: true,
           startsAt: true,
+          ticketMode: true,
+          ticketText: true,
           ticketUrl: true,
         },
       },
@@ -63,6 +65,8 @@ export default async function HomePage() {
       id: event.id,
       location: event.location,
       startsAt: event.startsAt.toISOString(),
+      ticketMode: event.ticketMode,
+      ticketText: event.ticketText,
       ticketUrl: event.ticketUrl,
     })),
     id: performance.id,
@@ -147,6 +151,8 @@ export default async function HomePage() {
       id: true,
       startsAt: true,
       location: true,
+      ticketMode: true,
+      ticketText: true,
       ticketUrl: true,
       runningPerformance: {
         select: {
@@ -166,6 +172,8 @@ export default async function HomePage() {
     location: event.location,
     startsAt: event.startsAt.toISOString(),
     summary: event.runningPerformance.summary,
+    ticketMode: event.ticketMode,
+    ticketText: event.ticketText,
     ticketUrl: event.ticketUrl,
     title: event.runningPerformance.title,
   }));
@@ -184,6 +192,8 @@ export default async function HomePage() {
       location: "",
       startsAt: event.startsAt.toISOString(),
       summary: event.summary,
+      ticketMode: "LINK" as const,
+      ticketText: "",
       ticketUrl: "",
       title: event.title,
     }];

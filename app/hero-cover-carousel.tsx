@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 
 type HeroCover = {
   id: string;
@@ -12,6 +13,8 @@ type HeroCover = {
     id: string;
     location: string;
     startsAt: string;
+    ticketMode: TicketMode;
+    ticketText: string;
     ticketUrl: string;
   }[];
 };
@@ -227,36 +230,40 @@ export function HeroCoverCarousel({
 
             <div className="grid gap-3">
               {(selectedCover.events?.length ?? 0) > 0 ? (
-                selectedCover.events?.map((event) => (
-                  <div
-                    className="grid gap-3 border border-line bg-surface px-4 py-3 min-[620px]:grid-cols-[1fr_auto] min-[620px]:items-center"
-                    key={event.id}
-                  >
-                    <div className="grid gap-1">
-                      <time className="text-[14px] font-extrabold text-thread-red">
-                        {new Intl.DateTimeFormat("hu-RO", {
-                          dateStyle: "full",
-                          timeStyle: "short",
-                        }).format(new Date(event.startsAt))}
-                      </time>
-                      <span className="text-[13px] font-bold text-muted">{event.location}</span>
+                selectedCover.events?.map((event) => {
+                  const ticketDisplayText = getTicketDisplayText(event);
+
+                  return (
+                    <div
+                      className="grid gap-3 border border-line bg-surface px-4 py-3 min-[620px]:grid-cols-[1fr_auto] min-[620px]:items-center"
+                      key={event.id}
+                    >
+                      <div className="grid gap-1">
+                        <time className="text-[14px] font-extrabold text-thread-red">
+                          {new Intl.DateTimeFormat("hu-RO", {
+                            dateStyle: "full",
+                            timeStyle: "short",
+                          }).format(new Date(event.startsAt))}
+                        </time>
+                        <span className="text-[13px] font-bold text-muted">{event.location}</span>
+                      </div>
+                      {isTicketLink(event) ? (
+                        <a
+                          className="inline-flex items-center justify-center bg-thread-red px-4 py-2 text-[12px] font-extrabold uppercase tracking-[0.1em] text-surface-strong transition hover:bg-charcoal"
+                          href={event.ticketUrl}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          {ticketDisplayText}
+                        </a>
+                      ) : (
+                        <span className="text-[12px] font-extrabold uppercase tracking-[0.1em] text-muted">
+                          {ticketDisplayText}
+                        </span>
+                      )}
                     </div>
-                    {event.ticketUrl ? (
-                      <a
-                        className="inline-flex items-center justify-center bg-thread-red px-4 py-2 text-[12px] font-extrabold uppercase tracking-[0.1em] text-surface-strong transition hover:bg-charcoal"
-                        href={event.ticketUrl}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        Jegyvásárlás
-                      </a>
-                    ) : (
-                      <span className="text-[12px] font-extrabold uppercase tracking-[0.1em] text-muted">
-                        Nincs jegy link
-                      </span>
-                    )}
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="border border-line bg-surface px-4 py-3 text-[14px] font-bold text-muted">
                   Jelenleg nincs meghirdetett közelgő fellépés.

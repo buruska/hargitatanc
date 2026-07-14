@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { panel } from "@/lib/styles";
+import type { TicketMode } from "@/lib/tickets";
 import { AddGalleryImagesModal } from "./add-gallery-images-modal";
 import { DeleteGalleryImageModal } from "./delete-gallery-image-modal";
 import { DeletePerformanceModal } from "./delete-performance-modal";
@@ -25,6 +26,8 @@ type PerformanceAccordionListProps = {
       id: string;
       startsAt: string;
       location: string;
+      ticketMode: TicketMode;
+      ticketText: string;
       ticketUrl: string;
     }[];
   }[];

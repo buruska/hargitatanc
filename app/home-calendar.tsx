@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { isTicketLink, type TicketMode } from "@/lib/tickets";
 
 const weekdayLabels = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
 
@@ -12,6 +13,8 @@ type HomeCalendarProps = {
     id: string;
     isPast: boolean;
     kind: "performance" | "event";
+    ticketMode: TicketMode;
+    ticketText: string;
     ticketUrl: string;
     title: string;
   }[];
@@ -23,6 +26,8 @@ type HomeCalendarProps = {
     id: string;
     isPast: boolean;
     kind: "performance" | "event";
+    ticketMode: TicketMode;
+    ticketText: string;
     ticketUrl: string;
     title: string;
   }) => void;
@@ -55,13 +60,13 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
     return new Date(year, month - 1, day);
   });
   const eventsByDate = useMemo(() => {
-    return events.reduce<Record<string, { calendarDateKeys?: string[]; coverImageUrl: string; id: string; isPast: boolean; kind: "performance" | "event"; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
+    return events.reduce<Record<string, { calendarDateKeys?: string[]; coverImageUrl: string; id: string; isPast: boolean; kind: "performance" | "event"; ticketMode: TicketMode; ticketText: string; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
       const dateKeys = event.calendarDateKeys ?? [event.dateKey];
 
       dateKeys.forEach((dateKey) => {
         groupedEvents[dateKey] = [
           ...(groupedEvents[dateKey] ?? []),
-          { calendarDateKeys: event.calendarDateKeys, coverImageUrl: event.coverImageUrl, id: event.id, isPast: event.isPast, kind: event.kind, ticketUrl: event.ticketUrl, title: event.title },
+          { calendarDateKeys: event.calendarDateKeys, coverImageUrl: event.coverImageUrl, id: event.id, isPast: event.isPast, kind: event.kind, ticketMode: event.ticketMode, ticketText: event.ticketText, ticketUrl: event.ticketUrl, title: event.title },
         ];
       });
 
@@ -118,7 +123,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
           const isCurrentMonth = calendarDay.getMonth() === currentMonth;
           const firstEvent = dayEvents[0];
           const coverImageUrl = firstEvent?.coverImageUrl;
-          const ticketEvent = dayEvents.find((event) => !event.isPast && event.ticketUrl);
+          const ticketEvent = dayEvents.find((event) => !event.isPast && isTicketLink(event));
           const ticketUrl = ticketEvent?.ticketUrl;
           const hasPastEvent = dayEvents.some((event) => event.isPast);
           const hasOnlyPastEvents = hasEvent && dayEvents.every((event) => event.isPast);
@@ -141,6 +146,8 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
                     id: firstEvent.id,
                     isPast: firstEvent.isPast,
                     kind: firstEvent.kind,
+                    ticketMode: firstEvent.ticketMode,
+                    ticketText: firstEvent.ticketText,
                     ticketUrl: firstEvent.ticketUrl,
                     title: firstEvent.title,
                   });
@@ -175,6 +182,8 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover }: HomeCa
                           id: event.id,
                           isPast: event.isPast,
                           kind: event.kind,
+                          ticketMode: event.ticketMode,
+                          ticketText: event.ticketText,
                           ticketUrl: event.ticketUrl,
                           title: event.title,
                         })

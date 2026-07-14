@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 import { HomeCalendar } from "./home-calendar";
 import { HomeRevealGroup } from "./home-reveal-group";
 
@@ -15,6 +16,8 @@ export type HomePerformanceEvent = {
   location: string;
   startsAt: string;
   summary: string;
+  ticketMode: TicketMode;
+  ticketText: string;
   ticketUrl: string;
   title: string;
 };
@@ -113,6 +116,8 @@ function PerformanceListItem({
   const accentBg = event.isPast ? "bg-muted" : "bg-thread-red";
   const accentBorder = event.isPast ? "border-muted" : "border-thread-red";
   const hoverBorder = event.isPast ? "group-hover:border-muted" : "group-hover:border-thread-red";
+  const ticketDisplayText = getTicketDisplayText(event);
+  const hasTicketLink = isTicketLink(event);
 
   if (isFiltered) {
     return (
@@ -130,15 +135,19 @@ function PerformanceListItem({
             role="img"
             style={{ backgroundImage: `url(${event.coverImageUrl})` }}
           />
-          {event.ticketUrl ? (
+          {hasTicketLink ? (
             <a
               className="inline-flex w-fit items-center justify-center bg-thread-red px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 hover:bg-charcoal active:scale-95"
               href={event.ticketUrl}
               rel="noreferrer"
               target="_blank"
             >
-              Jegyvásárlás
+              {ticketDisplayText}
             </a>
+          ) : ticketDisplayText ? (
+            <span className="inline-flex w-fit items-center justify-center border border-line-strong bg-surface px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted">
+              {ticketDisplayText}
+            </span>
           ) : null}
           <p className="text-[15px] font-bold leading-relaxed text-muted">
             {event.summary}
@@ -180,7 +189,7 @@ function PerformanceListItem({
           {eventContent}
         </span>
         <span className="pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-3 px-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-          {event.ticketUrl ? (
+          {hasTicketLink ? (
             <a
               className={`${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
               href={event.ticketUrl}
@@ -189,6 +198,10 @@ function PerformanceListItem({
             >
               Jegyek
             </a>
+          ) : ticketDisplayText ? (
+            <span className="border border-line-strong bg-surface-strong px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted shadow-[0_12px_24px_rgb(33_31_27_/_10%)]">
+              {ticketDisplayText}
+            </span>
           ) : null}
           <button
             className={`border ${accentBorder} bg-surface-strong px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] ${accentText} shadow-[0_12px_24px_rgb(33_31_27_/_10%)] transition duration-200 hover:scale-105 hover:bg-white active:scale-95`}
@@ -213,6 +226,8 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
   const accentText = "text-thread-red";
   const accentBg = "bg-thread-red";
   const accentBorderHover = "hover:border-thread-red hover:bg-thread-red";
+  const ticketDisplayText = getTicketDisplayText(event);
+  const hasTicketLink = isTicketLink(event);
 
   useEffect(() => {
     function handleKeyDown(keyboardEvent: KeyboardEvent) {
@@ -264,15 +279,19 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
           <p className="text-[15px] font-bold leading-relaxed text-muted">
             {event.summary}
           </p>
-          {event.ticketUrl ? (
+          {hasTicketLink ? (
             <a
               className={`inline-flex w-fit ${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
               href={event.ticketUrl}
               rel="noreferrer"
               target="_blank"
             >
-              Jegyvásárlás
+              {ticketDisplayText}
             </a>
+          ) : ticketDisplayText ? (
+            <span className="inline-flex w-fit border border-line-strong bg-surface px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted">
+              {ticketDisplayText}
+            </span>
           ) : null}
         </div>
       </section>
