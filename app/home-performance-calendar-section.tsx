@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 import { HomeCalendar } from "./home-calendar";
@@ -10,6 +10,10 @@ export type HomePerformanceEvent = {
   calendarDateKeys?: string[];
   coverImageUrl: string;
   dateKey: string;
+  galleryImages: {
+    id: string;
+    imageUrl: string;
+  }[];
   id: string;
   isPast: boolean;
   kind: "performance" | "event";
@@ -224,6 +228,12 @@ function PerformanceListItem({
 }
 
 function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEvent; onClose: () => void }) {
+  const [galleryStartIndex, setGalleryStartIndex] = useState(0);
+  const [gallerySlide, setGallerySlide] = useState<{ direction: -1 | 1; phase: "idle" | "in" | "out" }>({
+    direction: 1,
+    phase: "idle",
+  });
+  const galleryAnimationTimeoutRef = useRef<number | null>(null);
   const startsAt = new Date(event.startsAt);
   const date = new Intl.DateTimeFormat("hu-RO", { dateStyle: "full" }).format(startsAt);
   const time = new Intl.DateTimeFormat("hu-RO", {
@@ -235,6 +245,52 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
   const accentBorderHover = "hover:border-thread-red hover:bg-thread-red";
   const ticketDisplayText = getTicketDisplayText(event);
   const hasTicketLink = isTicketLink(event);
+  const visibleGalleryImages = Array.from(
+    { length: Math.min(6, event.galleryImages.length) },
+    (_, index) => event.galleryImages[(galleryStartIndex + index) % event.galleryImages.length],
+  ).filter((galleryImage): galleryImage is NonNullable<typeof galleryImage> => Boolean(galleryImage));
+  const gallerySlideClass =
+    gallerySlide.phase === "out"
+      ? gallerySlide.direction === 1
+        ? "-translate-x-4"
+        : "translate-x-4"
+      : gallerySlide.phase === "in"
+        ? gallerySlide.direction === 1
+          ? "translate-x-4"
+          : "-translate-x-4"
+        : "translate-x-0";
+
+  function shiftGallery(direction: -1 | 1) {
+    if (event.galleryImages.length <= 6) {
+      return;
+    }
+
+    if (galleryAnimationTimeoutRef.current) {
+      window.clearTimeout(galleryAnimationTimeoutRef.current);
+    }
+
+    setGallerySlide({ direction, phase: "out" });
+
+    galleryAnimationTimeoutRef.current = window.setTimeout(() => {
+      setGalleryStartIndex((currentIndex) => {
+        const nextIndex = currentIndex + direction;
+
+        if (nextIndex < 0) {
+          return event.galleryImages.length - 1;
+        }
+
+        if (nextIndex >= event.galleryImages.length) {
+          return 0;
+        }
+
+        return nextIndex;
+      });
+      setGallerySlide({ direction, phase: "in" });
+      window.requestAnimationFrame(() => {
+        setGallerySlide({ direction, phase: "idle" });
+      });
+    }, 120);
+  }
 
   useEffect(() => {
     function handleKeyDown(keyboardEvent: KeyboardEvent) {
@@ -249,6 +305,19 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [onClose]);
+
+  useEffect(() => {
+    setGalleryStartIndex(0);
+    setGallerySlide({ direction: 1, phase: "idle" });
+  }, [event.id]);
+
+  useEffect(() => {
+    return () => {
+      if (galleryAnimationTimeoutRef.current) {
+        window.clearTimeout(galleryAnimationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -283,9 +352,6 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
             <time dateTime={event.startsAt}>{date}</time>
             <span>{time}</span>
           </div>
-          <p className="text-[15px] font-bold leading-relaxed text-muted">
-            {event.summary}
-          </p>
           {hasTicketLink ? (
             <a
               className={`inline-flex w-fit ${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
@@ -299,6 +365,51 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
             <span className="inline-flex w-fit border border-line-strong bg-surface px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted">
               {ticketDisplayText}
             </span>
+          ) : null}
+          <p className="text-[15px] font-bold leading-relaxed text-muted">
+            {event.summary}
+          </p>
+          {event.galleryImages.length > 0 ? (
+            <div className="grid gap-2 border-t border-line pt-4">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-muted">Galéria</p>
+              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                {event.galleryImages.length > 6 ? (
+                  <button
+                    aria-label="Előző galériaképek"
+                    className="grid size-8 place-items-center border border-line bg-surface text-lg font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+                    type="button"
+                    onClick={() => shiftGallery(-1)}
+                  >
+                    ‹
+                  </button>
+                ) : (
+                  <span aria-hidden="true" className="hidden size-8 min-[520px]:block" />
+                )}
+                <div className={`grid grid-cols-3 gap-2 transition duration-150 ease-out min-[520px]:grid-cols-6 ${gallerySlideClass}`}>
+                  {visibleGalleryImages.map((galleryImage) => (
+                    <div
+                      aria-label={event.title}
+                      className="aspect-[4/3] border border-line-strong bg-cover bg-center"
+                      key={galleryImage.id}
+                      role="img"
+                      style={{ backgroundImage: `url(${galleryImage.imageUrl})` }}
+                    />
+                  ))}
+                </div>
+                {event.galleryImages.length > 6 ? (
+                  <button
+                    aria-label="Következő galériaképek"
+                    className="grid size-8 place-items-center border border-line bg-surface text-lg font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+                    type="button"
+                    onClick={() => shiftGallery(1)}
+                  >
+                    ›
+                  </button>
+                ) : (
+                  <span aria-hidden="true" className="hidden size-8 min-[520px]:block" />
+                )}
+              </div>
+            </div>
           ) : null}
         </div>
       </section>

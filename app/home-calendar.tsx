@@ -10,6 +10,10 @@ type HomeCalendarProps = {
     calendarDateKeys?: string[];
     coverImageUrl: string;
     dateKey: string;
+    galleryImages: {
+      id: string;
+      imageUrl: string;
+    }[];
     id: string;
     isPast: boolean;
     kind: "performance" | "event";
@@ -23,6 +27,10 @@ type HomeCalendarProps = {
     calendarDateKeys?: string[];
     coverImageUrl: string;
     dateKey: string;
+    galleryImages: {
+      id: string;
+      imageUrl: string;
+    }[];
     id: string;
     isPast: boolean;
     kind: "performance" | "event";
@@ -61,13 +69,13 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
     return new Date(year, month - 1, day);
   });
   const eventsByDate = useMemo(() => {
-    return events.reduce<Record<string, { calendarDateKeys?: string[]; coverImageUrl: string; id: string; isPast: boolean; kind: "performance" | "event"; ticketMode: TicketMode; ticketText: string; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
+    return events.reduce<Record<string, { calendarDateKeys?: string[]; coverImageUrl: string; galleryImages: { id: string; imageUrl: string }[]; id: string; isPast: boolean; kind: "performance" | "event"; ticketMode: TicketMode; ticketText: string; ticketUrl: string; title: string }[]>>((groupedEvents, event) => {
       const dateKeys = event.calendarDateKeys ?? [event.dateKey];
 
       dateKeys.forEach((dateKey) => {
         groupedEvents[dateKey] = [
           ...(groupedEvents[dateKey] ?? []),
-          { calendarDateKeys: event.calendarDateKeys, coverImageUrl: event.coverImageUrl, id: event.id, isPast: event.isPast, kind: event.kind, ticketMode: event.ticketMode, ticketText: event.ticketText, ticketUrl: event.ticketUrl, title: event.title },
+          { calendarDateKeys: event.calendarDateKeys, coverImageUrl: event.coverImageUrl, galleryImages: event.galleryImages, id: event.id, isPast: event.isPast, kind: event.kind, ticketMode: event.ticketMode, ticketText: event.ticketText, ticketUrl: event.ticketUrl, title: event.title },
         ];
       });
 
@@ -144,6 +152,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
                     coverImageUrl: firstEvent.coverImageUrl,
                     dateKey,
                     calendarDateKeys: firstEvent.calendarDateKeys,
+                    galleryImages: firstEvent.galleryImages,
                     id: firstEvent.id,
                     isPast: firstEvent.isPast,
                     kind: firstEvent.kind,
@@ -189,6 +198,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
                           calendarDateKeys: event.calendarDateKeys,
                           coverImageUrl: event.coverImageUrl,
                           dateKey,
+                          galleryImages: event.galleryImages,
                           id: event.id,
                           isPast: event.isPast,
                           kind: event.kind,

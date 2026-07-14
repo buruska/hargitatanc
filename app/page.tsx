@@ -157,6 +157,20 @@ export default async function HomePage() {
       runningPerformance: {
         select: {
           coverImageUrl: true,
+          galleryImages: {
+            orderBy: [
+              {
+                sortOrder: "asc",
+              },
+              {
+                createdAt: "asc",
+              },
+            ],
+            select: {
+              id: true,
+              imageUrl: true,
+            },
+          },
           summary: true,
           title: true,
         },
@@ -169,6 +183,7 @@ export default async function HomePage() {
     id: event.id,
     isPast: event.startsAt < now,
     kind: "performance" as const,
+    galleryImages: event.runningPerformance.galleryImages,
     location: event.location,
     startsAt: event.startsAt.toISOString(),
     summary: event.runningPerformance.summary,
@@ -189,6 +204,7 @@ export default async function HomePage() {
       id: event.id,
       isPast: (event.endsAt ?? event.startsAt) < now,
       kind: "event" as const,
+      galleryImages: [],
       location: "",
       startsAt: event.startsAt.toISOString(),
       summary: event.summary,
