@@ -77,7 +77,7 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
           {visibleEvents.length > 0 ? (
             <div
               key={activeEventId ?? "all-events"}
-              className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pr-2 transition-all duration-300 ease-out ${
+              className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pb-1 pr-2 pt-1 transition-all duration-300 ease-out ${
                 isCalendarFiltered ? "auto-rows-max content-start" : "auto-rows-[calc((100%_-_60px)/6)]"
               }`}
             >
@@ -156,6 +156,7 @@ function PerformanceListItem({
   const ticketDisplayText = getTicketDisplayText(event);
   const hasTicketLink = isTicketLink(event);
   const filteredCardClass = event.isPast ? "grayscale opacity-70" : "";
+  const hoverLiftClass = index === 0 ? "" : "group-hover:-translate-y-0.5";
 
   if (isFiltered) {
     return (
@@ -212,11 +213,11 @@ function PerformanceListItem({
         </span>
         <span className="font-serif text-[34px] font-bold leading-none">{day}</span>
       </time>
-      <span className="grid min-w-0 flex-1 gap-1 px-4 py-3">
-        <span className="flex min-w-0 items-center justify-between gap-3 text-[13px] font-extrabold">
+      <span className="grid min-w-0 flex-1 gap-0.5 px-4 py-2">
+        <span className="min-w-0 text-[13px] font-extrabold">
           <span className={`truncate ${accentText}`}>{weekdayAndTime}</span>
-          {event.location ? <span className="ml-auto truncate text-right text-muted">{event.location}</span> : null}
         </span>
+        {event.location ? <span className="truncate text-[12px] font-extrabold text-muted">{event.location}</span> : null}
         <span className="truncate font-serif text-[clamp(15px,1.6vw,18px)] font-bold leading-tight text-charcoal">
           {event.title}
         </span>
@@ -229,7 +230,7 @@ function PerformanceListItem({
       className="home-reveal-event group snap-start"
       style={{ transitionDelay: `${index * 85}ms` }}
     >
-      <article className={`relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out group-hover:-translate-y-0.5 ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
+      <article className={`relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out ${hoverLiftClass} ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
         event.isPast ? "grayscale opacity-65" : ""
       }`}>
         <span className="flex min-w-0 flex-1 transition duration-200 group-hover:opacity-0">
@@ -238,7 +239,7 @@ function PerformanceListItem({
         <span className="pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-3 px-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
           {hasTicketLink ? (
             <a
-              className={`${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
+              className={`${accentBg} px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-surface-strong shadow-[0_8px_16px_rgb(33_31_27_/_12%)] transition duration-200 hover:scale-105 active:scale-95`}
               href={event.ticketUrl}
               rel="noreferrer"
               target="_blank"
@@ -246,12 +247,12 @@ function PerformanceListItem({
               Jegyek
             </a>
           ) : ticketDisplayText ? (
-            <span className="border border-line-strong bg-surface-strong px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted shadow-[0_12px_24px_rgb(33_31_27_/_10%)]">
+            <span className="border border-line-strong bg-surface-strong px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-muted shadow-[0_8px_16px_rgb(33_31_27_/_10%)]">
               {ticketDisplayText}
             </span>
           ) : null}
           <button
-            className={`border ${accentBorder} bg-surface-strong px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] ${accentText} shadow-[0_12px_24px_rgb(33_31_27_/_10%)] transition duration-200 hover:scale-105 hover:bg-white active:scale-95`}
+            className={`border ${accentBorder} bg-surface-strong px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] ${accentText} shadow-[0_8px_16px_rgb(33_31_27_/_10%)] transition duration-200 hover:scale-105 hover:bg-white active:scale-95`}
             type="button"
             onClick={onOpenDetails}
           >
