@@ -45,7 +45,7 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
       return upcomingEvents;
     }
 
-    return upcomingEvents.filter((event) => event.id === activeEventId);
+    return events.filter((event) => event.id === activeEventId);
   }, [activeEventId, events]);
 
   useEffect(() => {
@@ -148,12 +148,14 @@ function PerformanceListItem({
     hour: "2-digit",
     minute: "2-digit",
   }).format(startsAt);
+  const fullDate = new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(startsAt);
   const accentText = event.isPast ? "text-muted" : "text-thread-red";
   const accentBg = event.isPast ? "bg-muted" : "bg-thread-red";
   const accentBorder = event.isPast ? "border-muted" : "border-thread-red";
   const hoverBorder = event.isPast ? "group-hover:border-muted" : "group-hover:border-thread-red";
   const ticketDisplayText = getTicketDisplayText(event);
   const hasTicketLink = isTicketLink(event);
+  const filteredCardClass = event.isPast ? "grayscale opacity-70" : "";
 
   if (isFiltered) {
     return (
@@ -161,17 +163,20 @@ function PerformanceListItem({
         className="home-reveal-event snap-start"
         style={{ transitionDelay: `${index * 85}ms` }}
       >
-        <article className="grid gap-4 border border-line-strong bg-surface-strong p-4 shadow-[0_10px_24px_rgb(33_31_27_/_7%)]">
+        <article className={`grid gap-4 border border-line-strong bg-surface-strong p-4 shadow-[0_10px_24px_rgb(33_31_27_/_7%)] ${filteredCardClass}`}>
           <h3 className="font-serif text-[clamp(24px,3vw,34px)] font-bold leading-tight text-charcoal">
             {event.title}
           </h3>
-          <div
-            aria-label={event.title}
-            className="aspect-[16/10] border-2 border-line-strong bg-cover bg-center"
-            role="img"
-            style={{ backgroundImage: `url(${event.coverImageUrl})` }}
-          />
-          {hasTicketLink ? (
+          <div className="grid gap-1 text-[13px] font-extrabold text-thread-red">
+            <time dateTime={event.startsAt}>{fullDate}</time>
+            <span>{weekdayAndTime}</span>
+            {event.location ? <span className="text-muted">{event.location}</span> : null}
+          </div>
+          {event.isPast ? (
+            <span className="inline-flex w-fit items-center justify-center border border-line-strong bg-surface px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted">
+              Lejárt
+            </span>
+          ) : hasTicketLink ? (
             <a
               className="inline-flex w-fit items-center justify-center bg-thread-red px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 hover:bg-charcoal active:scale-95"
               href={event.ticketUrl}
@@ -185,6 +190,12 @@ function PerformanceListItem({
               {ticketDisplayText}
             </span>
           ) : null}
+          <div
+            aria-label={event.title}
+            className="aspect-[16/10] border-2 border-line-strong bg-cover bg-center"
+            role="img"
+            style={{ backgroundImage: `url(${event.coverImageUrl})` }}
+          />
           <p className="text-[15px] font-bold leading-relaxed text-muted">
             {event.summary}
           </p>
