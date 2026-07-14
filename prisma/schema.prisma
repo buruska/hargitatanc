@@ -16,6 +16,7 @@ enum TicketMode {
   LINK
   VENUE
   FREE
+  PASS
   CUSTOM
 }
 

@@ -263,6 +263,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
                     { label: "Jegyvásárló link", value: "LINK" },
                     { label: "Jegyvásárlás a helyszínen", value: "VENUE" },
                     { label: "Ingyenes előadás", value: "FREE" },
+                    { label: "Bérletes", value: "PASS" },
                     { label: "Egyéb", value: "CUSTOM" },
                   ].map((option) => (
                     <label

@@ -1,4 +1,4 @@
-export const ticketModeValues = ["LINK", "VENUE", "FREE", "CUSTOM"] as const;
+export const ticketModeValues = ["LINK", "VENUE", "FREE", "PASS", "CUSTOM"] as const;
 
 export type TicketMode = (typeof ticketModeValues)[number];
 
@@ -15,6 +15,10 @@ export function getTicketDisplayText(ticket: TicketInfo) {
 
   if (ticket.ticketMode === "FREE") {
     return "Ingyenes";
+  }
+
+  if (ticket.ticketMode === "PASS") {
+    return "Bérletes";
   }
 
   if (ticket.ticketMode === "CUSTOM") {
