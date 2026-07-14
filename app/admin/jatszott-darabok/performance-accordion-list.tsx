@@ -75,11 +75,11 @@ export function PerformanceAccordionList({ performances }: PerformanceAccordionL
             >
               <div className="overflow-hidden">
                 <div className="p-4">
-                  <p className="mt-2 text-muted">{performance.summary}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <EditPerformanceModal id={performance.id} summary={performance.summary} title={performance.title} />
                     <DeletePerformanceModal id={performance.id} title={performance.title} />
                   </div>
+                  <p className="mt-4 text-muted">{performance.summary}</p>
                   <div className="mt-3">
                     <NewPerformanceEventModal performanceId={performance.id} performanceTitle={performance.title} />
                   </div>
