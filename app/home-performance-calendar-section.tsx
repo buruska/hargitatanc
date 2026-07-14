@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 import { HomeCalendar } from "./home-calendar";
@@ -33,6 +34,7 @@ type HomePerformanceCalendarSectionProps = {
 
 export function HomePerformanceCalendarSection({ events, initialDate }: HomePerformanceCalendarSectionProps) {
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [galleryViewer, setGalleryViewer] = useState<{ event: HomePerformanceEvent; imageIndex: number } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<HomePerformanceEvent | null>(null);
   const isCalendarFiltered = activeEventId !== null;
@@ -98,7 +100,30 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
       </HomeRevealGroup>
 
       {selectedEvent && isMounted
-        ? createPortal(<PerformanceDetailsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />, document.body)
+        ? createPortal(
+            <PerformanceDetailsModal
+              event={selectedEvent}
+              onClose={() => setSelectedEvent(null)}
+              onOpenGallery={(imageIndex) => {
+                setSelectedEvent(null);
+                setGalleryViewer({ event: selectedEvent, imageIndex });
+              }}
+            />,
+            document.body,
+          )
+        : null}
+      {galleryViewer && isMounted
+        ? createPortal(
+            <GalleryImageModal
+              event={galleryViewer.event}
+              initialImageIndex={galleryViewer.imageIndex}
+              onClose={() => {
+                setSelectedEvent(galleryViewer.event);
+                setGalleryViewer(null);
+              }}
+            />,
+            document.body,
+          )
         : null}
     </>
   );
@@ -227,7 +252,15 @@ function PerformanceListItem({
   );
 }
 
-function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEvent; onClose: () => void }) {
+function PerformanceDetailsModal({
+  event,
+  onClose,
+  onOpenGallery,
+}: {
+  event: HomePerformanceEvent;
+  onClose: () => void;
+  onOpenGallery: (imageIndex: number) => void;
+}) {
   const [galleryStartIndex, setGalleryStartIndex] = useState(0);
   const [gallerySlide, setGallerySlide] = useState<{ direction: -1 | 1; phase: "idle" | "in" | "out" }>({
     direction: 1,
@@ -245,10 +278,17 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
   const accentBorderHover = "hover:border-thread-red hover:bg-thread-red";
   const ticketDisplayText = getTicketDisplayText(event);
   const hasTicketLink = isTicketLink(event);
-  const visibleGalleryImages = Array.from(
+  const visibleGalleryItems = Array.from(
     { length: Math.min(6, event.galleryImages.length) },
-    (_, index) => event.galleryImages[(galleryStartIndex + index) % event.galleryImages.length],
-  ).filter((galleryImage): galleryImage is NonNullable<typeof galleryImage> => Boolean(galleryImage));
+    (_, offset) => {
+      const imageIndex = (galleryStartIndex + offset) % event.galleryImages.length;
+      const image = event.galleryImages[imageIndex];
+
+      return image ? { image, imageIndex } : null;
+    },
+  ).filter((galleryItem): galleryItem is { image: { id: string; imageUrl: string }; imageIndex: number } =>
+    Boolean(galleryItem),
+  );
   const gallerySlideClass =
     gallerySlide.phase === "out"
       ? gallerySlide.direction === 1
@@ -386,13 +426,14 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
                   <span aria-hidden="true" className="hidden size-8 min-[520px]:block" />
                 )}
                 <div className={`grid grid-cols-3 gap-2 transition duration-150 ease-out min-[520px]:grid-cols-6 ${gallerySlideClass}`}>
-                  {visibleGalleryImages.map((galleryImage) => (
-                    <div
+                  {visibleGalleryItems.map((galleryItem) => (
+                    <button
                       aria-label={event.title}
-                      className="aspect-[4/3] border border-line-strong bg-cover bg-center"
-                      key={galleryImage.id}
-                      role="img"
-                      style={{ backgroundImage: `url(${galleryImage.imageUrl})` }}
+                      className="aspect-[4/3] cursor-pointer border border-line-strong bg-cover bg-center transition hover:scale-[1.03] hover:border-thread-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-thread-red"
+                      key={galleryItem.image.id}
+                      type="button"
+                      style={{ backgroundImage: `url(${galleryItem.image.imageUrl})` }}
+                      onClick={() => onOpenGallery(galleryItem.imageIndex)}
                     />
                   ))}
                 </div>
@@ -412,6 +453,171 @@ function PerformanceDetailsModal({ event, onClose }: { event: HomePerformanceEve
             </div>
           ) : null}
         </div>
+      </section>
+    </div>
+  );
+}
+
+function GalleryImageModal({
+  event,
+  initialImageIndex,
+  onClose,
+}: {
+  event: HomePerformanceEvent;
+  initialImageIndex: number;
+  onClose: () => void;
+}) {
+  const [activeImageIndex, setActiveImageIndex] = useState(initialImageIndex);
+  const [imageSlide, setImageSlide] = useState<{ direction: -1 | 1; phase: "idle" | "in" | "out" }>({
+    direction: 1,
+    phase: "idle",
+  });
+  const imageAnimationTimeoutRef = useRef<number | null>(null);
+  const activeImage = event.galleryImages[activeImageIndex];
+  const hasMultipleImages = event.galleryImages.length > 1;
+  const imageSlideClass =
+    imageSlide.phase === "out"
+      ? imageSlide.direction === 1
+        ? "-translate-x-5"
+        : "translate-x-5"
+      : imageSlide.phase === "in"
+        ? imageSlide.direction === 1
+          ? "translate-x-5"
+          : "-translate-x-5"
+        : "translate-x-0";
+
+  const shiftImage = useCallback((direction: -1 | 1) => {
+    if (imageAnimationTimeoutRef.current) {
+      window.clearTimeout(imageAnimationTimeoutRef.current);
+    }
+
+    setImageSlide({ direction, phase: "out" });
+
+    imageAnimationTimeoutRef.current = window.setTimeout(() => {
+      setActiveImageIndex((currentIndex) => {
+        const nextIndex = currentIndex + direction;
+
+        if (nextIndex < 0) {
+          return event.galleryImages.length - 1;
+        }
+
+        if (nextIndex >= event.galleryImages.length) {
+          return 0;
+        }
+
+        return nextIndex;
+      });
+      setImageSlide({ direction, phase: "in" });
+      window.requestAnimationFrame(() => {
+        setImageSlide({ direction, phase: "idle" });
+      });
+    }, 120);
+  }, [event.galleryImages.length]);
+
+  useEffect(() => {
+    setActiveImageIndex(initialImageIndex);
+    setImageSlide({ direction: 1, phase: "idle" });
+  }, [initialImageIndex]);
+
+  useEffect(() => {
+    return () => {
+      if (imageAnimationTimeoutRef.current) {
+        window.clearTimeout(imageAnimationTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(keyboardEvent: KeyboardEvent) {
+      if (keyboardEvent.key === "Escape") {
+        onClose();
+      }
+
+      if (keyboardEvent.key === "ArrowLeft" && hasMultipleImages) {
+        shiftImage(-1);
+      }
+
+      if (keyboardEvent.key === "ArrowRight" && hasMultipleImages) {
+        shiftImage(1);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [hasMultipleImages, onClose, shiftImage]);
+
+  if (!activeImage) {
+    return null;
+  }
+
+  return (
+    <div
+      aria-modal="true"
+      className="fixed inset-0 z-[220] grid place-items-center bg-charcoal/82 px-4 py-8 backdrop-blur-sm"
+      role="dialog"
+      onMouseDown={onClose}
+    >
+      <section
+        className="relative grid max-h-[min(860px,calc(100vh-48px))] w-[min(1100px,100%)] gap-4 text-surface-strong"
+        onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-surface-strong/70">Galéria</p>
+            <h2 className="mt-1 font-serif text-[clamp(24px,3vw,38px)] font-bold leading-tight">{event.title}</h2>
+          </div>
+          <button
+            aria-label="Modal bezárása"
+            className="grid size-10 shrink-0 place-items-center border border-surface-strong/50 bg-surface-strong text-[22px] font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+            type="button"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+          {hasMultipleImages ? (
+            <button
+              aria-label="Előző galériakép"
+              className="grid size-10 place-items-center border border-surface-strong/50 bg-surface-strong text-2xl font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+              type="button"
+              onClick={() => shiftImage(-1)}
+            >
+              ‹
+            </button>
+          ) : (
+            <span aria-hidden="true" className="size-10" />
+          )}
+          <div className="relative h-[min(68vh,620px)] overflow-hidden border border-surface-strong/40 bg-charcoal">
+            <div className={`absolute inset-0 transition duration-150 ease-out ${imageSlideClass}`}>
+              <Image
+                alt={event.title}
+                className="object-contain"
+                fill
+                sizes="min(1100px, 100vw)"
+                src={activeImage.imageUrl}
+              />
+            </div>
+          </div>
+          {hasMultipleImages ? (
+            <button
+              aria-label="Következő galériakép"
+              className="grid size-10 place-items-center border border-surface-strong/50 bg-surface-strong text-2xl font-extrabold text-thread-red transition hover:border-thread-red hover:bg-thread-red hover:text-surface-strong"
+              type="button"
+              onClick={() => shiftImage(1)}
+            >
+              ›
+            </button>
+          ) : (
+            <span aria-hidden="true" className="size-10" />
+          )}
+        </div>
+        <p className="text-center text-[12px] font-extrabold uppercase tracking-[0.12em] text-surface-strong/72">
+          {activeImageIndex + 1} / {event.galleryImages.length}
+        </p>
       </section>
     </div>
   );
