@@ -186,16 +186,16 @@ function GalleryImageViewer({
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-[220] grid place-items-center bg-charcoal/78 px-4 py-8 backdrop-blur-sm"
+      className="fixed inset-0 z-[220] grid place-items-center bg-charcoal/78 p-3 backdrop-blur-sm"
       role="dialog"
       onMouseDown={onClose}
     >
       <section
-        className="relative grid max-h-[min(840px,calc(100vh-64px))] w-[min(1040px,100%)] grid-rows-[auto_1fr_auto] overflow-hidden border border-line-strong bg-surface-strong text-charcoal shadow-[12px_12px_0_rgb(33_31_27_/_22%)]"
+        className="relative grid h-[calc(100vh-24px)] w-[calc(100vw-24px)] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden border border-line-strong bg-surface-strong text-charcoal shadow-[12px_12px_0_rgb(33_31_27_/_22%)]"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-          <h2 className="font-serif text-[clamp(24px,3vw,38px)] font-bold leading-tight">
+        <div className="flex items-start justify-between gap-4 border-b border-line px-4 py-3">
+          <h2 className="font-serif text-[clamp(20px,2.5vw,32px)] font-bold leading-tight">
             {performance.title}
           </h2>
           <button
@@ -207,14 +207,14 @@ function GalleryImageViewer({
             ×
           </button>
         </div>
-        <div className="relative min-h-[320px] overflow-hidden bg-charcoal">
+        <div className="relative min-h-0 overflow-hidden bg-charcoal">
           <div className={`absolute inset-0 grid place-items-center transition duration-150 ease-out ${slideClass}`}>
             <Image
               alt={performance.title}
-              className="max-h-full w-full object-contain"
-              height={900}
+              className="object-contain"
+              fill
+              sizes="100vw"
               src={activeImage.imageUrl}
-              width={1400}
             />
           </div>
           {hasMultipleImages ? (
