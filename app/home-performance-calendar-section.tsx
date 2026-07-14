@@ -403,7 +403,11 @@ function PerformanceDetailsModal({
             <time dateTime={event.startsAt}>{date}</time>
             <span>{time}</span>
           </div>
-          {hasTicketLink ? (
+          {event.isPast ? (
+            <span className="inline-flex w-fit border border-line-strong bg-surface px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-muted">
+              Lejárt
+            </span>
+          ) : hasTicketLink ? (
             <a
               className={`inline-flex w-fit ${accentBg} px-5 py-3 text-[13px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_12px_24px_rgb(33_31_27_/_16%)] transition duration-200 hover:scale-105 active:scale-95`}
               href={event.ticketUrl}
