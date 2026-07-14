@@ -141,11 +141,10 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
             <div
               className={`group relative flex min-h-[72px] items-start justify-end overflow-hidden border-b border-r border-line p-2 text-[13px] font-extrabold transition-all duration-300 ease-out ${
                 isCurrentMonth ? "bg-surface-strong text-charcoal" : "bg-surface text-muted/35"
-              } ${hasEvent ? "bg-cover bg-center text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""} ${
+              } ${hasEvent ? "text-surface-strong shadow-[inset_0_0_0_2px_rgb(255_248_234_/_48%)]" : ""} ${
                 hasOnlyPastEvents ? "grayscale opacity-65" : ""
               }`}
               key={dateKey}
-              style={coverImageUrl ? { backgroundImage: `url(${coverImageUrl})` } : undefined}
               onMouseEnter={() => {
                 if (firstEvent) {
                   onPerformanceHover?.({
@@ -164,6 +163,12 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
                 }
               }}
             >
+              {coverImageUrl ? (
+                <span
+                  className="absolute inset-0 bg-cover bg-center transition duration-300 group-hover:scale-105 group-hover:blur-sm"
+                  style={{ backgroundImage: `url(${coverImageUrl})` }}
+                />
+              ) : null}
               {hasEvent ? <span className={`absolute inset-0 ${hasOnlyPastEvents ? "bg-stone-800/62" : "bg-charcoal/36"}`} /> : null}
               {hasEvent && firstEvent ? (
                 <button
@@ -184,9 +189,9 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
                   Jegyek
                 </a>
               ) : null}
-              <span className="relative">{calendarDay.getDate()}</span>
+              <span className="relative transition duration-300 group-hover:blur-sm">{calendarDay.getDate()}</span>
               {hasEvent ? (
-                <div className="absolute bottom-2 left-2 right-2 grid gap-0.5 text-left">
+                <div className="absolute bottom-2 left-2 right-2 grid gap-0.5 text-left transition duration-300 group-hover:blur-sm">
                   {dayEvents.slice(0, 2).map((event, index) => (
                     <span
                       className={`truncate border-l-2 pl-1.5 text-[12px] font-extrabold leading-tight text-surface-strong ${
