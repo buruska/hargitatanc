@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 type NewsPostCard = {
@@ -8,6 +9,7 @@ type NewsPostCard = {
   id: string;
   imageSrc: string | null;
   publishedAt: string;
+  slug: string;
   title: string;
 };
 
@@ -47,7 +49,7 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
       {filteredPosts.length > 0 ? (
         <section className="grid gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
           {filteredPosts.map((post) => (
-            <article className="home-news-card home-news-card-static min-h-[430px]" id={post.id} key={post.id}>
+            <Link className="home-news-card home-news-card-static block min-h-[430px]" href={`/hirek/${post.slug}`} id={post.id} key={post.id}>
               <div className="home-news-card-flip relative min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
                 <div className="home-news-card-face home-news-card-front flex min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
                   <time className="block font-serif text-[16px] leading-tight text-charcoal">
@@ -88,16 +90,15 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
                       src="/logo.png"
                       width={132}
                     />
-                    <a
+                    <span
                       className="inline-flex min-h-[44px] items-center justify-center border-2 border-surface-strong px-7 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] text-surface-strong transition hover:bg-surface-strong hover:text-thread-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface-strong"
-                      href={`/hirek#${post.id}`}
                     >
                       Olvasás
-                    </a>
+                    </span>
                   </div>
                 </div>
               </div>
-            </article>
+            </Link>
           ))}
         </section>
       ) : (

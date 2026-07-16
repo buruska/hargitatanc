@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { HeroCoverCarousel } from "./hero-cover-carousel";
 import { HomePerformanceCalendarSection } from "./home-performance-calendar-section";
 import { HomeRevealGroup } from "./home-reveal-group";
@@ -233,6 +234,7 @@ export default async function HomePage() {
       excerpt: true,
       id: true,
       publishedAt: true,
+      slug: true,
       title: true,
     },
   });
@@ -285,8 +287,9 @@ export default async function HomePage() {
                   const imageSrc = getFirstImageSrc(post.content);
 
                   return (
-                    <article
-                      className="home-news-card min-h-[430px]"
+                    <Link
+                      className="home-news-card block min-h-[430px]"
+                      href={`/hirek/${post.slug}`}
                       key={post.id}
                       style={{ transitionDelay: `${index * 110 + 180}ms` }}
                     >
@@ -330,27 +333,26 @@ export default async function HomePage() {
                               src="/logo.png"
                               width={132}
                             />
-                            <a
+                            <span
                               className="inline-flex min-h-[44px] items-center justify-center border-2 border-surface-strong px-7 py-2 text-[12px] font-extrabold uppercase tracking-[0.14em] text-surface-strong transition hover:bg-surface-strong hover:text-thread-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface-strong"
-                              href="/hirek"
                             >
                               Olvasás
-                            </a>
+                            </span>
                           </div>
                         </div>
                       </div>
-                    </article>
+                    </Link>
                   );
                 })}
               </div>
               {hasMoreNewsPosts ? (
                 <div className="mt-10 flex justify-center">
-                  <a
+                  <Link
                     className="inline-flex min-h-[46px] items-center justify-center bg-surface-strong px-8 py-3 text-[12px] font-extrabold uppercase tracking-[0.14em] text-thread-red shadow-[6px_6px_0_rgb(33_31_27_/_14%)] transition duration-200 hover:scale-105 hover:bg-thread-red hover:text-surface-strong active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-thread-red"
                     href="/hirek"
                   >
                     Összes hír
-                  </a>
+                  </Link>
                 </div>
               ) : null}
             </>

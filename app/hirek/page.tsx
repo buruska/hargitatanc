@@ -14,6 +14,7 @@ export default async function HirekPage() {
       excerpt: true,
       id: true,
       publishedAt: true,
+      slug: true,
       title: true,
     },
   });
@@ -22,6 +23,7 @@ export default async function HirekPage() {
     id: post.id,
     imageSrc: getFirstImageSrc(post.content),
     publishedAt: post.publishedAt.toISOString(),
+    slug: post.slug,
     title: post.title,
   }));
 
