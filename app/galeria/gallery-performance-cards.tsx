@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type GalleryImage = {
   id: string;
@@ -21,16 +21,45 @@ type GalleryPerformanceCardsProps = {
 };
 
 export function GalleryPerformanceCards({ performances }: GalleryPerformanceCardsProps) {
+  const [query, setQuery] = useState("");
+  const filteredPerformances = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase("hu");
+
+    return normalizedQuery
+      ? performances.filter((performance) => performance.title.toLocaleLowerCase("hu").includes(normalizedQuery))
+      : performances;
+  }, [performances, query]);
+
   if (performances.length === 0) {
     return null;
   }
 
   return (
-    <section className="mt-9 grid grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
-      {performances.map((performance) => (
-        <GalleryPerformanceCard key={performance.id} performance={performance} />
-      ))}
-    </section>
+    <>
+      <label className="mt-16 block w-full max-w-[560px]">
+        <span className="sr-only">Keresés a galériák között</span>
+        <input
+          className="min-h-[48px] w-full border-2 border-line-strong bg-surface-strong px-4 py-3 text-[16px] font-bold text-charcoal shadow-[6px_6px_0_rgb(33_31_27_/_10%)] outline-none transition placeholder:text-muted/70 focus:border-thread-red focus:shadow-[8px_8px_0_rgb(179_38_32_/_16%)]"
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Keresés a galériák között..."
+          suppressHydrationWarning
+          type="search"
+          value={query}
+        />
+      </label>
+
+      {filteredPerformances.length > 0 ? (
+        <section className="mt-9 grid grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
+          {filteredPerformances.map((performance) => (
+            <GalleryPerformanceCard key={performance.id} performance={performance} />
+          ))}
+        </section>
+      ) : (
+        <p className="mt-9 border-2 border-line-strong bg-surface-strong px-5 py-6 font-extrabold text-muted">
+          Nincs a keresésnek megfelelő galéria.
+        </p>
+      )}
+    </>
   );
 }
 
