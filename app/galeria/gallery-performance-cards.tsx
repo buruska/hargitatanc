@@ -20,8 +20,12 @@ type GalleryPerformanceCardsProps = {
   performances: GalleryPerformance[];
 };
 
+const GALLERY_BATCH_SIZE = 12;
+
 export function GalleryPerformanceCards({ performances }: GalleryPerformanceCardsProps) {
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(GALLERY_BATCH_SIZE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const filteredPerformances = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("hu");
 
@@ -29,6 +33,29 @@ export function GalleryPerformanceCards({ performances }: GalleryPerformanceCard
       ? performances.filter((performance) => performance.title.toLocaleLowerCase("hu").includes(normalizedQuery))
       : performances;
   }, [performances, query]);
+  const visiblePerformances = filteredPerformances.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredPerformances.length;
+
+  useEffect(() => {
+    setVisibleCount(GALLERY_BATCH_SIZE);
+  }, [query]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisibleCount((count) => Math.min(count + GALLERY_BATCH_SIZE, filteredPerformances.length));
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [filteredPerformances.length, hasMore]);
 
   if (performances.length === 0) {
     return null;
@@ -49,11 +76,22 @@ export function GalleryPerformanceCards({ performances }: GalleryPerformanceCard
       </label>
 
       {filteredPerformances.length > 0 ? (
-        <section className="mt-9 grid grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
-          {filteredPerformances.map((performance) => (
-            <GalleryPerformanceCard key={performance.id} performance={performance} />
-          ))}
-        </section>
+        <>
+          <section className="mt-9 grid grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
+            {visiblePerformances.map((performance, index) => (
+              <div
+                className="gallery-card-reveal"
+                key={performance.id}
+                style={{ animationDelay: `${(index % GALLERY_BATCH_SIZE) * 55}ms` }}
+              >
+                <GalleryPerformanceCard performance={performance} />
+              </div>
+            ))}
+          </section>
+          {hasMore ? (
+            <div className="h-16" ref={loadMoreRef} role="status" aria-label="További galériák betöltése" />
+          ) : null}
+        </>
       ) : (
         <p className="mt-9 border-2 border-line-strong bg-surface-strong px-5 py-6 font-extrabold text-muted">
           Nincs a keresésnek megfelelő galéria.
