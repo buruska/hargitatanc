@@ -5,9 +5,14 @@ import { GalleryList } from "./gallery-list";
 
 export default async function AdminGaleriakPage() {
   const galleries = await prisma.runningPerformance.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: [
+      {
+        galleryIsPublished: "asc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
     select: {
       coverImageUrl: true,
       galleryImages: {
