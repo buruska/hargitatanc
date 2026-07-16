@@ -51,6 +51,7 @@ model RunningPerformance {
   summary       String
   coverImageUrl String
   galleryIsPublished Boolean @default(true)
+  gallerySortOrder Int @default(0)
   events        RunningPerformanceEvent[]
   galleryImages RunningPerformanceGalleryImage[]
   createdAt     DateTime @default(now())

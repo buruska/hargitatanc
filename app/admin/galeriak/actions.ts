@@ -77,6 +77,9 @@ export async function createPerformanceGalleryAction(
   const temporaryId = randomUUID();
   const slug = await createUniqueSlug(title, temporaryId);
   const imageUrls = await Promise.all(images.map((file, index) => saveGalleryImage(file, slug, index)));
+  const gallerySortOrder = await prisma.runningPerformance.count({
+    where: { galleryIsPublished: true, galleryImages: { some: {} } },
+  });
 
   await prisma.runningPerformance.create({
     data: {
@@ -84,6 +87,7 @@ export async function createPerformanceGalleryAction(
       slug,
       summary: "",
       coverImageUrl: imageUrls[coverImageIndex],
+      gallerySortOrder,
       galleryImages: {
         create: imageUrls.map((imageUrl, sortOrder) => ({ imageUrl, sortOrder })),
       },
@@ -210,15 +214,59 @@ export async function toggleGalleryPublicationAction(formData: FormData) {
     return;
   }
 
+  const gallerySortOrder = await prisma.runningPerformance.count({
+    where: {
+      galleryIsPublished,
+      galleryImages: { some: {} },
+      NOT: { id },
+    },
+  });
+
   await prisma.runningPerformance.update({
     data: {
       galleryIsPublished,
+      gallerySortOrder,
     },
     where: {
       id,
     },
   });
 
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
+}
+
+export async function movePerformanceGalleryAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  const direction = String(formData.get("direction") ?? "").trim();
+  if (!id || !["up", "down"].includes(direction)) return;
+
+  const current = await prisma.runningPerformance.findUnique({
+    where: { id },
+    select: { galleryIsPublished: true },
+  });
+  if (!current) return;
+
+  const galleries = await prisma.runningPerformance.findMany({
+    where: {
+      galleryIsPublished: current.galleryIsPublished,
+      galleryImages: { some: {} },
+    },
+    orderBy: [{ gallerySortOrder: "asc" }, { createdAt: "desc" }],
+    select: { id: true },
+  });
+  const currentIndex = galleries.findIndex((gallery) => gallery.id === id);
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= galleries.length) return;
+
+  const reordered = [...galleries];
+  const [moved] = reordered.splice(currentIndex, 1);
+  if (!moved) return;
+  reordered.splice(targetIndex, 0, moved);
+
+  await prisma.$transaction(reordered.map((gallery, gallerySortOrder) =>
+    prisma.runningPerformance.update({ where: { id: gallery.id }, data: { gallerySortOrder } }),
+  ));
   revalidatePath("/galeria");
   revalidatePath("/admin/galeriak");
 }

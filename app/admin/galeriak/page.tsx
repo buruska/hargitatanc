@@ -10,6 +10,9 @@ export default async function AdminGaleriakPage() {
         galleryIsPublished: "asc",
       },
       {
+        gallerySortOrder: "asc",
+      },
+      {
         createdAt: "desc",
       },
     ],

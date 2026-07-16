@@ -4,9 +4,14 @@ import { GalleryPerformanceCards } from "./gallery-performance-cards";
 
 export default async function GaleriaPage() {
   const performances = await prisma.runningPerformance.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: [
+      {
+        gallerySortOrder: "asc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
     select: {
       coverImageUrl: true,
       galleryImages: {
