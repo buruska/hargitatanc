@@ -81,7 +81,7 @@ export function AddGalleryImagesModal({ performanceId, performanceTitle }: AddGa
 
             <p className="mb-4 text-sm font-bold text-muted">{performanceTitle}</p>
 
-            <form action={formAction} className="grid gap-4" encType="multipart/form-data" ref={formRef}>
+            <form action={formAction} className="grid gap-4" ref={formRef}>
               <input name="runningPerformanceId" type="hidden" value={performanceId} />
               {state.error ? (
                 <p className="border-2 border-[rgb(179_38_32_/_42%)] bg-[rgb(179_38_32_/_10%)] px-3 py-2.5 text-thread-red">

@@ -74,7 +74,7 @@ export function NewPerformanceModal() {
               </button>
             </div>
 
-            <form action={formAction} className="grid gap-4" encType="multipart/form-data" ref={formRef} onSubmit={handleSubmit}>
+            <form action={formAction} className="grid gap-4" ref={formRef} onSubmit={handleSubmit}>
               {state.error ? (
                 <p className="border-2 border-[rgb(179_38_32_/_42%)] bg-[rgb(179_38_32_/_10%)] px-3 py-2.5 text-thread-red">
                   {state.error}

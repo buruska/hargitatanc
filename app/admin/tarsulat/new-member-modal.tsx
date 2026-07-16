@@ -76,7 +76,7 @@ export function NewMemberModal() {
               </button>
             </div>
 
-            <form action={formAction} className="grid gap-4" encType="multipart/form-data" ref={formRef}>
+            <form action={formAction} className="grid gap-4" ref={formRef}>
               <label className={label}>
                 Név
                 <input className={input} name="name" required type="text" />

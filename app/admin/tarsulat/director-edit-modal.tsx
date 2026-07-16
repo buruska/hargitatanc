@@ -149,7 +149,7 @@ export function DirectorEditModal({ directorBio, directorImageUrl, directorName 
               </button>
             </div>
 
-            <form action={formAction} className="grid gap-4" encType="multipart/form-data" ref={formRef}>
+            <form action={formAction} className="grid gap-4" ref={formRef}>
               <input name="directorBio" type="hidden" value={content} />
               <label className={label}>
                 Név

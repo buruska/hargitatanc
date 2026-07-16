@@ -13,8 +13,10 @@ export type DeleteGalleryState = {
 
 export type EditGalleryState = DeleteGalleryState;
 export type DeleteGalleryImageState = DeleteGalleryState;
+export type CreateGalleryState = DeleteGalleryState;
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_GALLERY_UPLOAD_SIZE = 40 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "performances");
 
 function slugify(value: string) {
@@ -51,6 +53,50 @@ async function saveGalleryImage(file: File, slug: string, index: number) {
   return `/uploads/performances/${fileName}`;
 }
 
+export async function createPerformanceGalleryAction(
+  _state: CreateGalleryState,
+  formData: FormData,
+): Promise<CreateGalleryState> {
+  const title = String(formData.get("title") ?? "").trim();
+  const coverImageIndex = Number.parseInt(String(formData.get("coverImageIndex") ?? ""), 10);
+  const images = formData
+    .getAll("galleryImages")
+    .filter((file): file is File => file instanceof File && file.size > 0);
+
+  if (!title) return { error: "Add meg a galéria címét." };
+  if (images.length === 0) return { error: "Válassz ki legalább egy képet." };
+  if (!Number.isInteger(coverImageIndex) || coverImageIndex < 0 || coverImageIndex >= images.length) {
+    return { error: "Válaszd ki a galéria borítóképét." };
+  }
+  if (images.some((file) => !file.type.startsWith("image/"))) return { error: "Csak képfájl tölthető fel." };
+  if (images.some((file) => file.size > MAX_IMAGE_SIZE)) return { error: "Egy kép legfeljebb 5 MB lehet." };
+  if (images.reduce((total, file) => total + file.size, 0) > MAX_GALLERY_UPLOAD_SIZE) {
+    return { error: "A kiválasztott képek összmérete legfeljebb 40 MB lehet." };
+  }
+
+  const temporaryId = randomUUID();
+  const slug = await createUniqueSlug(title, temporaryId);
+  const imageUrls = await Promise.all(images.map((file, index) => saveGalleryImage(file, slug, index)));
+
+  await prisma.runningPerformance.create({
+    data: {
+      title,
+      slug,
+      summary: "",
+      coverImageUrl: imageUrls[coverImageIndex],
+      galleryImages: {
+        create: imageUrls.map((imageUrl, sortOrder) => ({ imageUrl, sortOrder })),
+      },
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/galeria");
+  revalidatePath("/admin/galeriak");
+  revalidatePath("/admin/jatszott-darabok");
+  return { success: true };
+}
+
 async function deleteGalleryFile(imageUrl: string) {
   if (!imageUrl.startsWith("/uploads/performances/")) {
     return;
@@ -81,6 +127,9 @@ export async function updatePerformanceGalleryAction(
   if (!id || !title) return { error: "Add meg a galéria címét." };
   if (newImages.some((file) => !file.type.startsWith("image/"))) return { error: "Csak képfájl tölthető fel." };
   if (newImages.some((file) => file.size > MAX_IMAGE_SIZE)) return { error: "Egy kép legfeljebb 5 MB lehet." };
+  if (newImages.reduce((total, file) => total + file.size, 0) > MAX_GALLERY_UPLOAD_SIZE) {
+    return { error: "A kiválasztott képek összmérete legfeljebb 40 MB lehet." };
+  }
 
   const gallery = await prisma.runningPerformance.findUnique({
     where: { id },

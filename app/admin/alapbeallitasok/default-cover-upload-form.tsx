@@ -44,7 +44,7 @@ export function DefaultCoverUploadForm() {
   }, [router, state.success]);
 
   return (
-    <form action={formAction} className="grid gap-4" encType="multipart/form-data" ref={formRef}>
+    <form action={formAction} className="grid gap-4" ref={formRef}>
       {state.error ? (
         <p className="border-2 border-[rgb(179_38_32_/_42%)] bg-[rgb(179_38_32_/_10%)] px-3 py-2.5 text-thread-red">
           {state.error}

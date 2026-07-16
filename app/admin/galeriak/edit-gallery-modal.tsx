@@ -49,7 +49,7 @@ export function EditGalleryModal({ id, title, coverImageUrl, images }: Props) {
 
         {(editState.error || deleteState.error) ? <p className="mb-5 border-2 border-[rgb(179_38_32_/_42%)] bg-[rgb(179_38_32_/_10%)] px-3 py-2.5 text-thread-red">{editState.error || deleteState.error}</p> : null}
 
-        <form action={editAction} className="grid gap-6" encType="multipart/form-data">
+        <form action={editAction} className="grid gap-6">
           <input name="id" type="hidden" value={id} />
           <label className={label}>Galéria címe<input className={input} defaultValue={title} name="title" required /></label>
           <fieldset>

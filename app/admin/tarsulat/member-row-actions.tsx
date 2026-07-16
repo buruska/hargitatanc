@@ -133,7 +133,7 @@ export function MemberRowActions({ canMoveDown, canMoveUp, member }: MemberRowAc
               </button>
             </div>
 
-            <form action={formAction} className="grid gap-4" encType="multipart/form-data">
+            <form action={formAction} className="grid gap-4">
               <input name="id" type="hidden" value={member.id} />
               <label className={label}>
                 Név
