@@ -2,7 +2,7 @@ import Image from "next/image";
 import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, panel } from "@/lib/styles";
-import { EditPerformanceModal } from "../jatszott-darabok/edit-performance-modal";
+import { EditGalleryModal } from "./edit-gallery-modal";
 import { DeleteGalleryModal } from "./delete-gallery-modal";
 import { toggleGalleryPublicationAction } from "./actions";
 
@@ -24,11 +24,11 @@ export default async function AdminGaleriakPage() {
         ],
         select: {
           id: true,
+          imageUrl: true,
         },
       },
       galleryIsPublished: true,
       id: true,
-      summary: true,
       title: true,
     },
     where: {
@@ -77,9 +77,10 @@ export default async function AdminGaleriakPage() {
                     {gallery.galleryIsPublished ? "Elrejtés" : "Publikálás"}
                   </button>
                 </form>
-                <EditPerformanceModal
+                <EditGalleryModal
+                  coverImageUrl={gallery.coverImageUrl}
                   id={gallery.id}
-                  summary={gallery.summary}
+                  images={gallery.galleryImages}
                   title={gallery.title}
                 />
                 <DeleteGalleryModal id={gallery.id} title={gallery.title} />
