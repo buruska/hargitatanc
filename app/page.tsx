@@ -31,6 +31,11 @@ function getFirstImageSrc(value: string) {
 export default async function HomePage() {
   const now = new Date();
   const performances = await prisma.runningPerformance.findMany({
+    where: {
+      summary: {
+        not: "",
+      },
+    },
     orderBy: {
       createdAt: "desc",
     },
