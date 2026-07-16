@@ -285,9 +285,16 @@ export async function deletePerformanceGalleryAction(
 
   const performance = await prisma.runningPerformance.findUnique({
     select: {
+      coverImageUrl: true,
       galleryImages: {
         select: {
           imageUrl: true,
+        },
+      },
+      summary: true,
+      _count: {
+        select: {
+          events: true,
         },
       },
     },
@@ -300,13 +307,27 @@ export async function deletePerformanceGalleryAction(
     return { error: "A galéria már nem található." };
   }
 
-  await prisma.runningPerformanceGalleryImage.deleteMany({
-    where: {
-      runningPerformanceId: id,
-    },
-  });
+  const isStandaloneGallery = performance.summary === "" && performance._count.events === 0;
 
-  await Promise.all(performance.galleryImages.map((galleryImage) => deleteGalleryFile(galleryImage.imageUrl)));
+  if (isStandaloneGallery) {
+    await prisma.runningPerformance.delete({ where: { id } });
+    const imageUrls = new Set([
+      performance.coverImageUrl,
+      ...performance.galleryImages.map((galleryImage) => galleryImage.imageUrl),
+    ]);
+    await Promise.all(Array.from(imageUrls, (imageUrl) => deleteGalleryFile(imageUrl)));
+  } else {
+    await prisma.runningPerformanceGalleryImage.deleteMany({
+      where: {
+        runningPerformanceId: id,
+      },
+    });
+    await Promise.all(
+      performance.galleryImages
+        .filter((galleryImage) => galleryImage.imageUrl !== performance.coverImageUrl)
+        .map((galleryImage) => deleteGalleryFile(galleryImage.imageUrl)),
+    );
+  }
 
   revalidatePath("/");
   revalidatePath("/galeria");

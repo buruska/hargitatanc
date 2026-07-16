@@ -10,6 +10,11 @@ export default async function AdminPage() {
 
   if (!session) {
     const performances = await prisma.runningPerformance.findMany({
+      where: {
+        summary: {
+          not: "",
+        },
+      },
       orderBy: {
         createdAt: "desc",
       },
