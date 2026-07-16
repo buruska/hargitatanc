@@ -77,10 +77,10 @@ export function GalleryPerformanceCards({ performances }: GalleryPerformanceCard
 
       {filteredPerformances.length > 0 ? (
         <>
-          <section className="mt-9 grid grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
+          <section className="mt-9 grid auto-rows-fr grid-cols-1 gap-5 min-[640px]:grid-cols-2 min-[980px]:grid-cols-3 min-[1280px]:grid-cols-6">
             {visiblePerformances.map((performance, index) => (
               <div
-                className="gallery-card-reveal"
+                className="gallery-card-reveal h-full"
                 key={performance.id}
                 style={{ animationDelay: `${(index % GALLERY_BATCH_SIZE) * 55}ms` }}
               >
@@ -105,16 +105,25 @@ function GalleryPerformanceCard({ performance }: { performance: GalleryPerforman
   const [isMounted, setIsMounted] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const previewImages = performance.galleryImages.slice(0, 4);
+  const generatedTitleParts = performance.title.split(" – ").map((part) => part.trim());
+  const hasPerformanceDetails = generatedTitleParts.length >= 3;
+  const displayedTitle = hasPerformanceDetails ? generatedTitleParts[0] : performance.title;
+  const displayedLocation = hasPerformanceDetails ? generatedTitleParts[1] : null;
+  const displayedDate = hasPerformanceDetails ? generatedTitleParts.slice(2).join(" – ") : null;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   return (
-    <article className="group relative border-2 border-line-strong bg-surface-strong p-3 shadow-[8px_8px_0_rgb(33_31_27_/_8%)]">
-      <h2 className="mb-3 font-serif text-[clamp(20px,1.7vw,28px)] font-bold leading-tight text-charcoal">
-        {performance.title}
-      </h2>
+    <article className="group relative h-full border-2 border-line-strong bg-surface-strong p-3 shadow-[8px_8px_0_rgb(33_31_27_/_8%)]">
+      <div className="mb-3 min-h-[46px]">
+        <h2 className="font-serif text-[clamp(10px,0.85vw,14px)] font-bold leading-tight text-charcoal">
+          {displayedTitle}
+        </h2>
+        {displayedLocation ? <p className="mt-1 text-[11px] font-bold leading-tight text-muted/75">{displayedLocation}</p> : null}
+        {displayedDate ? <p className="mt-0.5 text-[10px] font-bold leading-tight text-muted/60">{displayedDate}</p> : null}
+      </div>
       <button
         aria-label={`${performance.title} galéria megnyitása`}
         className="relative block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-thread-red"
