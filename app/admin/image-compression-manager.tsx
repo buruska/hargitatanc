@@ -65,7 +65,7 @@ export function ImageCompressionManager() {
   if (processingCount === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-charcoal/65 px-5" role="status" aria-live="polite">
+    <div className="fixed inset-0 z-[300] grid place-items-center bg-charcoal/65 px-5" role="status" aria-live="polite">
       <div className="border-2 border-charcoal bg-surface-strong px-6 py-5 text-center shadow-[8px_8px_0_rgb(179_38_32_/_45%)]">
         <p className="font-serif text-2xl font-bold">Képek optimalizálása...</p>
         <p className="mt-2 text-sm font-extrabold text-muted">A feltöltés a tömörítés után folytatható.</p>

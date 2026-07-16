@@ -281,7 +281,6 @@ function EditNewsPostModal({
                 name="excerpt"
                 type="text"
                 value={editedExcerpt}
-                required
                 onChange={(changeEvent) => setEditedExcerpt(changeEvent.target.value)}
               />
             </label>

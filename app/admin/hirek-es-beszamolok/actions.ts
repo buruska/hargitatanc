@@ -1,6 +1,8 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
@@ -13,6 +15,21 @@ export type DeleteNewsPostState = {
   error?: string;
   success?: boolean;
 };
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const NEWS_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "news");
+
+function getImageExtension(file: File) {
+  const extension = path.extname(file.name).toLowerCase();
+  return [".jpg", ".jpeg", ".png", ".webp", ".gif"].includes(extension) ? extension : ".jpg";
+}
+
+async function saveNewsCover(file: File, slug: string) {
+  const fileName = `${slug}-borito-${randomUUID()}${getImageExtension(file)}`;
+  await mkdir(NEWS_UPLOAD_DIR, { recursive: true });
+  await writeFile(path.join(NEWS_UPLOAD_DIR, fileName), Buffer.from(await file.arrayBuffer()));
+  return `/uploads/news/${fileName}`;
+}
 
 function slugify(value: string) {
   const slug = value
@@ -47,6 +64,37 @@ function revalidateNewsPaths() {
   revalidatePath("/hirek");
 }
 
+export async function createNewsPostAction(_state: NewsPostFormState, formData: FormData): Promise<NewsPostFormState> {
+  const title = String(formData.get("title") ?? "").trim();
+  const publishedAtValue = String(formData.get("publishedAt") ?? "").trim();
+  const content = String(formData.get("content") ?? "").trim();
+  const coverImage = formData.get("coverImage");
+  const publishedAt = new Date(`${publishedAtValue}T12:00:00`);
+
+  if (!title) return { error: "Add meg a hír címét." };
+  if (!publishedAtValue || Number.isNaN(publishedAt.getTime())) return { error: "Adj meg érvényes dátumot." };
+  if (!(coverImage instanceof File) || coverImage.size === 0) return { error: "Tölts fel borítóképet." };
+  if (!coverImage.type.startsWith("image/")) return { error: "A borítókép csak képfájl lehet." };
+  if (coverImage.size > MAX_IMAGE_SIZE) return { error: "A borítókép legfeljebb 5 MB lehet." };
+  if (!content || content === "<p></p>") return { error: "Írd meg a hír tartalmát." };
+
+  const slug = await createUniqueSlug(title);
+  const coverImageUrl = await saveNewsCover(coverImage, slug);
+
+  await prisma.newsPost.create({
+    data: {
+      title,
+      slug,
+      excerpt: "",
+      content: `<img src="${coverImageUrl}" alt="">${content}`,
+      publishedAt,
+    },
+  });
+
+  revalidateNewsPaths();
+  return { success: true };
+}
+
 export async function updateNewsPostAction(_state: NewsPostFormState, formData: FormData): Promise<NewsPostFormState> {
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
@@ -65,10 +113,6 @@ export async function updateNewsPostAction(_state: NewsPostFormState, formData: 
 
   if (!publishedAtValue || Number.isNaN(publishedAt.getTime())) {
     return { error: "Adj meg érvényes dátumot." };
-  }
-
-  if (!excerpt) {
-    return { error: "Add meg a helyszínt vagy rövid összefoglalót." };
   }
 
   if (!content || content === "<p></p>") {
