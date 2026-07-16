@@ -87,6 +87,7 @@ export async function createPerformanceGalleryAction(
         title,
         slug,
         summary: "",
+        isGalleryOnly: true,
         coverImageUrl: imageUrls[coverImageIndex],
         gallerySortOrder: 0,
         galleryImages: {
@@ -286,12 +287,12 @@ export async function deletePerformanceGalleryAction(
   const performance = await prisma.runningPerformance.findUnique({
     select: {
       coverImageUrl: true,
+      isGalleryOnly: true,
       galleryImages: {
         select: {
           imageUrl: true,
         },
       },
-      summary: true,
       _count: {
         select: {
           events: true,
@@ -307,7 +308,7 @@ export async function deletePerformanceGalleryAction(
     return { error: "A galéria már nem található." };
   }
 
-  const isStandaloneGallery = performance.summary === "" && performance._count.events === 0;
+  const isStandaloneGallery = performance.isGalleryOnly && performance._count.events === 0;
 
   if (isStandaloneGallery) {
     await prisma.runningPerformance.delete({ where: { id } });

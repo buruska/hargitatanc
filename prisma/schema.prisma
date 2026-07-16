@@ -50,6 +50,7 @@ model RunningPerformance {
   slug          String   @unique
   summary       String
   coverImageUrl String
+  isGalleryOnly Boolean @default(false)
   galleryIsPublished Boolean @default(true)
   gallerySortOrder Int @default(0)
   events        RunningPerformanceEvent[]

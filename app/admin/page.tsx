@@ -11,9 +11,7 @@ export default async function AdminPage() {
   if (!session) {
     const performances = await prisma.runningPerformance.findMany({
       where: {
-        summary: {
-          not: "",
-        },
+        isGalleryOnly: false,
       },
       orderBy: {
         createdAt: "desc",

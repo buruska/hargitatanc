@@ -6,6 +6,9 @@ import { PerformanceAccordionList } from "./performance-accordion-list";
 
 export default async function AdminFutoEloadasokPage() {
   const performances = await prisma.runningPerformance.findMany({
+    where: {
+      isGalleryOnly: false,
+    },
     orderBy: {
       createdAt: "desc",
     },

@@ -226,6 +226,7 @@ export async function createRunningPerformanceAction(
       title,
       slug,
       summary,
+      isGalleryOnly: false,
       coverImageUrl,
       galleryImages: {
         create: galleryImageUrls.map((imageUrl, sortOrder) => ({

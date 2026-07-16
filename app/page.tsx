@@ -32,9 +32,7 @@ export default async function HomePage() {
   const now = new Date();
   const performances = await prisma.runningPerformance.findMany({
     where: {
-      summary: {
-        not: "",
-      },
+      isGalleryOnly: false,
     },
     orderBy: {
       createdAt: "desc",
