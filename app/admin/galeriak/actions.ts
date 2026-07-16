@@ -77,22 +77,24 @@ export async function createPerformanceGalleryAction(
   const temporaryId = randomUUID();
   const slug = await createUniqueSlug(title, temporaryId);
   const imageUrls = await Promise.all(images.map((file, index) => saveGalleryImage(file, slug, index)));
-  const gallerySortOrder = await prisma.runningPerformance.count({
-    where: { galleryIsPublished: true, galleryImages: { some: {} } },
-  });
-
-  await prisma.runningPerformance.create({
-    data: {
-      title,
-      slug,
-      summary: "",
-      coverImageUrl: imageUrls[coverImageIndex],
-      gallerySortOrder,
-      galleryImages: {
-        create: imageUrls.map((imageUrl, sortOrder) => ({ imageUrl, sortOrder })),
+  await prisma.$transaction([
+    prisma.runningPerformance.updateMany({
+      where: { galleryIsPublished: true, galleryImages: { some: {} } },
+      data: { gallerySortOrder: { increment: 1 } },
+    }),
+    prisma.runningPerformance.create({
+      data: {
+        title,
+        slug,
+        summary: "",
+        coverImageUrl: imageUrls[coverImageIndex],
+        gallerySortOrder: 0,
+        galleryImages: {
+          create: imageUrls.map((imageUrl, sortOrder) => ({ imageUrl, sortOrder })),
+        },
       },
-    },
-  });
+    }),
+  ]);
 
   revalidatePath("/");
   revalidatePath("/galeria");
