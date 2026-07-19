@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { HeaderScrollBorder } from "./header-scroll-border";
 import { SiteFooter } from "./site-footer";
+import { TicketPurchaseModal, type TicketModalItem } from "./ticket-purchase-modal";
+import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,6 +14,8 @@ export const metadata: Metadata = {
     icon: "/icon.png",
   },
 };
+
+export const revalidate = 300;
 
 const navigation = [
   { href: "/", label: "Főoldal" },
@@ -63,11 +67,55 @@ const socialLinks = [
 
 const languages = ["HU", "RO", "EN"];
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const now = new Date();
+  const [performanceEvents, events] = await Promise.all([
+    prisma.runningPerformanceEvent.findMany({
+      where: { startsAt: { gte: now } },
+      orderBy: { startsAt: "asc" },
+      select: {
+        id: true,
+        location: true,
+        startsAt: true,
+        ticketMode: true,
+        ticketText: true,
+        ticketUrl: true,
+        runningPerformance: { select: { title: true } },
+      },
+    }),
+    prisma.event.findMany({
+      where: { startsAt: { gte: now } },
+      orderBy: { startsAt: "asc" },
+      select: { id: true, location: true, startsAt: true, title: true },
+    }),
+  ]);
+  const ticketItems: TicketModalItem[] = [
+    ...performanceEvents.map((event) => ({
+      id: event.id,
+      kind: "performance" as const,
+      location: event.location,
+      startsAt: event.startsAt.toISOString(),
+      ticketMode: event.ticketMode,
+      ticketText: event.ticketText,
+      ticketUrl: event.ticketUrl,
+      title: event.runningPerformance.title,
+    })),
+    ...events.map((event) => ({
+      id: event.id,
+      kind: "event" as const,
+      location: event.location,
+      startsAt: event.startsAt.toISOString(),
+      ticketMode: "LINK" as const,
+      ticketText: "",
+      ticketUrl: "",
+      title: event.title,
+    })),
+  ].sort((first, second) => new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime());
+
   return (
     <html lang="hu">
       <body className="m-0 bg-warm-canvas font-sans leading-normal text-charcoal">
@@ -99,6 +147,7 @@ export default function RootLayout({
                 </Link>
               ))}
             </nav>
+            <TicketPurchaseModal items={ticketItems} />
             <nav className="flex items-center gap-px" aria-label="Közösségi média">
               {socialLinks.map((item) => (
                 <Link
