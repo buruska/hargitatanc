@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { hasRichTextContent, sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "company");
@@ -184,9 +185,9 @@ export async function updateIntroTextAction(
   formData: FormData,
 ): Promise<IntroTextFormState> {
   await requireAdmin();
-  const introText = String(formData.get("introText") ?? "").trim();
+  const introText = sanitizeRichText(String(formData.get("introText") ?? ""));
 
-  if (!introText || introText === "<p></p>") {
+  if (!hasRichTextContent(introText)) {
     return { message: "Add meg a bemutató szöveget.", status: "error" };
   }
 
@@ -215,14 +216,14 @@ export async function updateDirectorAction(
 ): Promise<DirectorFormState> {
   await requireAdmin();
   const directorName = String(formData.get("directorName") ?? "").trim();
-  const directorBio = String(formData.get("directorBio") ?? "").trim();
+  const directorBio = sanitizeRichText(String(formData.get("directorBio") ?? ""));
   const directorImage = formData.get("directorImage");
 
   if (!directorName) {
     return { message: "Add meg az igazgató nevét.", status: "error" };
   }
 
-  if (!directorBio || directorBio === "<p></p>") {
+  if (!hasRichTextContent(directorBio)) {
     return { message: "Add meg az igazgató leírását.", status: "error" };
   }
 
@@ -284,7 +285,7 @@ export async function createMemberAction(
   await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
-  const bio = String(formData.get("bio") ?? "").trim();
+  const bio = sanitizeRichText(String(formData.get("bio") ?? ""));
   const memberImage = formData.get("memberImage");
 
   if (!name) {
@@ -307,7 +308,7 @@ export async function createMemberAction(
     return { message: "Add meg a pozíciót.", status: "error" };
   }
 
-  if (!bio || bio === "<p></p>") {
+  if (!hasRichTextContent(bio)) {
     return { message: "Add meg a leírást.", status: "error" };
   }
 
@@ -345,7 +346,7 @@ export async function updateMemberAction(
   const id = String(formData.get("id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
-  const bio = String(formData.get("bio") ?? "").trim();
+  const bio = sanitizeRichText(String(formData.get("bio") ?? ""));
   const memberImage = formData.get("memberImage");
 
   if (!id) {
@@ -360,7 +361,7 @@ export async function updateMemberAction(
     return { message: "Add meg a pozíciót.", status: "error" };
   }
 
-  if (!bio || bio === "<p></p>") {
+  if (!hasRichTextContent(bio)) {
     return { message: "Add meg a leírást.", status: "error" };
   }
 

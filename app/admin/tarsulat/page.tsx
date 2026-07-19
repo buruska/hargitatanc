@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, buttonPrimary, panel } from "@/lib/styles";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { AdminShell } from "../admin-shell";
 import { DirectorEditModal } from "./director-edit-modal";
 import { GroupImageUploadModal } from "./group-image-upload-modal";
@@ -38,17 +39,23 @@ export default async function AdminTarsulatPage() {
       },
     },
   });
-  const dancerMembers = members.filter((member) => member.role.trim().toLowerCase() === "táncos");
-  const staffMembers = members.filter((member) => member.role.trim().toLowerCase() !== "táncos");
+  const safeMembers = members.map((member) => ({
+    ...member,
+    bio: member.bio ? sanitizeRichText(member.bio) : null,
+  }));
+  const dancerMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() === "táncos");
+  const staffMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() !== "táncos");
+  const safeIntroText = sanitizeRichText(profile?.introText ?? "");
+  const safeDirectorBio = sanitizeRichText(profile?.directorBio ?? "");
 
   return (
     <AdminShell>
       <h1 className={adminTitle}>Rólunk</h1>
       <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-4`}>
         <GroupImageUploadModal />
-        <IntroTextEditModal introText={profile?.introText ?? ""} />
+        <IntroTextEditModal introText={safeIntroText} />
         <DirectorEditModal
-          directorBio={profile?.directorBio ?? ""}
+          directorBio={safeDirectorBio}
           directorImageUrl={profile?.directorImageUrl ?? null}
           directorName={profile?.directorName ?? ""}
         />
@@ -68,12 +75,12 @@ export default async function AdminTarsulatPage() {
           />
         </div>
       ) : null}
-      {profile?.introText ? (
+      {safeIntroText ? (
         <div className={`${panel} mt-6 p-5`}>
           <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális bemutató szöveg</p>
           <div
             className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted"
-            dangerouslySetInnerHTML={{ __html: profile.introText }}
+            dangerouslySetInnerHTML={{ __html: safeIntroText }}
           />
         </div>
       ) : null}
@@ -92,8 +99,8 @@ export default async function AdminTarsulatPage() {
             ) : null}
             <div className="text-[15px] font-bold leading-relaxed text-muted">
               {profile.directorName ? <h2 className="mb-2 font-serif text-2xl font-bold text-charcoal">{profile.directorName}</h2> : null}
-              {profile.directorBio ? (
-                <div className="rich-text-editor" dangerouslySetInnerHTML={{ __html: profile.directorBio }} />
+              {safeDirectorBio ? (
+                <div className="rich-text-editor" dangerouslySetInnerHTML={{ __html: safeDirectorBio }} />
               ) : null}
             </div>
           </div>

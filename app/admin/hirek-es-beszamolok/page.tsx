@@ -1,6 +1,7 @@
 import { AdminShell } from "../admin-shell";
 import { prisma } from "@/lib/prisma";
 import { adminTitle } from "@/lib/styles";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { NewsPostList } from "./news-post-list";
 
 export default async function AdminHirekEsBeszamolokPage() {
@@ -20,7 +21,13 @@ export default async function AdminHirekEsBeszamolokPage() {
   return (
     <AdminShell>
       <h1 className={adminTitle}>Hírek és beszámolók</h1>
-      <NewsPostList posts={posts.map((post) => ({ ...post, publishedAt: post.publishedAt.toISOString() }))} />
+      <NewsPostList
+        posts={posts.map((post) => ({
+          ...post,
+          content: sanitizeRichText(post.content),
+          publishedAt: post.publishedAt.toISOString(),
+        }))}
+      />
     </AdminShell>
   );
 }

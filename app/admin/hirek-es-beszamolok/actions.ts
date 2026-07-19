@@ -6,6 +6,7 @@ import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { hasRichTextContent, sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 export type NewsPostFormState = {
   error?: string;
@@ -69,7 +70,7 @@ export async function createNewsPostAction(_state: NewsPostFormState, formData: 
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const publishedAtValue = String(formData.get("publishedAt") ?? "").trim();
-  const content = String(formData.get("content") ?? "").trim();
+  const content = sanitizeRichText(String(formData.get("content") ?? ""));
   const coverImage = formData.get("coverImage");
   const publishedAt = new Date(`${publishedAtValue}T12:00:00`);
 
@@ -78,7 +79,7 @@ export async function createNewsPostAction(_state: NewsPostFormState, formData: 
   if (!(coverImage instanceof File) || coverImage.size === 0) return { error: "Tölts fel borítóképet." };
   if (!coverImage.type.startsWith("image/")) return { error: "A borítókép csak képfájl lehet." };
   if (coverImage.size > MAX_IMAGE_SIZE) return { error: "A borítókép legfeljebb 5 MB lehet." };
-  if (!content || content === "<p></p>") return { error: "Írd meg a hír tartalmát." };
+  if (!hasRichTextContent(content)) return { error: "Írd meg a hír tartalmát." };
 
   const slug = await createUniqueSlug(title);
   const coverImageUrl = await saveNewsCover(coverImage, slug);
@@ -103,7 +104,7 @@ export async function updateNewsPostAction(_state: NewsPostFormState, formData: 
   const title = String(formData.get("title") ?? "").trim();
   const publishedAtValue = String(formData.get("publishedAt") ?? "").trim();
   const excerpt = String(formData.get("excerpt") ?? "").trim();
-  const content = String(formData.get("content") ?? "").trim();
+  const content = sanitizeRichText(String(formData.get("content") ?? ""));
   const publishedAt = new Date(publishedAtValue);
 
   if (!id) {
@@ -118,7 +119,7 @@ export async function updateNewsPostAction(_state: NewsPostFormState, formData: 
     return { error: "Adj meg érvényes dátumot." };
   }
 
-  if (!content || content === "<p></p>") {
+  if (!hasRichTextContent(content)) {
     return { error: "Írd meg a hír szövegét." };
   }
 

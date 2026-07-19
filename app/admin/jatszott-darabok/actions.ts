@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { ticketModeValues, type TicketMode } from "@/lib/tickets";
+import { hasRichTextContent, sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 export type PerformanceFormState = {
   error?: string;
@@ -710,7 +711,7 @@ export async function createPerformanceNewsAction(
   const startsAtValue = String(formData.get("startsAt") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
   const coverImageUrl = String(formData.get("coverImageUrl") ?? "").trim();
-  const content = String(formData.get("content") ?? "").trim();
+  const content = sanitizeRichText(String(formData.get("content") ?? ""));
   const startsAt = new Date(startsAtValue);
 
   if (!title) {
@@ -725,13 +726,15 @@ export async function createPerformanceNewsAction(
     return { error: "Hiányzik a fellépés helyszíne." };
   }
 
-  if (!content || content === "<p></p>") {
+  if (!hasRichTextContent(content)) {
     return { error: "Írd meg a hír szövegét a mentéshez." };
   }
 
   const slug = await createUniqueNewsSlug(title);
   const excerpt = location;
-  const contentWithDefaultCover = coverImageUrl ? `<img src="${coverImageUrl}" alt="">${content}` : content;
+  const contentWithDefaultCover = sanitizeRichText(
+    coverImageUrl ? `<img src="${coverImageUrl}" alt="">${content}` : content,
+  );
 
   await prisma.newsPost.create({
     data: {

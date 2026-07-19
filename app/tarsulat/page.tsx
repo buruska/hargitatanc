@@ -2,6 +2,7 @@ import Image from "next/image";
 import { HomeRevealGroup } from "../home-reveal-group";
 import { prisma } from "@/lib/prisma";
 import { contentPage, eyebrow, h1 } from "@/lib/styles";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { DirectorProfileCard } from "./director-profile-card";
 import { MemberSearchList } from "./member-search-list";
 
@@ -43,7 +44,11 @@ export default async function TarsulatPage() {
       },
     }),
   ]);
-  const visibleMembers = members.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name));
+  const safeMembers = members.map((member) => ({
+    ...member,
+    bio: member.bio ? sanitizeRichText(member.bio) : null,
+  }));
+  const visibleMembers = safeMembers.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name));
   const dancers = visibleMembers.filter((member) => isDancerRole(member.role));
   const staffMembers = visibleMembers.filter((member) => !isDancerRole(member.role));
 
@@ -72,11 +77,11 @@ export default async function TarsulatPage() {
             >
               <div
                 className="about-intro-reveal rich-text-editor text-[clamp(18px,2vw,22px)] font-bold leading-relaxed text-charcoal"
-                dangerouslySetInnerHTML={{ __html: profile.introText }}
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(profile.introText) }}
               />
               {profile.directorImageUrl ? (
                 <DirectorProfileCard
-                  bio={profile.directorBio ?? ""}
+                  bio={sanitizeRichText(profile.directorBio ?? "")}
                   imageUrl={profile.directorImageUrl}
                   name={profile.directorName ?? ""}
                 />
