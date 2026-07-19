@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { NewsTitleFlourish } from "../news-title-flourish";
 
 type NewsPostCard = {
   excerpt: string | null;
@@ -56,27 +55,26 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
                   <time className="block font-serif text-[16px] leading-tight text-charcoal">
                     {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(new Date(post.publishedAt))}
                   </time>
-                  <h2 className="mt-3 font-serif text-[clamp(22px,2.2vw,28px)] font-bold italic leading-tight text-thread-red">
+                  <h2 className="mb-9 mt-9 font-serif text-[clamp(18px,2vw,22px)] font-bold italic leading-tight text-thread-red">
                     {post.title}
                   </h2>
                   {post.excerpt ? (
-                    <p className="mt-3 text-[15px] font-extrabold leading-snug text-charcoal">
+                    <p className="text-[15px] font-extrabold leading-snug text-charcoal">
                       {post.excerpt}
                     </p>
                   ) : null}
-                  <NewsTitleFlourish />
-                  <div className="mt-auto">
+                  <div className="-mx-5 -mb-6 mt-auto">
                     {post.imageSrc ? (
                       <Image
                         alt=""
-                        className="aspect-[4/3] w-full border-2 border-line-strong object-cover"
+                        className="aspect-[4/3] w-full object-cover"
                         height={240}
                         src={post.imageSrc}
                         unoptimized={post.imageSrc.startsWith("data:")}
                         width={320}
                       />
                     ) : (
-                      <div className="grid aspect-[4/3] place-items-center border-2 border-line-strong bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
+                      <div className="grid aspect-[4/3] place-items-center bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
                         Hír
                       </div>
                     )}

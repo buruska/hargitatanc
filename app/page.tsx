@@ -3,7 +3,6 @@ import Link from "next/link";
 import { HeroCoverCarousel } from "./hero-cover-carousel";
 import { HomePerformanceCalendarSection } from "./home-performance-calendar-section";
 import { HomeRevealGroup } from "./home-reveal-group";
-import { NewsTitleFlourish } from "./news-title-flourish";
 import { prisma } from "@/lib/prisma";
 
 function getDateKey(date: Date) {
@@ -283,43 +282,42 @@ export default async function HomePage() {
           </div>
           {newsPreviewPosts.length > 0 ? (
             <>
-              <div className="mt-10 grid gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
+              <div className="mt-10 grid auto-rows-fr gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
                 {newsPreviewPosts.map((post, index) => {
                   const imageSrc = getFirstImageSrc(post.content);
 
                   return (
                     <Link
-                      className="home-news-card block min-h-[430px]"
+                      className="home-news-card block h-full min-h-[430px]"
                       href={`/hirek/${post.slug}`}
                       key={post.id}
                       style={{ transitionDelay: `${index * 110 + 180}ms` }}
                     >
-                      <div className="home-news-card-flip relative min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
-                        <div className="home-news-card-face home-news-card-front flex min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
+                      <div className="home-news-card-flip relative h-full min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
+                        <div className="home-news-card-face home-news-card-front flex h-full min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
                           <time className="block font-serif text-[16px] leading-tight text-charcoal">
                             {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(post.publishedAt)}
                           </time>
-                          <h3 className="mt-3 font-serif text-[clamp(22px,2.2vw,28px)] font-bold italic leading-tight text-thread-red">
+                          <h3 className="mb-9 mt-9 font-serif text-[clamp(18px,2vw,22px)] font-bold italic leading-tight text-thread-red">
                             {post.title}
                           </h3>
                           {post.excerpt ? (
-                            <p className="mt-3 text-[15px] font-extrabold leading-snug text-charcoal">
+                            <p className="text-[15px] font-extrabold leading-snug text-charcoal">
                               {post.excerpt}
                             </p>
                           ) : null}
-                          <NewsTitleFlourish />
-                          <div className="mt-auto">
+                          <div className="-mx-5 -mb-6 mt-auto">
                             {imageSrc ? (
                               <Image
                                 alt=""
-                                className="aspect-[4/3] w-full border-2 border-line-strong object-cover"
+                                className="aspect-[4/3] w-full object-cover"
                                 height={240}
                                 src={imageSrc}
                                 unoptimized={imageSrc.startsWith("data:")}
                                 width={320}
                               />
                             ) : (
-                              <div className="grid aspect-[4/3] place-items-center border-2 border-line-strong bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
+                              <div className="grid aspect-[4/3] place-items-center bg-surface text-[12px] font-extrabold uppercase tracking-[0.12em] text-muted">
                                 Hír
                               </div>
                             )}
