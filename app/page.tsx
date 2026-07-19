@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HeroCoverCarousel } from "./hero-cover-carousel";
 import { HomePerformanceCalendarSection } from "./home-performance-calendar-section";
 import { HomeRevealGroup } from "./home-reveal-group";
+import { NewsTitleFlourish } from "./news-title-flourish";
 import { prisma } from "@/lib/prisma";
 
 function getDateKey(date: Date) {
@@ -306,7 +307,7 @@ export default async function HomePage() {
                               {post.excerpt}
                             </p>
                           ) : null}
-                          <span className="mx-auto my-5 block h-[16px] w-[112px] rounded-[50%] border-t-[3px] border-pine" />
+                          <NewsTitleFlourish />
                           <div className="mt-auto">
                             {imageSrc ? (
                               <Image

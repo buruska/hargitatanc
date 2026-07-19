@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { NewsTitleFlourish } from "../news-title-flourish";
 
 type NewsPostCard = {
   excerpt: string | null;
@@ -63,7 +64,7 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
                       {post.excerpt}
                     </p>
                   ) : null}
-                  <span className="mx-auto my-5 block h-[16px] w-[112px] rounded-[50%] border-t-[3px] border-pine" />
+                  <NewsTitleFlourish />
                   <div className="mt-auto">
                     {post.imageSrc ? (
                       <Image
