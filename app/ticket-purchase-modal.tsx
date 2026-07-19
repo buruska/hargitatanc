@@ -24,9 +24,23 @@ function isSafeExternalUrl(value: string) {
   }
 }
 
+const dateFormatter = new Intl.DateTimeFormat("hu-RO", {
+  dateStyle: "long",
+  timeStyle: "short",
+  timeZone: "Europe/Bucharest",
+});
+
+function normalizeSearchValue(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("hu-HU");
+}
+
 export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem[] }>) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
@@ -49,6 +63,29 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [isOpen]);
+
+  const normalizedQuery = normalizeSearchValue(searchQuery.trim());
+  const visibleItems = normalizedQuery
+    ? items.filter((item) => {
+        const ticketText = item.kind === "event"
+          ? "Részletek"
+          : getTicketDisplayText({
+              ticketMode: item.ticketMode,
+              ticketText: item.ticketText,
+              ticketUrl: item.ticketUrl,
+            });
+        const searchableText = [
+          item.title,
+          dateFormatter.format(new Date(item.startsAt)),
+          item.startsAt,
+          item.location,
+          item.kind === "performance" ? "Előadás" : "Rendezvény",
+          ticketText || "Jegyinformáció hamarosan",
+        ].join(" ");
+
+        return normalizeSearchValue(searchableText).includes(normalizedQuery);
+      })
+    : items;
 
   const modal = isOpen ? (
     <div
@@ -84,8 +121,32 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
 
         <div className="p-[clamp(20px,4vw,36px)]">
           {items.length > 0 ? (
-            <ul className="border-2 border-line-strong bg-surface-strong">
-              {items.map((item) => {
+            <>
+              <div className="mb-5 max-w-[460px]">
+                <label className="sr-only" htmlFor={`${titleId}-search`}>Keresés a közelgő események között</label>
+                <div className="relative">
+                  <svg aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted" viewBox="0 0 24 24">
+                    <path d="m21 21-4.35-4.35m2.35-5.15A7.5 7.5 0 1 1 4 11.5a7.5 7.5 0 0 1 15 0Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+                  </svg>
+                  <input
+                    className="min-h-12 w-full border-2 border-line-strong bg-surface-strong py-3 pl-12 pr-4 text-sm font-bold text-charcoal outline-none transition placeholder:text-muted focus:border-thread-red"
+                    id={`${titleId}-search`}
+                    placeholder="Keresés cím, dátum, helyszín vagy jegytípus alapján"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                  />
+                </div>
+                {searchQuery ? (
+                  <p aria-live="polite" className="mt-2 text-xs font-bold text-muted">
+                    {visibleItems.length} találat
+                  </p>
+                ) : null}
+              </div>
+
+              {visibleItems.length > 0 ? (
+                <ul className="border-2 border-line-strong bg-surface-strong">
+              {visibleItems.map((item) => {
                 const ticket = { ticketMode: item.ticketMode, ticketText: item.ticketText, ticketUrl: item.ticketUrl };
                 const hasSafeTicketLink = isTicketLink(ticket) && isSafeExternalUrl(item.ticketUrl);
                 const ticketText = getTicketDisplayText(ticket);
@@ -98,11 +159,7 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
                       </p>
                       <h3 className="mt-1 font-serif text-2xl font-bold leading-tight text-charcoal">{item.title}</h3>
                       <p className="mt-2 text-sm font-bold text-muted">
-                        {new Intl.DateTimeFormat("hu-RO", {
-                          dateStyle: "long",
-                          timeStyle: "short",
-                          timeZone: "Europe/Bucharest",
-                        }).format(new Date(item.startsAt))}
+                        {dateFormatter.format(new Date(item.startsAt))}
                         {item.location ? ` · ${item.location}` : ""}
                       </p>
                     </div>
@@ -132,7 +189,14 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
                   </li>
                 );
               })}
-            </ul>
+                </ul>
+              ) : (
+                <div className="border-2 border-line-strong bg-surface-strong p-8 text-center">
+                  <p className="font-serif text-2xl font-bold text-charcoal">Nincs találat.</p>
+                  <p className="mt-2 text-sm font-bold text-muted">Próbálj másik keresőkifejezést.</p>
+                </div>
+              )}
+            </>
           ) : (
             <div className="border-2 border-line-strong bg-surface-strong p-8 text-center">
               <p className="font-serif text-2xl font-bold text-charcoal">Jelenleg nincs meghirdetett esemény.</p>
@@ -149,7 +213,10 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
       <button
         className="inline-flex min-h-9 items-center justify-center bg-thread-red px-3.5 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.09em] text-white shadow-[3px_3px_0_rgb(33_31_27_/_24%)] transition hover:scale-105 hover:bg-[#8f1f1a] active:scale-95"
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setSearchQuery("");
+          setIsOpen(true);
+        }}
       >
         Jegyvásárlás
       </button>
