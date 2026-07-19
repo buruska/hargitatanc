@@ -28,7 +28,7 @@ const navigation = [
 
 const socialLinks = [
   {
-    href: "#",
+    href: "https://www.facebook.com/hargitaegyuttes",
     label: "Facebook",
     icon: (
       <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
@@ -40,7 +40,7 @@ const socialLinks = [
     ),
   },
   {
-    href: "#",
+    href: "https://www.instagram.com/hargitaneptancszinhaz",
     label: "Instagram",
     icon: (
       <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
@@ -155,6 +155,8 @@ export default async function RootLayout({
                   className="inline-flex size-6 items-center justify-center text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
                   href={item.href}
                   key={item.label}
+                  rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
                 >
                   {item.icon}
                 </Link>
