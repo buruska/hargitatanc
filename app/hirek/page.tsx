@@ -29,8 +29,8 @@ export default async function HirekPage() {
 
   return (
     <main className="mx-auto max-w-[1180px] px-[clamp(18px,4vw,56px)] pb-[72px] pt-[124px]">
-      <p className={eyebrow}>Hírek</p>
-      <h1 className={h1}>Friss hírek és beszámolók</h1>
+      <p className={eyebrow}>Aktuális</p>
+      <h1 className={h1}>Hírek és beszámolók</h1>
       <NewsSearchList posts={newsPosts} />
     </main>
   );

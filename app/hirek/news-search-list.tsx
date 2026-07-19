@@ -47,11 +47,11 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
       </label>
 
       {filteredPosts.length > 0 ? (
-        <section className="grid gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
+        <section className="grid auto-rows-fr gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
           {filteredPosts.map((post) => (
-            <Link className="home-news-card home-news-card-static block min-h-[430px]" href={`/hirek/${post.slug}`} id={post.id} key={post.id}>
-              <div className="home-news-card-flip relative min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
-                <div className="home-news-card-face home-news-card-front flex min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
+            <Link className="home-news-card home-news-card-static block h-full min-h-[430px]" href={`/hirek/${post.slug}`} id={post.id} key={post.id}>
+              <div className="home-news-card-flip relative h-full min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
+                <div className="home-news-card-face home-news-card-front flex h-full min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
                   <time className="block font-serif text-[16px] leading-tight text-charcoal">
                     {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(new Date(post.publishedAt))}
                   </time>
@@ -63,7 +63,7 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
                       {post.excerpt}
                     </p>
                   ) : null}
-                  <div className="-mx-5 -mb-6 mt-auto">
+                  <div className="-mx-5 -mb-6 mt-auto pt-4">
                     {post.imageSrc ? (
                       <Image
                         alt=""
@@ -80,7 +80,7 @@ export function NewsSearchList({ posts }: NewsSearchListProps) {
                     )}
                   </div>
                 </div>
-                <div className="home-news-card-face home-news-card-back absolute inset-0 grid min-h-[430px] place-items-center px-6 py-8 text-center text-surface-strong">
+                <div className="home-news-card-face home-news-card-back absolute inset-0 grid h-full min-h-[430px] place-items-center px-6 py-8 text-center text-surface-strong">
                   <div className="grid justify-items-center gap-8">
                     <Image
                       alt="Hargita Nemzeti Szekler Nepi Egyuttes"
