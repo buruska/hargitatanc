@@ -5,6 +5,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 import { ticketModeValues, type TicketMode } from "@/lib/tickets";
 
 export type PerformanceFormState = {
@@ -180,6 +181,7 @@ export async function createRunningPerformanceAction(
   _state: PerformanceFormState,
   formData: FormData,
 ): Promise<PerformanceFormState> {
+  await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const coverImage = formData.get("coverImage");
@@ -248,6 +250,7 @@ export async function updateRunningPerformanceAction(
   _state: PerformanceFormState,
   formData: FormData,
 ): Promise<PerformanceFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
@@ -319,6 +322,7 @@ export async function deleteRunningPerformanceAction(
   _state: DeletePerformanceState,
   formData: FormData,
 ): Promise<DeletePerformanceState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -364,6 +368,7 @@ export async function deleteRunningPerformanceGalleryImageAction(
   _state: DeleteGalleryImageState,
   formData: FormData,
 ): Promise<DeleteGalleryImageState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -403,6 +408,7 @@ export async function addRunningPerformanceGalleryImagesAction(
   _state: AddGalleryImagesState,
   formData: FormData,
 ): Promise<AddGalleryImagesState> {
+  await requireAdmin();
   const runningPerformanceId = String(formData.get("runningPerformanceId") ?? "").trim();
   const galleryImages = formData
     .getAll("galleryImages")
@@ -469,6 +475,7 @@ export async function addRunningPerformanceGalleryImagesAction(
 }
 
 export async function moveRunningPerformanceGalleryImageAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const direction = String(formData.get("direction") ?? "").trim();
   const runningPerformanceId = String(formData.get("runningPerformanceId") ?? "").trim();
@@ -534,6 +541,7 @@ export async function createRunningPerformanceEventAction(
   _state: PerformanceEventFormState,
   formData: FormData,
 ): Promise<PerformanceEventFormState> {
+  await requireAdmin();
   const runningPerformanceId = String(formData.get("runningPerformanceId") ?? "").trim();
   const date = String(formData.get("date") ?? "").trim();
   const time = String(formData.get("time") ?? "").trim();
@@ -596,6 +604,7 @@ export async function updateRunningPerformanceEventAction(
   _state: PerformanceEventFormState,
   formData: FormData,
 ): Promise<PerformanceEventFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const date = String(formData.get("date") ?? "").trim();
   const time = String(formData.get("time") ?? "").trim();
@@ -660,6 +669,7 @@ export async function deleteRunningPerformanceEventAction(
   _state: DeletePerformanceState,
   formData: FormData,
 ): Promise<DeletePerformanceState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -695,6 +705,7 @@ export async function createPerformanceNewsAction(
   _state: PerformanceNewsFormState,
   formData: FormData,
 ): Promise<PerformanceNewsFormState> {
+  await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const startsAtValue = String(formData.get("startsAt") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();

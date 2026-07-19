@@ -5,6 +5,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export type EventFormState = {
   error?: string;
@@ -100,6 +101,7 @@ async function deleteCoverImage(coverImageUrl: string | null) {
 }
 
 export async function createEventAction(_state: EventFormState, formData: FormData): Promise<EventFormState> {
+  await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const startDate = String(formData.get("startDate") ?? "").trim();
   const startTime = String(formData.get("startTime") ?? "").trim();
@@ -157,6 +159,7 @@ export async function createEventAction(_state: EventFormState, formData: FormDa
 }
 
 export async function updateEventAction(_state: EventFormState, formData: FormData): Promise<EventFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const startDate = String(formData.get("startDate") ?? "").trim();
@@ -236,6 +239,7 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
 }
 
 export async function deleteEventAction(_state: DeleteEventState, formData: FormData): Promise<DeleteEventState> {
+  await requireAdmin();
   try {
     const id = String(formData.get("id") ?? "").trim();
 

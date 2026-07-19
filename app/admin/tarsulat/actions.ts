@@ -5,6 +5,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "company");
@@ -133,6 +134,7 @@ export async function uploadGroupImageAction(
   _state: GroupImageFormState,
   formData: FormData,
 ): Promise<GroupImageFormState> {
+  await requireAdmin();
   const groupImage = formData.get("groupImage");
 
   if (!(groupImage instanceof File) || groupImage.size === 0) {
@@ -181,6 +183,7 @@ export async function updateIntroTextAction(
   _state: IntroTextFormState,
   formData: FormData,
 ): Promise<IntroTextFormState> {
+  await requireAdmin();
   const introText = String(formData.get("introText") ?? "").trim();
 
   if (!introText || introText === "<p></p>") {
@@ -210,6 +213,7 @@ export async function updateDirectorAction(
   _state: DirectorFormState,
   formData: FormData,
 ): Promise<DirectorFormState> {
+  await requireAdmin();
   const directorName = String(formData.get("directorName") ?? "").trim();
   const directorBio = String(formData.get("directorBio") ?? "").trim();
   const directorImage = formData.get("directorImage");
@@ -277,6 +281,7 @@ export async function createMemberAction(
   _state: MemberFormState,
   formData: FormData,
 ): Promise<MemberFormState> {
+  await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
@@ -336,6 +341,7 @@ export async function updateMemberAction(
   _state: MemberFormState,
   formData: FormData,
 ): Promise<MemberFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
@@ -410,6 +416,7 @@ export async function updateMemberAction(
 }
 
 export async function deleteMemberAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -441,6 +448,7 @@ export async function deleteMemberAction(formData: FormData) {
 }
 
 export async function moveMemberAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const direction = String(formData.get("direction") ?? "");
 

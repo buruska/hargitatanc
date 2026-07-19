@@ -5,6 +5,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export type DefaultCoverFormState = {
   error?: string;
@@ -63,6 +64,7 @@ export async function uploadDefaultCoverAction(
   _state: DefaultCoverFormState,
   formData: FormData,
 ): Promise<DefaultCoverFormState> {
+  await requireAdmin();
   const coverImages = formData
     .getAll("coverImages")
     .filter((file): file is File => file instanceof File && file.size > 0);
@@ -122,6 +124,7 @@ export async function deleteDefaultCoverAction(
   _state: DeleteDefaultCoverState,
   formData: FormData,
 ): Promise<DeleteDefaultCoverState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -153,6 +156,7 @@ export async function deleteDefaultCoverAction(
 }
 
 export async function moveDefaultCoverAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const direction = String(formData.get("direction") ?? "").trim();
 

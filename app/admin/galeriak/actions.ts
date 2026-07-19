@@ -5,6 +5,7 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export type DeleteGalleryState = {
   error?: string;
@@ -57,6 +58,7 @@ export async function createPerformanceGalleryAction(
   _state: CreateGalleryState,
   formData: FormData,
 ): Promise<CreateGalleryState> {
+  await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const coverImageIndex = Number.parseInt(String(formData.get("coverImageIndex") ?? ""), 10);
   const images = formData
@@ -124,6 +126,7 @@ export async function updatePerformanceGalleryAction(
   _state: EditGalleryState,
   formData: FormData,
 ): Promise<EditGalleryState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const coverImageId = String(formData.get("coverImageId") ?? "").trim();
@@ -178,6 +181,7 @@ export async function deleteGalleryImageAction(
   _state: DeleteGalleryImageState,
   formData: FormData,
 ): Promise<DeleteGalleryImageState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   if (!id) return { error: "Hiányzik a kép azonosítója." };
 
@@ -210,6 +214,7 @@ export async function deleteGalleryImageAction(
 }
 
 export async function toggleGalleryPublicationAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const galleryIsPublished = String(formData.get("galleryIsPublished") ?? "") === "true";
 
@@ -240,6 +245,7 @@ export async function toggleGalleryPublicationAction(formData: FormData) {
 }
 
 export async function movePerformanceGalleryAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const direction = String(formData.get("direction") ?? "").trim();
   if (!id || !["up", "down"].includes(direction)) return;
@@ -278,6 +284,7 @@ export async function deletePerformanceGalleryAction(
   _state: DeleteGalleryState,
   formData: FormData,
 ): Promise<DeleteGalleryState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {

@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 const SESSION_COOKIE = "hargita_admin_session";
 
@@ -72,4 +74,28 @@ export async function getAdminSession() {
   } catch {
     return null;
   }
+}
+
+/**
+ * Authorization boundary for every admin Server Action.
+ * Page-level protection is not sufficient because Server Actions can be
+ * invoked independently of the page that renders their form.
+ */
+export async function requireAdmin() {
+  const session = await getAdminSession();
+
+  if (!session) {
+    redirect("/admin");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.email },
+    select: { email: true, role: true },
+  });
+
+  if (!user) {
+    redirect("/admin");
+  }
+
+  return user;
 }

@@ -5,6 +5,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export type NewsPostFormState = {
   error?: string;
@@ -65,6 +66,7 @@ function revalidateNewsPaths() {
 }
 
 export async function createNewsPostAction(_state: NewsPostFormState, formData: FormData): Promise<NewsPostFormState> {
+  await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
   const publishedAtValue = String(formData.get("publishedAt") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
@@ -96,6 +98,7 @@ export async function createNewsPostAction(_state: NewsPostFormState, formData: 
 }
 
 export async function updateNewsPostAction(_state: NewsPostFormState, formData: FormData): Promise<NewsPostFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const publishedAtValue = String(formData.get("publishedAt") ?? "").trim();
@@ -153,6 +156,7 @@ export async function updateNewsPostAction(_state: NewsPostFormState, formData: 
 }
 
 export async function deleteNewsPostAction(_state: DeleteNewsPostState, formData: FormData): Promise<DeleteNewsPostState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
 
   if (!id) {
@@ -184,6 +188,7 @@ export async function deleteNewsPostAction(_state: DeleteNewsPostState, formData
 }
 
 export async function moveNewsPostAction(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const direction = String(formData.get("direction") ?? "").trim();
 
