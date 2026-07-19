@@ -228,7 +228,7 @@ export default async function HomePage() {
     orderBy: {
       publishedAt: "desc",
     },
-    take: 5,
+    take: 9,
     select: {
       content: true,
       excerpt: true,
@@ -238,7 +238,7 @@ export default async function HomePage() {
       title: true,
     },
   });
-  const newsPreviewPosts = newsPosts.slice(0, 4);
+  const newsPreviewPosts = newsPosts.slice(0, 8);
   const hasMoreNewsPosts = newsPosts.length > newsPreviewPosts.length;
 
   return (
@@ -274,10 +274,10 @@ export default async function HomePage() {
         <HomeRevealGroup className="home-reveal-group mx-auto max-w-[1180px]">
           <div className="home-reveal-title-from-right bg-surface-strong px-[clamp(22px,4vw,42px)] py-12 text-left shadow-[12px_12px_0_rgb(33_31_27_/_20%)]">
             <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
-              Aktuális
+              Hírek és beszámolók
             </p>
             <h2 className="pt-6 font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
-              Hírek és beszámolók
+              Aktuális
             </h2>
           </div>
           {newsPreviewPosts.length > 0 ? (
