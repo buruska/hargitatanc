@@ -16,6 +16,17 @@ export type TicketModalItem = {
   title: string;
 };
 
+type TicketModeFilter = "ALL" | TicketMode;
+
+const ticketModeFilterOptions: { label: string; value: TicketModeFilter }[] = [
+  { label: "Összes jegymód", value: "ALL" },
+  { label: "Online jegyvásárlás", value: "LINK" },
+  { label: "Helyszíni jegyvásárlás", value: "VENUE" },
+  { label: "Ingyenes", value: "FREE" },
+  { label: "Bérletes", value: "PASS" },
+  { label: "Egyedi jegyinformáció", value: "CUSTOM" },
+];
+
 function isSafeExternalUrl(value: string) {
   try {
     return ["http:", "https:"].includes(new URL(value).protocol);
@@ -41,6 +52,7 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [ticketModeFilter, setTicketModeFilter] = useState<TicketModeFilter>("ALL");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
@@ -65,8 +77,13 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
   }, [isOpen]);
 
   const normalizedQuery = normalizeSearchValue(searchQuery.trim());
-  const visibleItems = normalizedQuery
-    ? items.filter((item) => {
+  const visibleItems = items.filter((item) => {
+    if (ticketModeFilter !== "ALL" && (item.kind === "event" || item.ticketMode !== ticketModeFilter)) {
+      return false;
+    }
+
+    if (!normalizedQuery) return true;
+
         const ticketText = item.kind === "event"
           ? "Részletek"
           : getTicketDisplayText({
@@ -83,9 +100,8 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
           ticketText || "Jegyinformáció hamarosan",
         ].join(" ");
 
-        return normalizeSearchValue(searchableText).includes(normalizedQuery);
-      })
-    : items;
+    return normalizeSearchValue(searchableText).includes(normalizedQuery);
+  });
 
   const modal = isOpen ? (
     <div
@@ -122,22 +138,39 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
         <div className="p-[clamp(20px,4vw,36px)]">
           {items.length > 0 ? (
             <>
-              <div className="mb-5 max-w-[460px]">
-                <label className="sr-only" htmlFor={`${titleId}-search`}>Keresés a közelgő események között</label>
-                <div className="relative">
-                  <svg aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted" viewBox="0 0 24 24">
-                    <path d="m21 21-4.35-4.35m2.35-5.15A7.5 7.5 0 1 1 4 11.5a7.5 7.5 0 0 1 15 0Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-                  </svg>
-                  <input
-                    className="min-h-12 w-full border-2 border-line-strong bg-surface-strong py-3 pl-12 pr-4 text-sm font-bold text-charcoal outline-none transition placeholder:text-muted focus:border-thread-red"
-                    id={`${titleId}-search`}
-                    placeholder="Keresés cím, dátum, helyszín vagy jegytípus alapján"
-                    type="search"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                  />
+              <div className="mb-5">
+                <div className="grid gap-3 min-[620px]:grid-cols-[minmax(0,1fr)_240px]">
+                  <div>
+                    <label className="sr-only" htmlFor={`${titleId}-search`}>Keresés a közelgő események között</label>
+                    <div className="relative">
+                      <svg aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted" viewBox="0 0 24 24">
+                        <path d="m21 21-4.35-4.35m2.35-5.15A7.5 7.5 0 1 1 4 11.5a7.5 7.5 0 0 1 15 0Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+                      </svg>
+                      <input
+                        className="min-h-12 w-full border-2 border-line-strong bg-surface-strong py-3 pl-12 pr-4 text-sm font-bold text-charcoal outline-none transition placeholder:text-muted focus:border-thread-red"
+                        id={`${titleId}-search`}
+                        placeholder="Keresés cím, dátum vagy helyszín alapján"
+                        type="search"
+                        value={searchQuery}
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="sr-only" htmlFor={`${titleId}-ticket-mode`}>Szűrés jegyvásárlási mód szerint</label>
+                    <select
+                      className="min-h-12 w-full cursor-pointer border-2 border-line-strong bg-surface-strong px-4 py-3 text-sm font-extrabold text-charcoal outline-none transition focus:border-thread-red"
+                      id={`${titleId}-ticket-mode`}
+                      value={ticketModeFilter}
+                      onChange={(event) => setTicketModeFilter(event.target.value as TicketModeFilter)}
+                    >
+                      {ticketModeFilterOptions.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                {searchQuery ? (
+                {searchQuery || ticketModeFilter !== "ALL" ? (
                   <p aria-live="polite" className="mt-2 text-xs font-bold text-muted">
                     {visibleItems.length} találat
                   </p>
@@ -215,6 +248,7 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
         type="button"
         onClick={() => {
           setSearchQuery("");
+          setTicketModeFilter("ALL");
           setIsOpen(true);
         }}
       >
