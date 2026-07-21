@@ -2,7 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { adminTitle } from "@/lib/styles";
 import { AdminShell } from "../admin-shell";
 import { AppearanceGauge, PerformanceGauge } from "./appearance-gauge";
+import { DatesModal } from "./dates-modal";
 import { LocationsModal } from "./locations-modal";
+
+const calendarDayFormatter = new Intl.DateTimeFormat("en-CA", {
+  day: "2-digit",
+  month: "2-digit",
+  timeZone: "Europe/Bucharest",
+  year: "numeric",
+});
 
 export default async function AdminStatisztikakPage() {
   const now = new Date();
@@ -34,6 +42,19 @@ export default async function AdminStatisztikakPage() {
 
   const completedPercentage =
     totalAppearances === 0 ? 0 : Math.round((completedAppearances / totalAppearances) * 100);
+  const appearanceDates = performances
+    .flatMap((performance) =>
+      performance.events
+        .map((event, index) => ({
+          id: `${performance.id}-${event.startsAt.toISOString()}-${index}`,
+          startsAt: event.startsAt,
+          title: performance.title,
+        })),
+    )
+    .sort((a, b) => b.startsAt.getTime() - a.startsAt.getTime());
+  const uniqueAppearanceDays = new Set(
+    appearanceDates.map((appearance) => calendarDayFormatter.format(appearance.startsAt)),
+  ).size;
   return (
     <AdminShell>
       <h1 className={adminTitle}>Statisztikák</h1>
@@ -91,6 +112,21 @@ export default async function AdminStatisztikakPage() {
           </p>
         </div>
         <LocationsModal locations={locations.map((location) => location.location)} />
+      </section>
+
+      <section className="flex flex-col items-start justify-between gap-5 border-t border-line py-8 min-[560px]:flex-row min-[560px]:items-center">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-muted">Fellépési dátumok</p>
+          <p className="mt-2 font-serif text-[clamp(28px,4vw,40px)] font-bold leading-none">
+            {uniqueAppearanceDays} dátum
+          </p>
+        </div>
+        <DatesModal
+          appearances={appearanceDates.map((appearance) => ({
+            ...appearance,
+            startsAt: appearance.startsAt.toISOString(),
+          }))}
+        />
       </section>
     </AdminShell>
   );
