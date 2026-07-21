@@ -2,10 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { adminTitle } from "@/lib/styles";
 import { AdminShell } from "../admin-shell";
 import { AppearanceGauge, PerformanceGauge } from "./appearance-gauge";
+import { LocationsModal } from "./locations-modal";
 
 export default async function AdminStatisztikakPage() {
   const now = new Date();
-  const [totalAppearances, completedAppearances, performances] = await Promise.all([
+  const [totalAppearances, completedAppearances, performances, locations] = await Promise.all([
     prisma.runningPerformanceEvent.count(),
     prisma.runningPerformanceEvent.count({
       where: {
@@ -22,6 +23,12 @@ export default async function AdminStatisztikakPage() {
           select: { startsAt: true },
         },
       },
+    }),
+    prisma.runningPerformanceEvent.findMany({
+      distinct: ["location"],
+      where: { location: { not: "" } },
+      orderBy: { location: "asc" },
+      select: { location: true },
     }),
   ]);
 
@@ -74,6 +81,16 @@ export default async function AdminStatisztikakPage() {
             </p>
           ) : null}
         </div>
+      </section>
+
+      <section className="mt-6 flex flex-col items-start justify-between gap-5 border-t border-line py-8 min-[560px]:flex-row min-[560px]:items-center">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-muted">Fellépési helyszínek</p>
+          <p className="mt-2 font-serif text-[clamp(28px,4vw,40px)] font-bold leading-none">
+            {locations.length} helyszín
+          </p>
+        </div>
+        <LocationsModal locations={locations.map((location) => location.location)} />
       </section>
     </AdminShell>
   );
