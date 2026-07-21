@@ -4,12 +4,18 @@ import { AdminShell } from "../admin-shell";
 import { AppearanceGauge, PerformanceGauge } from "./appearance-gauge";
 import { DatesModal } from "./dates-modal";
 import { LocationsModal } from "./locations-modal";
+import { StatisticsSheetModal } from "./statistics-sheet-modal";
 
 const calendarDayFormatter = new Intl.DateTimeFormat("en-CA", {
   day: "2-digit",
   month: "2-digit",
   timeZone: "Europe/Bucharest",
   year: "numeric",
+});
+
+const displayDateFormatter = new Intl.DateTimeFormat("hu-RO", {
+  dateStyle: "long",
+  timeZone: "Europe/Bucharest",
 });
 
 export default async function AdminStatisztikakPage() {
@@ -28,7 +34,8 @@ export default async function AdminStatisztikakPage() {
         id: true,
         title: true,
         events: {
-          select: { startsAt: true },
+          orderBy: { startsAt: "desc" },
+          select: { location: true, startsAt: true },
         },
       },
     }),
@@ -127,6 +134,76 @@ export default async function AdminStatisztikakPage() {
             startsAt: appearance.startsAt.toISOString(),
           }))}
         />
+      </section>
+
+      <section className="border-t border-line py-8">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-muted">Statisztikai lapok</p>
+          <h2 className="mt-2 font-serif text-[clamp(24px,3vw,30px)] font-bold">Adatok megjelenítése</h2>
+        </div>
+
+        <div className="mt-6 grid gap-3">
+          <StatisticsSheetModal
+            buttonLabel="Statisztikai lap generálása az összes előadásról"
+            isPrimary
+            statistics={[
+              { label: "Összes fellépés", value: totalAppearances },
+              { label: "Lejárt fellépés", value: completedAppearances },
+              { label: "Közelgő fellépés", value: totalAppearances - completedAppearances },
+              { label: "Lejárt arány", value: `${completedPercentage}%` },
+              {
+                details: appearanceDates.map(
+                  (appearance) => `${displayDateFormatter.format(appearance.startsAt)} – ${appearance.title}`,
+                ),
+                label: "Fellépési dátum",
+                value: uniqueAppearanceDays,
+              },
+              {
+                details: locations.map((location) => location.location),
+                label: "Helyszín",
+                value: locations.length,
+              },
+            ]}
+            title="Összes előadás"
+          />
+
+          {performances.map((performance) => {
+            const total = performance.events.length;
+            const completed = performance.events.filter((event) => event.startsAt < now).length;
+            const performanceDays = new Set(
+              performance.events.map((event) => calendarDayFormatter.format(event.startsAt)),
+            ).size;
+            const performanceLocationNames = Array.from(new Set(
+              performance.events
+                .map((event) => event.location.trim())
+                .filter(Boolean),
+            )).sort((a, b) => a.localeCompare(b, "hu"));
+
+            return (
+              <StatisticsSheetModal
+                buttonLabel={`Statisztikai lap generálása: ${performance.title}`}
+                key={performance.id}
+                statistics={[
+                  { label: "Összes fellépés", value: total },
+                  { label: "Lejárt fellépés", value: completed },
+                  { label: "Közelgő fellépés", value: total - completed },
+                  { label: "Lejárt arány", value: `${total === 0 ? 0 : Math.round((completed / total) * 100)}%` },
+                  {
+                    details: performance.events.map((event) => displayDateFormatter.format(event.startsAt)),
+                    label: "Fellépési dátum",
+                    value: performanceDays,
+                  },
+                  {
+                    details: performanceLocationNames,
+                    label: "Helyszín",
+                    value: performanceLocationNames.length,
+                  },
+                ]}
+                title={performance.title}
+              />
+            );
+          })}
+        </div>
       </section>
     </AdminShell>
   );
