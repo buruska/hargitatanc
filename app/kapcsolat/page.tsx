@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { contentPage } from "@/lib/styles";
+import { getLocale } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "Kapcsolat | Hargita Székely Néptáncszínház",
@@ -38,25 +39,31 @@ const phoneNumbers = [
   { href: "tel:+40758087042", label: "0040 758 087 042" },
 ];
 
-export default function KapcsolatPage() {
+export default async function KapcsolatPage() {
+  const locale = await getLocale();
+  const text = {
+    hu: { section: "Elérhetőségeink", address: "Cím", city: "Csíkszereda", county: "Hargita megye – 530102", street: "Temesvári sugárút 6. szám", phone: "Telefon", aria: "Elérhetőségek és térkép", mapTitle: "Hargita Székely Néptáncszínház helye a Google Térképen", openMap: "Megnyitás a térképen" },
+    ro: { section: "Datele noastre de contact", address: "Adresă", city: "Miercurea Ciuc", county: "Județul Harghita – 530102", street: "Bulevardul Timișoarei nr. 6", phone: "Telefon", aria: "Date de contact și hartă", mapTitle: "Locația Teatrului de Dans Popular Secuiesc Harghita pe Google Maps", openMap: "Deschide în hartă" },
+    en: { section: "Contact details", address: "Address", city: "Miercurea Ciuc", county: "Harghita County – 530102", street: "6 Timișoarei Boulevard", phone: "Phone", aria: "Contact details and map", mapTitle: "Hargita Székely Folk Dance Theatre on Google Maps", openMap: "Open in maps" },
+  }[locale];
   return (
     <main className={`${contentPage} max-w-[1180px]`}>
-      <section className="grid overflow-hidden bg-surface shadow-[14px_14px_0_rgb(33_31_27_/_8%)] min-[900px]:grid-cols-[minmax(330px,0.8fr)_minmax(0,1.2fr)]" aria-label="Elérhetőségek és térkép">
+      <section className="grid overflow-hidden bg-surface shadow-[14px_14px_0_rgb(33_31_27_/_8%)] min-[900px]:grid-cols-[minmax(330px,0.8fr)_minmax(0,1.2fr)]" aria-label={text.aria}>
         <div className="relative overflow-hidden p-[clamp(24px,4vw,46px)]">
-          <h2 className="relative font-serif text-[clamp(25px,3vw,34px)] font-bold">Elérhetőségeink</h2>
+          <h2 className="relative font-serif text-[clamp(25px,3vw,34px)] font-bold">{text.section}</h2>
           <address className="relative mt-8 grid gap-8 not-italic">
             <div className="grid grid-cols-[44px_1fr] gap-3">
               <span className="flex size-11 items-center justify-center bg-thread-red text-surface-strong"><LocationIcon /></span>
               <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-[0.14em] text-thread-red">Cím</h3>
-                <p className="mt-2 font-bold leading-relaxed">Csíkszereda<br />Hargita megye – 530102<br />Temesvári sugárút 6. szám</p>
+                <h3 className="text-xs font-extrabold uppercase tracking-[0.14em] text-thread-red">{text.address}</h3>
+                <p className="mt-2 font-bold leading-relaxed">{text.city}<br />{text.county}<br />{text.street}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-[44px_1fr] gap-3">
               <span className="flex size-11 items-center justify-center bg-pine text-surface-strong"><PhoneIcon /></span>
               <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-[0.14em] text-pine">Telefon</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-[0.14em] text-pine">{text.phone}</h3>
                 <div className="mt-2 grid justify-items-start gap-1.5 font-bold">
                   {phoneNumbers.map((phone) => (
                     <a className="decoration-thread-red underline-offset-4 transition hover:text-thread-red hover:underline" href={phone.href} key={phone.href}>{phone.label}</a>
@@ -82,7 +89,7 @@ export default function KapcsolatPage() {
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             src="https://www.google.com/maps?q=Temesv%C3%A1ri+sug%C3%A1r%C3%BAt+6,+Cs%C3%ADkszereda,+Romania&output=embed"
-            title="Hargita Székely Néptáncszínház helye a Google Térképen"
+            title={text.mapTitle}
           />
           <a
             className="absolute bottom-5 right-5 inline-flex min-h-11 items-center gap-2 border-2 border-charcoal bg-surface-strong px-4 py-2.5 text-sm font-extrabold shadow-[5px_5px_0_rgb(33_31_27_/_18%)] transition hover:-translate-y-0.5 hover:bg-thread-red hover:text-surface-strong"
@@ -91,7 +98,7 @@ export default function KapcsolatPage() {
             target="_blank"
           >
             <LocationIcon />
-            Megnyitás a térképen
+            {text.openMap}
           </a>
         </div>
       </section>

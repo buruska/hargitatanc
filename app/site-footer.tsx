@@ -6,6 +6,12 @@ import { usePathname } from "next/navigation";
 export function SiteFooter() {
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith("/admin");
+  const locale = pathname.startsWith("/ro") ? "ro" : pathname.startsWith("/en") ? "en" : "hu";
+  const text = {
+    hu: { maintainer: "Fenntartó:", contact: "Kapcsolat:", city: "Csíkszereda", county: "Hargita megye – 530102", address: "Temesvári sugárút 6. szám", phone: "Telefon" },
+    ro: { maintainer: "Susținător:", contact: "Contact:", city: "Miercurea Ciuc", county: "Județul Harghita – 530102", address: "Bulevardul Timișoarei nr. 6", phone: "Telefon" },
+    en: { maintainer: "Maintained by:", contact: "Contact:", city: "Miercurea Ciuc", county: "Harghita County – 530102", address: "6 Timișoarei Boulevard", phone: "Phone" },
+  }[locale];
 
   if (isAdminPage) {
     return (
@@ -19,7 +25,7 @@ export function SiteFooter() {
     <footer className="relative z-40 overflow-hidden border-t-[5px] border-t-thread-red bg-charcoal text-surface-strong">
       <div className="relative mx-auto grid max-w-[1180px] gap-10 px-[clamp(18px,4vw,40px)] py-[clamp(32px,4vw,48px)] min-[980px]:grid-cols-[minmax(300px,0.8fr)_minmax(0,1.4fr)] min-[980px]:gap-12">
         <section aria-labelledby="footer-maintainer-title">
-          <h2 className="font-serif text-[clamp(24px,3vw,32px)] font-bold" id="footer-maintainer-title">Fenntartó:</h2>
+          <h2 className="font-serif text-[clamp(24px,3vw,32px)] font-bold" id="footer-maintainer-title">{text.maintainer}</h2>
           <a
             aria-label="Csíkszereda Városháza weboldala"
             className="mt-5 block w-full max-w-[430px] transition hover:opacity-80"
@@ -38,15 +44,15 @@ export function SiteFooter() {
         </section>
 
         <section aria-labelledby="footer-contact-title">
-          <h2 className="font-serif text-[clamp(24px,3vw,32px)] font-bold" id="footer-contact-title">Kapcsolat:</h2>
+          <h2 className="font-serif text-[clamp(24px,3vw,32px)] font-bold" id="footer-contact-title">{text.contact}</h2>
           <address className="mt-5 grid gap-6 text-[16px] font-bold not-italic leading-relaxed min-[680px]:grid-cols-[1fr_1.05fr_1.25fr] min-[680px]:items-start">
             <p>
-              Csíkszereda<br />
-              Hargita megye – 530102<br />
-              Temesvári sugárút 6. szám
+              {text.city}<br />
+              {text.county}<br />
+              {text.address}
             </p>
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-thread-red">Telefon</p>
+              <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-thread-red">{text.phone}</p>
               <div className="mt-2 grid justify-items-start gap-1.5">
                 <a className="transition hover:text-thread-red" href="tel:+40724309524">0040 724 309 524</a>
                 <a className="transition hover:text-thread-red" href="tel:+40744619227">0040 744 619 227</a>

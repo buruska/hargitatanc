@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
+import type { Locale } from "@/lib/i18n";
 
 export type TicketModalItem = {
   id: string;
@@ -48,7 +49,7 @@ function normalizeSearchValue(value: string) {
     .toLocaleLowerCase("hu-HU");
 }
 
-export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem[] }>) {
+export function TicketPurchaseModal({ items, locale = "hu" }: Readonly<{ items: TicketModalItem[]; locale?: Locale }>) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -252,7 +253,7 @@ export function TicketPurchaseModal({ items }: Readonly<{ items: TicketModalItem
           setIsOpen(true);
         }}
       >
-        Jegyvásárlás
+        {locale === "ro" ? "Cumpără bilete" : locale === "en" ? "Buy tickets" : "Jegyvásárlás"}
       </button>
       {isMounted && modal ? createPortal(modal, document.body) : null}
     </>

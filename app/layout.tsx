@@ -5,6 +5,8 @@ import { HeaderScrollBorder } from "./header-scroll-border";
 import { SiteFooter } from "./site-footer";
 import { TicketPurchaseModal, type TicketModalItem } from "./ticket-purchase-modal";
 import { prisma } from "@/lib/prisma";
+import { getLocale, localizeHref } from "@/lib/i18n";
+import { LanguageSwitcher } from "./language-switcher";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,14 +19,12 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-const navigation = [
-  { href: "/", label: "Főoldal" },
-  { href: "/tarsulat", label: "Rólunk" },
-  { href: "/hirek", label: "Hírek" },
-  { href: "/esemenyeink", label: "Eseményeink" },
-  { href: "/galeria", label: "Galéria" },
-  { href: "/kapcsolat", label: "Kapcsolat" },
-];
+const navigation = {
+  hu: ["Főoldal", "Rólunk", "Hírek", "Eseményeink", "Galéria", "Kapcsolat"],
+  ro: ["Acasă", "Despre noi", "Știri", "Evenimente", "Galerie", "Contact"],
+  en: ["Home", "About us", "News", "Events", "Gallery", "Contact"],
+};
+const navigationHrefs = ["/", "/tarsulat", "/hirek", "/esemenyeink", "/galeria", "/kapcsolat"];
 
 const socialLinks = [
   {
@@ -65,13 +65,12 @@ const socialLinks = [
   },
 ];
 
-const languages = ["HU", "RO", "EN"];
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   const now = new Date();
   const [performanceEvents, events] = await Promise.all([
     prisma.runningPerformanceEvent.findMany({
@@ -117,11 +116,11 @@ export default async function RootLayout({
   ].sort((first, second) => new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime());
 
   return (
-    <html lang="hu">
+    <html lang={locale}>
       <body className="m-0 bg-warm-canvas font-sans leading-normal text-charcoal">
         <header className="fixed inset-x-0 top-0 z-10 flex h-[92px] flex-col items-center justify-between gap-6 bg-[linear-gradient(180deg,rgb(33_31_27_/_100%)_0%,rgb(33_31_27_/_0%)_100%)] px-[clamp(18px,4vw,56px)] py-4 pt-6 min-[861px]:flex-row">
           <HeaderScrollBorder />
-          <Link href="/" className="relative inline-flex h-full items-center gap-3 pl-[60px]" aria-label="Hargita Székely Néptáncszínház főoldal">
+          <Link href={localizeHref("/", locale)} className="relative inline-flex h-full items-center gap-3 pl-[60px]" aria-label="Hargita Székely Néptáncszínház">
             <Image
               className="absolute left-0 top-1/2 block size-[52px] -translate-y-1/2 object-cover"
               src="/logo.png"
@@ -137,17 +136,17 @@ export default async function RootLayout({
           </Link>
           <div className="flex flex-wrap items-center justify-start gap-3 min-[861px]:justify-end">
             <nav className="flex flex-wrap items-center justify-start gap-1.5 min-[861px]:justify-end" aria-label="Fő navigáció">
-              {navigation.map((item) => (
+              {navigationHrefs.map((href, index) => (
                 <Link
                   className="inline-flex items-center px-2.5 py-2 text-[13px] font-extrabold uppercase tracking-[0.09em] text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
-                  key={item.href}
-                  href={item.href}
+                  key={href}
+                  href={localizeHref(href, locale)}
                 >
-                  {item.label}
+                  {navigation[locale][index]}
                 </Link>
               ))}
             </nav>
-            <TicketPurchaseModal items={ticketItems} />
+            <TicketPurchaseModal items={ticketItems} locale={locale} />
             <nav className="flex items-center gap-px" aria-label="Közösségi média">
               {socialLinks.map((item) => (
                 <Link
@@ -162,17 +161,7 @@ export default async function RootLayout({
                 </Link>
               ))}
             </nav>
-            <nav className="flex flex-col items-center gap-0.5" aria-label="Nyelvválasztó">
-              {languages.map((language) => (
-                <Link
-                  className="text-[12px] font-extrabold leading-none tracking-[0.08em] text-surface-strong transition duration-200 hover:text-thread-red active:scale-95"
-                  href="#"
-                  key={language}
-                >
-                  {language}
-                </Link>
-              ))}
-            </nav>
+            <LanguageSwitcher />
           </div>
         </header>
         {children}

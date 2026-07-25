@@ -5,6 +5,7 @@ import { contentPage, eyebrow, h1 } from "@/lib/styles";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { DirectorProfileCard } from "./director-profile-card";
 import { MemberSearchList } from "./member-search-list";
+import { getLocale } from "@/lib/i18n";
 
 const MEMBER_CATEGORY_NAMES = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
 
@@ -13,6 +14,7 @@ function isDancerRole(role: string) {
 }
 
 export default async function TarsulatPage() {
+  const locale = await getLocale();
   const [profile, members] = await Promise.all([
     prisma.companyProfile.findUnique({
       select: {
@@ -54,7 +56,7 @@ export default async function TarsulatPage() {
 
   return (
     <main className={contentPage}>
-      <p className={eyebrow}>Rólunk</p>
+      <p className={eyebrow}>{locale === "ro" ? "Despre noi" : locale === "en" ? "About us" : "Rólunk"}</p>
       <h1 className={`${h1} mb-48`}>Hargita Székely Néptáncszínház</h1>
       {profile?.groupImageUrl ? (
         <div className="mt-10 flex justify-center">
