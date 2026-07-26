@@ -198,6 +198,9 @@ export async function moveNewsPostAction(formData: FormData) {
   }
 
   const posts = await prisma.newsPost.findMany({
+    where: {
+      locale: "hu",
+    },
     orderBy: {
       publishedAt: "desc",
     },

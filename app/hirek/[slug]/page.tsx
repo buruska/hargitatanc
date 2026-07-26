@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
+import { getLocale, localizeHref } from "@/lib/i18n";
 
 type NewsPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -9,8 +10,11 @@ type NewsPostPageProps = {
 
 export default async function NewsPostPage({ params }: NewsPostPageProps) {
   const { slug } = await params;
-  const post = await prisma.newsPost.findUnique({
-    where: { slug },
+  const locale = await getLocale();
+  const localeCode = locale === "ro" ? "ro-RO" : locale === "en" ? "en-GB" : "hu-RO";
+  const backLabel = locale === "ro" ? "Înapoi la știri" : locale === "en" ? "Back to news" : "Vissza a hírekhez";
+  const post = await prisma.newsPost.findFirst({
+    where: { locale, slug },
     select: {
       content: true,
       publishedAt: true,
@@ -27,7 +31,7 @@ export default async function NewsPostPage({ params }: NewsPostPageProps) {
           <span className="mx-auto mb-5 block h-[2px] w-12 bg-thread-red" aria-hidden="true" />
           <h1 className="font-serif text-[clamp(27px,3.2vw,42px)] font-bold leading-[1.12] text-thread-red">{post.title}</h1>
           <time className="mt-4 block text-[13px] font-semibold uppercase tracking-[0.12em] text-muted">
-            {new Intl.DateTimeFormat("hu-RO", { dateStyle: "long", timeZone: "Europe/Bucharest" }).format(post.publishedAt)}
+            {new Intl.DateTimeFormat(localeCode, { dateStyle: "long", timeZone: "Europe/Bucharest" }).format(post.publishedAt)}
           </time>
         </header>
         <div
@@ -35,9 +39,9 @@ export default async function NewsPostPage({ params }: NewsPostPageProps) {
           dangerouslySetInnerHTML={{ __html: sanitizeRichText(post.content) }}
         />
       </article>
-      <Link className="mt-8 inline-flex min-h-[44px] items-center gap-2 border-b border-thread-red text-[13px] font-bold uppercase tracking-[0.08em] text-thread-red transition hover:border-charcoal hover:text-charcoal" href="/hirek">
+      <Link className="mt-8 inline-flex min-h-[44px] items-center gap-2 border-b border-thread-red text-[13px] font-bold uppercase tracking-[0.08em] text-thread-red transition hover:border-charcoal hover:text-charcoal" href={localizeHref("/hirek", locale)}>
         <span aria-hidden="true">&larr;</span>
-        Vissza a hírekhez
+        {backLabel}
       </Link>
     </main>
   );

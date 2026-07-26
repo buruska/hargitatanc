@@ -88,6 +88,7 @@ model RunningPerformanceEvent {
 
 model NewsPost {
   id          String   @id @default(cuid())
+  locale      String   @default("hu")
   title       String
   slug        String   @unique
   excerpt     String

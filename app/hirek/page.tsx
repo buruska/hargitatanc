@@ -11,6 +11,7 @@ export default async function HirekPage() {
   const locale = await getLocale();
   const heading = locale === "ro" ? { eyebrow: "Actualitate", title: "Știri și relatări" } : locale === "en" ? { eyebrow: "Latest", title: "News and reports" } : { eyebrow: "Aktuális", title: "Hírek és beszámolók" };
   const posts = await prisma.newsPost.findMany({
+    where: { locale },
     orderBy: { publishedAt: "desc" },
     select: {
       content: true,
@@ -34,7 +35,7 @@ export default async function HirekPage() {
     <main className="mx-auto w-[calc(100%-36px)] pb-[72px] pt-[124px] md:w-[80vw]">
       <p className={eyebrow}>{heading.eyebrow}</p>
       <h1 className={h1}>{heading.title}</h1>
-      <NewsSearchList posts={newsPosts} />
+      <NewsSearchList locale={locale} posts={newsPosts} />
     </main>
   );
 }
