@@ -172,7 +172,7 @@ export function HomeCalendar({ events, initialDate, onPerformanceHover, onPerfor
               {hasEvent ? <span className={`absolute inset-0 ${hasOnlyPastEvents ? "bg-stone-800/62" : "bg-charcoal/36"}`} /> : null}
               {hasEvent && firstEvent ? (
                 <button
-                  className="absolute inset-x-2 top-1/2 z-[2] mx-auto hidden min-h-7 w-fit -translate-y-1/2 border border-surface-strong bg-surface-strong px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-thread-red opacity-0 shadow-[0_8px_18px_rgb(33_31_27_/_18%)] transition duration-200 hover:bg-thread-red hover:text-surface-strong group-hover:inline-flex group-hover:opacity-100"
+                  className="calendar-event-action absolute inset-x-2 top-1/2 z-[2] mx-auto hidden min-h-7 w-fit -translate-y-1/2 border border-surface-strong bg-surface-strong px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-thread-red opacity-0 shadow-[0_8px_18px_rgb(33_31_27_/_18%)] transition duration-200 hover:bg-thread-red hover:text-surface-strong group-hover:inline-flex group-hover:opacity-100"
                   type="button"
                   onClick={() => onPerformanceOpen?.(firstEvent.id)}
                 >

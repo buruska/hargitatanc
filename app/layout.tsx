@@ -118,23 +118,23 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body className="m-0 bg-warm-canvas font-sans leading-normal text-charcoal">
-        <header className="fixed inset-x-0 top-0 z-10 flex h-[92px] flex-col items-center justify-between gap-6 bg-[linear-gradient(180deg,rgb(33_31_27_/_100%)_0%,rgb(33_31_27_/_0%)_100%)] px-[clamp(18px,4vw,56px)] py-4 pt-6 min-[861px]:flex-row">
+        <header className="fixed inset-x-0 top-0 z-[80] flex h-[84px] items-center justify-between gap-2 bg-[linear-gradient(180deg,rgb(33_31_27_/_100%)_0%,rgb(33_31_27_/_82%)_72%,rgb(33_31_27_/_0%)_100%)] px-[clamp(14px,4vw,56px)] py-3 min-[861px]:h-[92px] min-[861px]:gap-6 min-[861px]:py-4 min-[861px]:pt-6">
           <HeaderScrollBorder />
-          <Link href={localizeHref("/", locale)} className="relative inline-flex h-full items-center gap-3 pl-[60px]" aria-label="Hargita Székely Néptáncszínház">
+          <Link href={localizeHref("/", locale)} className="relative inline-flex h-full min-w-[52px] items-center gap-3 pl-[52px] min-[861px]:pl-[60px]" aria-label="Hargita Székely Néptáncszínház">
             <Image
-              className="absolute left-0 top-1/2 block size-[52px] -translate-y-1/2 object-cover"
+              className="absolute left-0 top-1/2 block size-[46px] -translate-y-1/2 object-cover min-[861px]:size-[52px]"
               src="/logo.png"
               alt=""
               width={52}
               height={52}
               priority
             />
-            <span className="font-serif tracking-[0.035em] text-surface-strong">
+            <span className="hidden font-serif tracking-[0.035em] text-surface-strong min-[470px]:block">
               <span className="block text-[18px] leading-[1.28]">Hargita Székely</span>
               <span className="block text-[18px] leading-[1.28]">Néptáncszínház</span>
             </span>
           </Link>
-          <div className="flex flex-wrap items-center justify-start gap-3 min-[861px]:justify-end">
+          <div className="hidden flex-wrap items-center justify-end gap-3 min-[861px]:flex">
             <nav className="flex flex-wrap items-center justify-start gap-1.5 min-[861px]:justify-end" aria-label="Fő navigáció">
               {navigationHrefs.map((href, index) => (
                 <Link
@@ -162,6 +162,49 @@ export default async function RootLayout({
               ))}
             </nav>
             <LanguageSwitcher />
+          </div>
+          <div className="flex min-w-0 items-center justify-end gap-2 min-[861px]:hidden">
+            <TicketPurchaseModal items={ticketItems} locale={locale} />
+            <LanguageSwitcher />
+            <details className="group relative">
+              <summary
+                aria-label={locale === "ro" ? "Deschide meniul" : locale === "en" ? "Open menu" : "Menü megnyitása"}
+                className="grid size-11 cursor-pointer list-none place-items-center border border-white/45 bg-charcoal/45 text-surface-strong backdrop-blur-sm marker:hidden"
+              >
+                <span className="grid gap-1.5" aria-hidden="true">
+                  <span className="block h-0.5 w-5 bg-current" />
+                  <span className="block h-0.5 w-5 bg-current" />
+                  <span className="block h-0.5 w-5 bg-current" />
+                </span>
+              </summary>
+              <div className="absolute right-0 top-[calc(100%+10px)] w-[min(300px,calc(100vw-28px))] border border-line-strong bg-charcoal p-3 text-surface-strong shadow-[10px_10px_0_rgb(33_31_27_/_24%)]">
+                <nav className="grid" aria-label={locale === "ro" ? "Navigare principală" : locale === "en" ? "Main navigation" : "Fő navigáció"}>
+                  {navigationHrefs.map((href, index) => (
+                    <Link
+                      className="border-b border-white/15 px-3 py-3 text-[14px] font-extrabold uppercase tracking-[0.08em] transition hover:bg-white/10 hover:text-thread-red"
+                      key={href}
+                      href={localizeHref(href, locale)}
+                    >
+                      {navigation[locale][index]}
+                    </Link>
+                  ))}
+                </nav>
+                <nav className="mt-3 flex items-center gap-2" aria-label="Közösségi média">
+                  {socialLinks.map((item) => (
+                    <Link
+                      aria-label={item.label}
+                      className="inline-flex size-11 items-center justify-center border border-white/25 text-surface-strong transition hover:bg-white/10 hover:text-thread-red"
+                      href={item.href}
+                      key={item.label}
+                      rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      target={item.href.startsWith("http") ? "_blank" : undefined}
+                    >
+                      {item.icon}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            </details>
           </div>
         </header>
         {children}

@@ -233,10 +233,10 @@ function PerformanceListItem({
       <article className={`relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out ${hoverLiftClass} ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
         event.isPast ? "grayscale opacity-65" : ""
       }`}>
-        <span className="flex min-w-0 flex-1 transition duration-200 group-hover:opacity-0">
+        <span className="home-event-card-content flex min-w-0 flex-1 transition duration-200 group-hover:opacity-0">
           {eventContent}
         </span>
-        <span className="pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-3 px-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
+        <span className="home-event-card-actions pointer-events-none absolute inset-0 flex flex-wrap items-center justify-center gap-3 px-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
           {hasTicketLink ? (
             <a
               className={`${accentBg} px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-surface-strong shadow-[0_8px_16px_rgb(33_31_27_/_12%)] transition duration-200 hover:scale-105 active:scale-95`}
