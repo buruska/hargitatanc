@@ -10,6 +10,7 @@ type NewsPost = {
   content: string;
   excerpt: string;
   id: string;
+  locale: string;
   publishedAt: string;
   title: string;
 };
@@ -25,36 +26,59 @@ const dateFormatter = new Intl.DateTimeFormat("hu-RO", {
 });
 
 export function NewsPostList({ posts }: { posts: NewsPost[] }) {
+  const [activeLocale, setActiveLocale] = useState<"hu" | "ro" | "en">("hu");
   const [query, setQuery] = useState("");
+  const localePosts = useMemo(() => posts.filter((post) => post.locale === activeLocale), [activeLocale, posts]);
   const filteredPosts = useMemo(() => {
     const normalized = normalizeSearchValue(query.trim());
-    if (!normalized) return posts;
+    if (!normalized) return localePosts;
 
-    return posts.filter((post) =>
+    return localePosts.filter((post) =>
       normalizeSearchValue(`${post.title} ${post.excerpt} ${stripHtml(post.content)}`).includes(normalized),
     );
-  }, [posts, query]);
+  }, [localePosts, query]);
+  const languageNames = { hu: "Magyar", ro: "Román", en: "Angol" } as const;
 
   return <>
+    <div className="mt-6 flex items-end gap-1 border-b-2 border-charcoal bg-surface px-3 pt-3" role="tablist" aria-label="Hírfolyam nyelve">
+      {(Object.keys(languageNames) as Array<keyof typeof languageNames>).map((locale) => {
+        const isActive = activeLocale === locale;
+        return (
+          <button
+            aria-selected={isActive}
+            className={`relative -mb-0.5 min-h-[42px] border-2 px-5 py-2 text-sm font-extrabold transition ${isActive ? "z-[1] border-charcoal border-b-warm-canvas bg-warm-canvas text-thread-red" : "border-line bg-surface text-muted hover:border-charcoal hover:bg-surface-strong hover:text-thread-red"}`}
+            key={locale}
+            role="tab"
+            type="button"
+            onClick={() => {
+              setActiveLocale(locale);
+              setQuery("");
+            }}
+          >
+            {languageNames[locale]}
+          </button>
+        );
+      })}
+    </div>
     <div className="mt-6 flex flex-col gap-3 min-[700px]:flex-row min-[700px]:items-center min-[700px]:justify-between">
       <label className="block w-full max-w-[520px]">
         <span className="sr-only">Keresés a hírek között</span>
         <input
           className="min-h-[46px] w-full border-2 border-line-strong bg-surface-strong px-4 py-2.5 font-bold text-charcoal outline-none transition placeholder:text-muted/70 focus:border-thread-red"
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Keresés a hírek között..."
+          placeholder={`Keresés a ${languageNames[activeLocale].toLocaleLowerCase("hu-HU")} hírek között...`}
           suppressHydrationWarning
           type="search"
           value={query}
         />
       </label>
-      <NewNewsPostModal />
+      {activeLocale === "hu" ? <NewNewsPostModal /> : null}
     </div>
 
     <div className="mt-6 grid gap-4">
       {filteredPosts.map((post) => {
         const preview = stripHtml(post.content);
-        const originalIndex = posts.findIndex((item) => item.id === post.id);
+        const originalIndex = localePosts.findIndex((item) => item.id === post.id);
 
         return (
           <article className={`${panel} min-w-0 overflow-hidden p-5`} key={post.id}>
@@ -68,7 +92,7 @@ export function NewsPostList({ posts }: { posts: NewsPost[] }) {
                 excerpt={post.excerpt}
                 id={post.id}
                 isFirst={originalIndex === 0}
-                isLast={originalIndex === posts.length - 1}
+                isLast={originalIndex === localePosts.length - 1}
                 publishedAt={post.publishedAt}
                 title={post.title}
               />

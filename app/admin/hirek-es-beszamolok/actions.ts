@@ -64,6 +64,8 @@ async function createUniqueSlug(title: string, currentId?: string) {
 function revalidateNewsPaths() {
   revalidatePath("/admin/hirek-es-beszamolok");
   revalidatePath("/hirek");
+  revalidatePath("/ro/hirek");
+  revalidatePath("/en/hirek");
 }
 
 export async function createNewsPostAction(_state: NewsPostFormState, formData: FormData): Promise<NewsPostFormState> {
@@ -197,9 +199,18 @@ export async function moveNewsPostAction(formData: FormData) {
     return;
   }
 
+  const localeRecord = await prisma.newsPost.findUnique({
+    where: { id },
+    select: { locale: true },
+  });
+
+  if (!localeRecord) {
+    return;
+  }
+
   const posts = await prisma.newsPost.findMany({
     where: {
-      locale: "hu",
+      locale: localeRecord.locale,
     },
     orderBy: {
       publishedAt: "desc",

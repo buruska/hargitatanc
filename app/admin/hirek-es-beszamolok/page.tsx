@@ -6,9 +6,6 @@ import { NewsPostList } from "./news-post-list";
 
 export default async function AdminHirekEsBeszamolokPage() {
   const posts = await prisma.newsPost.findMany({
-    where: {
-      locale: "hu",
-    },
     orderBy: {
       publishedAt: "desc",
     },
@@ -16,6 +13,7 @@ export default async function AdminHirekEsBeszamolokPage() {
       content: true,
       excerpt: true,
       id: true,
+      locale: true,
       publishedAt: true,
       title: true,
     },
