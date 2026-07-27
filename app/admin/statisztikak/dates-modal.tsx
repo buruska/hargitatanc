@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import { buttonSecondary, input, panel } from "@/lib/styles";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 
 type AppearanceDate = {
   id: string;
@@ -24,13 +25,13 @@ export function DatesModal({ appearances }: DatesModalProps) {
   const titleId = useId();
   const searchId = useId();
   const filteredAppearances = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLocaleLowerCase("hu");
+    const normalizedQuery = normalizeSearchValue(searchQuery.trim());
     if (!normalizedQuery) return appearances;
 
     return appearances.filter((appearance) => {
-      const formattedDate = dateFormatter.format(new Date(appearance.startsAt)).toLocaleLowerCase("hu");
+      const formattedDate = normalizeSearchValue(dateFormatter.format(new Date(appearance.startsAt)));
       return (
-        appearance.title.toLocaleLowerCase("hu").includes(normalizedQuery) ||
+        normalizeSearchValue(appearance.title).includes(normalizedQuery) ||
         formattedDate.includes(normalizedQuery)
       );
     });

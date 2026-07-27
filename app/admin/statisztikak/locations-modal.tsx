@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import { buttonSecondary, input, panel } from "@/lib/styles";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 import { LocationsMap } from "./locations-map";
 
 type LocationsModalProps = {
@@ -14,10 +15,10 @@ export function LocationsModal({ locations }: LocationsModalProps) {
   const titleId = useId();
   const searchId = useId();
   const filteredLocations = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLocaleLowerCase("hu");
+    const normalizedQuery = normalizeSearchValue(searchQuery.trim());
     if (!normalizedQuery) return locations;
 
-    return locations.filter((location) => location.toLocaleLowerCase("hu").includes(normalizedQuery));
+    return locations.filter((location) => normalizeSearchValue(location).includes(normalizedQuery));
   }, [locations, searchQuery]);
 
   useEffect(() => {

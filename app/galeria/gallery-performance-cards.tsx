@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 
 type GalleryImage = {
   id: string;
@@ -27,10 +28,10 @@ export function GalleryPerformanceCards({ performances }: GalleryPerformanceCard
   const [visibleCount, setVisibleCount] = useState(GALLERY_BATCH_SIZE);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const filteredPerformances = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase("hu");
+    const normalizedQuery = normalizeSearchValue(query.trim());
 
     return normalizedQuery
-      ? performances.filter((performance) => performance.title.toLocaleLowerCase("hu").includes(normalizedQuery))
+      ? performances.filter((performance) => normalizeSearchValue(performance.title).includes(normalizedQuery))
       : performances;
   }, [performances, query]);
   const visiblePerformances = filteredPerformances.slice(0, visibleCount);

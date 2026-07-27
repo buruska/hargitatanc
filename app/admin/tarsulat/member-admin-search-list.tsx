@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { panel } from "@/lib/styles";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 import { MemberRowActions } from "./member-row-actions";
 
 type MemberListItem = {
@@ -19,16 +20,14 @@ type MemberListItem = {
 
 export function MemberAdminSearchList({ members }: { members: MemberListItem[] }) {
   const [query, setQuery] = useState("");
-  const normalizedQuery = query.trim().toLocaleLowerCase("hu-HU");
+  const normalizedQuery = normalizeSearchValue(query.trim());
   const filteredMembers = useMemo(() => {
     if (!normalizedQuery) return members;
 
     return members.filter((member) =>
-      [member.name, member.role, member.roleRo, member.roleEn]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase("hu-HU")
-        .includes(normalizedQuery),
+      normalizeSearchValue([member.name, member.role, member.roleRo, member.roleEn].filter(Boolean).join(" ")).includes(
+        normalizedQuery,
+      ),
     );
   }, [members, normalizedQuery]);
   const allDancers = members.filter((member) => member.role.trim().toLocaleLowerCase("hu-HU") === "táncos");

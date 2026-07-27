@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { eyebrow, h1 } from "@/lib/styles";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 
 type Locale = "hu" | "ro" | "en";
 
@@ -59,7 +60,7 @@ const copy = {
 export function NewsSearchList({ heading, locale, posts }: NewsSearchListProps) {
   const [query, setQuery] = useState("");
   const labels = copy[locale];
-  const trimmedQuery = query.trim().toLocaleLowerCase(labels.locale);
+  const trimmedQuery = normalizeSearchValue(query.trim());
   const filteredPosts = useMemo(() => {
     if (!trimmedQuery) {
       return posts;
@@ -67,7 +68,7 @@ export function NewsSearchList({ heading, locale, posts }: NewsSearchListProps) 
 
     return posts.filter((post) => {
       const dateText = new Intl.DateTimeFormat(labels.locale, { dateStyle: "long" }).format(new Date(post.publishedAt));
-      const searchableText = `${post.title} ${post.excerpt ?? ""} ${dateText}`.toLocaleLowerCase(labels.locale);
+      const searchableText = normalizeSearchValue(`${post.title} ${post.excerpt ?? ""} ${dateText}`);
 
       return searchableText.includes(trimmedQuery);
     });

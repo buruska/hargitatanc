@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { panel } from "@/lib/styles";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 import { movePerformanceGalleryAction, toggleGalleryPublicationAction } from "./actions";
 import { DeleteGalleryModal } from "./delete-gallery-modal";
 import { EditGalleryModal } from "./edit-gallery-modal";
@@ -19,8 +20,8 @@ type Gallery = {
 export function GalleryList({ galleries }: { galleries: Gallery[] }) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase("hu");
-    return normalized ? galleries.filter((gallery) => gallery.title.toLocaleLowerCase("hu").includes(normalized)) : galleries;
+    const normalized = normalizeSearchValue(query.trim());
+    return normalized ? galleries.filter((gallery) => normalizeSearchValue(gallery.title).includes(normalized)) : galleries;
   }, [galleries, query]);
 
   return <>

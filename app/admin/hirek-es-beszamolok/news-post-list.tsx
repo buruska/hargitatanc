@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { panel } from "@/lib/styles";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 import { NewNewsPostModal } from "./new-news-post-modal";
 import { NewsPostActions } from "./news-post-actions";
 
@@ -26,11 +27,11 @@ const dateFormatter = new Intl.DateTimeFormat("hu-RO", {
 export function NewsPostList({ posts }: { posts: NewsPost[] }) {
   const [query, setQuery] = useState("");
   const filteredPosts = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase("hu");
+    const normalized = normalizeSearchValue(query.trim());
     if (!normalized) return posts;
 
     return posts.filter((post) =>
-      `${post.title} ${post.excerpt} ${stripHtml(post.content)}`.toLocaleLowerCase("hu").includes(normalized),
+      normalizeSearchValue(`${post.title} ${post.excerpt} ${stripHtml(post.content)}`).includes(normalized),
     );
   }, [posts, query]);
 

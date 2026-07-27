@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 import type { Locale } from "@/lib/i18n";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 
 export type TicketModalItem = {
   id: string;
@@ -41,13 +42,6 @@ const dateFormatter = new Intl.DateTimeFormat("hu-RO", {
   timeStyle: "short",
   timeZone: "Europe/Bucharest",
 });
-
-function normalizeSearchValue(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("hu-HU");
-}
 
 export function TicketPurchaseModal({ items, locale = "hu" }: Readonly<{ items: TicketModalItem[]; locale?: Locale }>) {
   const [isOpen, setIsOpen] = useState(false);

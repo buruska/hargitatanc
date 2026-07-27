@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { MemberProfileCard } from "./member-profile-card";
 import { MemberRevealCard } from "./member-reveal-card";
+import { normalizeSearchValue } from "@/lib/normalize-search";
 
 type MemberCard = {
   bio: string | null;
@@ -19,7 +20,7 @@ type MemberSearchListProps = {
 
 export function MemberSearchList({ dancers, staffMembers }: MemberSearchListProps) {
   const [query, setQuery] = useState("");
-  const trimmedQuery = query.trim().toLocaleLowerCase("hu-HU");
+  const trimmedQuery = normalizeSearchValue(query.trim());
 
   const filteredDancers = useMemo(() => {
     if (!trimmedQuery) {
@@ -27,7 +28,7 @@ export function MemberSearchList({ dancers, staffMembers }: MemberSearchListProp
     }
 
     return dancers.filter((member) => {
-      const searchableText = `${member.name} ${member.role}`.toLocaleLowerCase("hu-HU");
+      const searchableText = normalizeSearchValue(`${member.name} ${member.role}`);
 
       return searchableText.includes(trimmedQuery);
     });
@@ -39,7 +40,7 @@ export function MemberSearchList({ dancers, staffMembers }: MemberSearchListProp
     }
 
     return staffMembers.filter((member) => {
-      const searchableText = `${member.name} ${member.role}`.toLocaleLowerCase("hu-HU");
+      const searchableText = normalizeSearchValue(`${member.name} ${member.role}`);
 
       return searchableText.includes(trimmedQuery);
     });
