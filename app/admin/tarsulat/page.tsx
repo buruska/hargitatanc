@@ -8,7 +8,7 @@ import { DirectorPreviewTabs } from "./director-preview-tabs";
 import { GroupImageUploadModal } from "./group-image-upload-modal";
 import { IntroTextEditModal } from "./intro-text-edit-modal";
 import { IntroTextPreviewTabs } from "./intro-text-preview-tabs";
-import { MemberRowActions } from "./member-row-actions";
+import { MemberAdminSearchList } from "./member-admin-search-list";
 import { NewMemberModal } from "./new-member-modal";
 
 const memberCategoryNames = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
@@ -53,8 +53,6 @@ export default async function AdminTarsulatPage() {
     bioEn: member.bioEn ? sanitizeRichText(member.bioEn) : null,
     bioRo: member.bioRo ? sanitizeRichText(member.bioRo) : null,
   }));
-  const dancerMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() === "táncos");
-  const staffMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() !== "táncos");
   const safeIntroText = sanitizeRichText(profile?.introText ?? "");
   const safeIntroTextRo = sanitizeRichText(profile?.introTextRo ?? "");
   const safeIntroTextEn = sanitizeRichText(profile?.introTextEn ?? "");
@@ -114,76 +112,8 @@ export default async function AdminTarsulatPage() {
           <h2 className="font-serif text-[clamp(26px,3vw,38px)] font-bold leading-tight text-charcoal">Tagjaink</h2>
           <NewMemberModal />
         </div>
-        <div className="grid gap-6">
-          <MemberListSection emptyText="Még nincsenek táncosok rögzítve." members={dancerMembers} title="Tánckar" />
-          <MemberListSection emptyText="Még nincsenek munkatársak rögzítve." members={staffMembers} title="Munkatársak" />
-        </div>
+        <MemberAdminSearchList members={safeMembers} />
       </section>
     </AdminShell>
-  );
-}
-
-type MemberListItem = {
-  bio: string | null;
-  bioEn: string | null;
-  bioRo: string | null;
-  id: string;
-  imageUrl: string | null;
-  name: string;
-  role: string;
-  roleEn: string | null;
-  roleRo: string | null;
-};
-
-function MemberListSection({
-  emptyText,
-  members,
-  title,
-}: {
-  emptyText: string;
-  members: MemberListItem[];
-  title: string;
-}) {
-  return (
-    <section className={`${panel} p-5`}>
-      <h3 className="mb-4 font-serif text-2xl font-bold leading-tight text-charcoal">{title}</h3>
-      {members.length > 0 ? (
-        <div className="grid gap-4">
-          {members.map((member, index) => (
-            <article
-              className="grid gap-4 border-t border-line pt-4 first:border-t-0 first:pt-0 min-[780px]:grid-cols-[86px_minmax(0,1fr)_auto]"
-              key={member.id}
-            >
-              {member.imageUrl ? (
-                <Image
-                  alt={`${member.name} portré`}
-                  className="aspect-square w-full max-w-[86px] border-2 border-line-strong object-cover"
-                  height={86}
-                  src={member.imageUrl}
-                  width={86}
-                />
-              ) : (
-                <div className="grid aspect-square w-full max-w-[86px] place-items-center border-2 border-line-strong bg-surface-strong font-serif text-3xl font-bold text-thread-red">
-                  {member.name.charAt(0)}
-                </div>
-              )}
-              <div className="grid content-center">
-                <h4 className="font-serif text-2xl font-bold leading-tight text-charcoal">{member.name}</h4>
-                <p className="text-sm font-extrabold text-thread-red">{member.role}</p>
-              </div>
-              <div className="self-center">
-                <MemberRowActions
-                  canMoveDown={index < members.length - 1}
-                  canMoveUp={index > 0}
-                  member={member}
-                />
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm font-extrabold text-muted">{emptyText}</p>
-      )}
-    </section>
   );
 }
