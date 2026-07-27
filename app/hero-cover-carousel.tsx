@@ -277,9 +277,10 @@ export function HeroCoverCarousel({
               )}
             </div>
 
-            <p className="mt-6 border-t border-line pt-5 text-[15px] font-bold leading-relaxed text-muted">
-              {selectedCover.summary}
-            </p>
+            <div
+              className="rich-text-editor mt-6 border-t border-line pt-5 text-[15px] font-bold leading-relaxed text-muted"
+              dangerouslySetInnerHTML={{ __html: selectedCover.summary ?? "" }}
+            />
           </div>
         </div>
       , document.body) : null}

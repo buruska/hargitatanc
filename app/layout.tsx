@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { getLocale, localizeHref } from "@/lib/i18n";
 import { LanguageSwitcher } from "./language-switcher";
 import "./globals.css";
+import { getLocalizedPerformanceTitle } from "@/lib/localize-performance";
 
 export const metadata: Metadata = {
   title: "Hargita Székely Néptáncszínház",
@@ -83,7 +84,16 @@ export default async function RootLayout({
         ticketMode: true,
         ticketText: true,
         ticketUrl: true,
-        runningPerformance: { select: { title: true } },
+        runningPerformance: {
+          select: {
+            summary: true,
+            summaryEn: true,
+            summaryRo: true,
+            title: true,
+            titleEn: true,
+            titleRo: true,
+          },
+        },
       },
     }),
     prisma.event.findMany({
@@ -101,7 +111,7 @@ export default async function RootLayout({
       ticketMode: event.ticketMode,
       ticketText: event.ticketText,
       ticketUrl: event.ticketUrl,
-      title: event.runningPerformance.title,
+      title: getLocalizedPerformanceTitle(event.runningPerformance, locale),
     })),
     ...events.map((event) => ({
       id: event.id,

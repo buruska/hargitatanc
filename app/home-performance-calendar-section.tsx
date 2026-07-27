@@ -197,9 +197,10 @@ function PerformanceListItem({
             role="img"
             style={{ backgroundImage: `url(${event.coverImageUrl})` }}
           />
-          <p className="text-[15px] font-bold leading-relaxed text-muted">
-            {event.summary}
-          </p>
+          <div
+            className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted"
+            dangerouslySetInnerHTML={{ __html: event.summary }}
+          />
         </article>
       </div>
     );
@@ -422,9 +423,10 @@ function PerformanceDetailsModal({
               {ticketDisplayText}
             </span>
           ) : null}
-          <p className="text-[15px] font-bold leading-relaxed text-muted">
-            {event.summary}
-          </p>
+          <div
+            className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted"
+            dangerouslySetInnerHTML={{ __html: event.summary }}
+          />
           {event.galleryImages.length > 0 ? (
             <div className="grid gap-2 border-t border-line pt-4">
               <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-muted">Galéria</p>

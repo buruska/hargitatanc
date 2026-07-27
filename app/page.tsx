@@ -5,6 +5,8 @@ import { HomePerformanceCalendarSection } from "./home-performance-calendar-sect
 import { HomeRevealGroup } from "./home-reveal-group";
 import { prisma } from "@/lib/prisma";
 import { getLocale, localizeHref } from "@/lib/i18n";
+import { getLocalizedPerformanceSummary, getLocalizedPerformanceTitle } from "@/lib/localize-performance";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 function getDateKey(date: Date) {
   const year = date.getFullYear();
@@ -62,7 +64,11 @@ export default async function HomePage() {
       },
       id: true,
       summary: true,
+      summaryEn: true,
+      summaryRo: true,
       title: true,
+      titleEn: true,
+      titleRo: true,
     },
   });
   const heroCovers = performances.map((performance) => ({
@@ -76,8 +82,8 @@ export default async function HomePage() {
       ticketUrl: event.ticketUrl,
     })),
     id: performance.id,
-    summary: performance.summary,
-    title: performance.title,
+    summary: sanitizeRichText(getLocalizedPerformanceSummary(performance, locale)),
+    title: getLocalizedPerformanceTitle(performance, locale),
   }));
   const events = await prisma.event.findMany({
     where: {
@@ -124,7 +130,7 @@ export default async function HomePage() {
     return [{
       coverImageUrl: event.coverImageUrl,
       id: `event-${event.id}`,
-      summary: event.summary,
+      summary: sanitizeRichText(event.summary),
       title: event.title,
     }];
   });
@@ -178,7 +184,11 @@ export default async function HomePage() {
             },
           },
           summary: true,
+          summaryEn: true,
+          summaryRo: true,
           title: true,
+          titleEn: true,
+          titleRo: true,
         },
       },
     },
@@ -192,11 +202,11 @@ export default async function HomePage() {
     galleryImages: event.runningPerformance.galleryImages,
     location: event.location,
     startsAt: event.startsAt.toISOString(),
-    summary: event.runningPerformance.summary,
+    summary: sanitizeRichText(getLocalizedPerformanceSummary(event.runningPerformance, locale)),
     ticketMode: event.ticketMode,
     ticketText: event.ticketText,
     ticketUrl: event.ticketUrl,
-    title: event.runningPerformance.title,
+    title: getLocalizedPerformanceTitle(event.runningPerformance, locale),
   }));
   const calendarStandaloneEvents = calendarEventsData.flatMap((event) => {
     if (!event.coverImageUrl) {
@@ -213,7 +223,7 @@ export default async function HomePage() {
       galleryImages: [],
       location: "",
       startsAt: event.startsAt.toISOString(),
-      summary: event.summary,
+      summary: sanitizeRichText(event.summary),
       ticketMode: "LINK" as const,
       ticketText: "",
       ticketUrl: "",

@@ -27,19 +27,6 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
     <main className="admin-shell px-[clamp(18px,4vw,56px)] pb-[150px] pt-[124px]">
       <ImageCompressionManager />
       <section className="mx-auto max-w-[1040px]">
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
-          <div>
-            <p className={eyebrow}>Admin</p>
-            <p className="text-[clamp(17px,2vw,21px)] text-muted">Belépve: {session.email}</p>
-            <InactivityLogoutTimer />
-          </div>
-          <form action={logoutAction}>
-            <button className={buttonSecondary} type="submit">
-              Kilépés
-            </button>
-          </form>
-        </div>
-
         <div className="grid gap-6 min-[861px]:grid-cols-[220px_1fr]">
           <aside className={`${panel} p-4`}>
             <nav aria-label="Admin menü" className="grid gap-2">
@@ -54,7 +41,21 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
               ))}
             </nav>
           </aside>
-          <section>{children}</section>
+          <section>
+            <div className="mb-6 flex flex-col items-end gap-3 text-right min-[620px]:flex-row min-[620px]:justify-end">
+              <div>
+                <p className={eyebrow}>Admin</p>
+                <p className="text-[clamp(17px,2vw,21px)] text-muted">Belépve: {session.email}</p>
+                <InactivityLogoutTimer />
+              </div>
+              <form action={logoutAction}>
+                <button className={buttonSecondary} type="submit">
+                  Kilépés
+                </button>
+              </form>
+            </div>
+            {children}
+          </section>
         </div>
       </section>
     </main>
