@@ -46,7 +46,7 @@ export function GroupImageUploadModal() {
 
   return (
     <>
-      <button className={buttonPrimary} type="button" onClick={() => setIsOpen(true)}>
+      <button className={`${buttonPrimary} transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95`} type="button" onClick={() => setIsOpen(true)}>
         Csoportkép módosítása
       </button>
 

@@ -440,3 +440,7 @@
 .admin-shell .fixed.inset-0:has([aria-modal="true"]) {
   z-index: 1000 !important;
 }
+
+.tarsulat-admin-actions .bg-thread-red {
+  padding-inline: 8px;
+}

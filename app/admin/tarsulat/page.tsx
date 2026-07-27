@@ -55,17 +55,21 @@ export default async function AdminTarsulatPage() {
   return (
     <AdminShell>
       <h1 className={adminTitle}>Rólunk</h1>
-      <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-3`}>
+      <div className={`tarsulat-admin-actions ${panel} mt-6 grid items-start gap-3 p-5 min-[720px]:grid-cols-2 min-[1100px]:grid-cols-4`}>
         <GroupImageUploadModal />
-        <IntroTextEditModal introText={safeIntroText} />
-        <IntroTextEditModal introText={safeIntroTextRo} locale="ro" />
-        <IntroTextEditModal introText={safeIntroTextEn} locale="en" />
+        <div className="grid gap-2">
+          <IntroTextEditModal introText={safeIntroText} />
+          <div className="grid gap-2">
+            <IntroTextEditModal compact introText={safeIntroTextRo} locale="ro" />
+            <IntroTextEditModal compact introText={safeIntroTextEn} locale="en" />
+          </div>
+        </div>
         <DirectorEditModal
           directorBio={safeDirectorBio}
           directorImageUrl={profile?.directorImageUrl ?? null}
           directorName={profile?.directorName ?? ""}
         />
-        <a className={buttonPrimary} href="#tagjaink">
+        <a className={`${buttonPrimary} transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95`} href="#tagjaink">
           Tagjaink
         </a>
       </div>

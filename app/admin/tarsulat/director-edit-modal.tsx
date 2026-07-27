@@ -122,8 +122,8 @@ export function DirectorEditModal({ directorBio, directorImageUrl, directorName 
 
   return (
     <>
-      <button className={buttonPrimary} type="button" onClick={() => setIsOpen(true)}>
-        Igazgató adatainak módosítása
+      <button className={`${buttonPrimary} transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95`} type="button" onClick={() => setIsOpen(true)}>
+        Igazgató adatai magyarul
       </button>
 
       {isOpen ? (
