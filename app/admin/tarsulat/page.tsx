@@ -6,6 +6,7 @@ import { AdminShell } from "../admin-shell";
 import { DirectorEditModal } from "./director-edit-modal";
 import { GroupImageUploadModal } from "./group-image-upload-modal";
 import { IntroTextEditModal } from "./intro-text-edit-modal";
+import { IntroTextPreviewTabs } from "./intro-text-preview-tabs";
 import { MemberRowActions } from "./member-row-actions";
 import { NewMemberModal } from "./new-member-modal";
 
@@ -85,27 +86,7 @@ export default async function AdminTarsulatPage() {
           />
         </div>
       ) : null}
-      {safeIntroText ? (
-        <div className={`${panel} mt-6 p-5`}>
-          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális bemutató szöveg</p>
-          <div
-            className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted"
-            dangerouslySetInnerHTML={{ __html: safeIntroText }}
-          />
-        </div>
-      ) : null}
-      {safeIntroTextRo ? (
-        <div className={`${panel} mt-6 p-5`}>
-          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális román bemutató szöveg</p>
-          <div className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted" dangerouslySetInnerHTML={{ __html: safeIntroTextRo }} />
-        </div>
-      ) : null}
-      {safeIntroTextEn ? (
-        <div className={`${panel} mt-6 p-5`}>
-          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális angol bemutató szöveg</p>
-          <div className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted" dangerouslySetInnerHTML={{ __html: safeIntroTextEn }} />
-        </div>
-      ) : null}
+      <IntroTextPreviewTabs introText={safeIntroText} introTextEn={safeIntroTextEn} introTextRo={safeIntroTextRo} />
       {profile?.directorName || profile?.directorBio || profile?.directorImageUrl ? (
         <div className={`${panel} mt-6 p-5`}>
           <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális igazgatói adatok</p>

@@ -15,6 +15,7 @@ const initialState: IntroTextFormState = {
 };
 
 type IntroTextEditModalProps = {
+  buttonLabel?: string;
   compact?: boolean;
   introText: string;
   locale?: "hu" | "ro" | "en";
@@ -26,7 +27,7 @@ const localeNames = {
   en: "angol",
 } as const;
 
-export function IntroTextEditModal({ compact = false, introText, locale = "hu" }: IntroTextEditModalProps) {
+export function IntroTextEditModal({ buttonLabel, compact = false, introText, locale = "hu" }: IntroTextEditModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState(introText || "<p></p>");
   const [state, formAction, isPending] = useActionState(updateIntroTextAction, initialState);
@@ -138,7 +139,7 @@ export function IntroTextEditModal({ compact = false, introText, locale = "hu" }
         type="button"
         onClick={() => setIsOpen(true)}
       >
-        {localeName.charAt(0).toUpperCase() + localeName.slice(1)} bemutató szöveg
+        {buttonLabel ?? `${localeName.charAt(0).toUpperCase() + localeName.slice(1)} bemutató szöveg`}
       </button>
 
       {isOpen ? (
