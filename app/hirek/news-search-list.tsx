@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { eyebrow, h1 } from "@/lib/styles";
 
 type Locale = "hu" | "ro" | "en";
 
@@ -20,6 +21,10 @@ type NewsPostCard = {
 };
 
 type NewsSearchListProps = {
+  heading: {
+    eyebrow: string;
+    title: string;
+  };
   locale: Locale;
   posts: NewsPostCard[];
 };
@@ -51,7 +56,7 @@ const copy = {
   },
 } as const;
 
-export function NewsSearchList({ locale, posts }: NewsSearchListProps) {
+export function NewsSearchList({ heading, locale, posts }: NewsSearchListProps) {
   const [query, setQuery] = useState("");
   const labels = copy[locale];
   const trimmedQuery = query.trim().toLocaleLowerCase(labels.locale);
@@ -70,16 +75,22 @@ export function NewsSearchList({ locale, posts }: NewsSearchListProps) {
 
   return (
     <>
-      <label className="mb-16 ml-auto mt-16 block w-full max-w-[280px]">
-        <span className="sr-only">{labels.searchLabel}</span>
-        <input
-          className="min-h-[48px] w-full border-2 border-line-strong bg-surface-strong px-4 py-3 text-[16px] font-bold text-charcoal shadow-[6px_6px_0_rgb(33_31_27_/_10%)] outline-none transition placeholder:text-muted/70 focus:border-thread-red focus:shadow-[8px_8px_0_rgb(179_38_32_/_16%)]"
-          placeholder={labels.placeholder}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </label>
+      <div className="mb-16 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className={eyebrow}>{heading.eyebrow}</p>
+          <h1 className={h1}>{heading.title}</h1>
+        </div>
+        <label className="block w-full max-w-[280px] md:shrink-0">
+          <span className="sr-only">{labels.searchLabel}</span>
+          <input
+            className="min-h-[48px] w-full border-2 border-line-strong bg-surface-strong px-4 py-3 text-[16px] font-bold text-charcoal shadow-[6px_6px_0_rgb(33_31_27_/_10%)] outline-none transition placeholder:text-muted/70 focus:border-thread-red focus:shadow-[8px_8px_0_rgb(179_38_32_/_16%)]"
+            placeholder={labels.placeholder}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+      </div>
 
       {filteredPosts.length > 0 ? (
         <section className="grid auto-rows-fr gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">

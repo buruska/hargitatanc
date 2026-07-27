@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { eyebrow, h1 } from "@/lib/styles";
 import { NewsSearchList } from "./news-search-list";
 import { getLocale } from "@/lib/i18n";
 
@@ -33,9 +32,7 @@ export default async function HirekPage() {
 
   return (
     <main className="mx-auto w-[calc(100%-36px)] pb-[72px] pt-[124px] md:w-[80vw]">
-      <p className={eyebrow}>{heading.eyebrow}</p>
-      <h1 className={h1}>{heading.title}</h1>
-      <NewsSearchList locale={locale} posts={newsPosts} />
+      <NewsSearchList heading={heading} locale={locale} posts={newsPosts} />
     </main>
   );
 }
