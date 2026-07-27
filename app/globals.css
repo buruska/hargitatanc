@@ -436,3 +436,7 @@
     transform: none;
   }
 }
+
+.admin-shell .fixed.inset-0:has([aria-modal="true"]) {
+  z-index: 1000 !important;
+}

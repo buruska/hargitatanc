@@ -24,7 +24,7 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
   }
 
   return (
-    <main className="px-[clamp(18px,4vw,56px)] pb-[150px] pt-[124px]">
+    <main className="admin-shell px-[clamp(18px,4vw,56px)] pb-[150px] pt-[124px]">
       <ImageCompressionManager />
       <section className="mx-auto max-w-[1040px]">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
