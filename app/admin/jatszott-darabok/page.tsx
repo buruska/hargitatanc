@@ -15,7 +15,11 @@ export default async function AdminFutoEloadasokPage() {
     select: {
       id: true,
       title: true,
+      titleEn: true,
+      titleRo: true,
       summary: true,
+      summaryEn: true,
+      summaryRo: true,
       coverImageUrl: true,
       galleryImages: {
         orderBy: [

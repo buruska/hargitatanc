@@ -1,11 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import { updateRunningPerformanceAction, type PerformanceFormState } from "./actions";
+import { RichTextField } from "../tarsulat/rich-text-field";
 
 type EditPerformanceModalProps = {
+  coverImageUrl: string;
   id: string;
   title: string;
   summary: string;
@@ -13,7 +16,7 @@ type EditPerformanceModalProps = {
 
 const initialState: PerformanceFormState = {};
 
-export function EditPerformanceModal({ id, title, summary }: EditPerformanceModalProps) {
+export function EditPerformanceModal({ coverImageUrl, id, title, summary }: EditPerformanceModalProps) {
   const [state, formAction, isPending] = useActionState(updateRunningPerformanceAction, initialState);
   const [isOpen, setIsOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -67,7 +70,7 @@ export function EditPerformanceModal({ id, title, summary }: EditPerformanceModa
           <section
             aria-labelledby={titleId}
             aria-modal="true"
-            className={`${panel} w-full max-w-[560px] p-6`}
+            className={`${panel} max-h-[calc(100vh-64px)] w-full max-w-[760px] overflow-y-auto p-6`}
             role="dialog"
           >
             <div className="mb-5 flex items-start justify-between gap-4">
@@ -104,10 +107,17 @@ export function EditPerformanceModal({ id, title, summary }: EditPerformanceModa
                   accept="image/*"
                 />
               </label>
-              <label className={label}>
-                Rövid leírás
-                <textarea className={`${input} min-h-32 resize-y`} name="summary" defaultValue={summary} required />
-              </label>
+              <div className="grid gap-2">
+                <p className="text-sm font-extrabold text-muted">Jelenlegi borítókép</p>
+                <Image
+                  alt={`${title} jelenlegi borítóképe`}
+                  className="aspect-[16/10] w-full max-w-[360px] border-2 border-line-strong object-cover"
+                  height={225}
+                  src={coverImageUrl}
+                  width={360}
+                />
+              </div>
+              <RichTextField initialValue={summary} label="Formázható leírás" name="summary" />
               <div className="flex flex-col gap-3 min-[520px]:flex-row min-[520px]:justify-end">
                 <button className={buttonSecondary} type="button" onClick={() => setIsOpen(false)}>
                   Mégsem

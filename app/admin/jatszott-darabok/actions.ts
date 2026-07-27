@@ -184,13 +184,13 @@ export async function createRunningPerformanceAction(
 ): Promise<PerformanceFormState> {
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
-  const summary = String(formData.get("summary") ?? "").trim();
+  const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
   const coverImage = formData.get("coverImage");
   const galleryImages = formData
     .getAll("galleryImages")
     .filter((file): file is File => file instanceof File && file.size > 0);
 
-  if (!title || !summary) {
+  if (!title || !hasRichTextContent(summary)) {
     return { error: "Add meg az előadás címét és rövid leírását." };
   }
 
@@ -254,14 +254,14 @@ export async function updateRunningPerformanceAction(
   await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
-  const summary = String(formData.get("summary") ?? "").trim();
+  const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
   const coverImage = formData.get("coverImage");
 
   if (!id) {
     return { error: "Hiányzik a módosítandó előadás azonosítója." };
   }
 
-  if (!title || !summary) {
+  if (!title || !hasRichTextContent(summary)) {
     return { error: "Add meg az előadás címét és rövid leírását." };
   }
 
@@ -315,6 +315,37 @@ export async function updateRunningPerformanceAction(
   revalidatePath("/galeria");
   revalidatePath("/admin/galeriak");
   revalidatePath("/admin/jatszott-darabok");
+
+  return { success: true };
+}
+
+export async function updateRunningPerformanceTranslationAction(
+  _state: PerformanceFormState,
+  formData: FormData,
+): Promise<PerformanceFormState> {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const locale = String(formData.get("locale") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim();
+  const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
+
+  if (!id || !["ro", "en"].includes(locale)) {
+    return { error: "Hiányzó vagy érvénytelen nyelvi adat." };
+  }
+
+  if (!title || !hasRichTextContent(summary)) {
+    return { error: "Add meg az előadás címét és leírását." };
+  }
+
+  await prisma.runningPerformance.update({
+    data: locale === "ro" ? { summaryRo: summary, titleRo: title } : { summaryEn: summary, titleEn: title },
+    where: { id },
+  });
+
+  revalidatePath("/admin/jatszott-darabok");
+  revalidatePath("/");
+  revalidatePath("/ro");
+  revalidatePath("/en");
 
   return { success: true };
 }

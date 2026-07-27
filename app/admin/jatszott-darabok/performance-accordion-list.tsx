@@ -11,12 +11,17 @@ import { EditPerformanceModal } from "./edit-performance-modal";
 import { NewPerformanceEventModal } from "./new-performance-event-modal";
 import { PerformanceEventsToggle } from "./performance-events-toggle";
 import { moveRunningPerformanceGalleryImageAction } from "./actions";
+import { PerformanceTranslationModal } from "./performance-translation-modal";
 
 type PerformanceAccordionListProps = {
   performances: {
     id: string;
     title: string;
+    titleEn: string | null;
+    titleRo: string | null;
     summary: string;
+    summaryEn: string | null;
+    summaryRo: string | null;
     coverImageUrl: string;
     galleryImages: {
       id: string;
@@ -79,7 +84,26 @@ export function PerformanceAccordionList({ performances }: PerformanceAccordionL
               <div className="overflow-hidden">
                 <div className="p-4">
                   <div className="flex flex-wrap gap-2">
-                    <EditPerformanceModal id={performance.id} summary={performance.summary} title={performance.title} />
+                    <EditPerformanceModal
+                      coverImageUrl={performance.coverImageUrl}
+                      id={performance.id}
+                      summary={performance.summary}
+                      title={performance.title}
+                    />
+                    <PerformanceTranslationModal
+                      coverImageUrl={performance.coverImageUrl}
+                      id={performance.id}
+                      initialSummary={performance.summaryRo ?? performance.summary}
+                      initialTitle={performance.titleRo ?? performance.title}
+                      locale="ro"
+                    />
+                    <PerformanceTranslationModal
+                      coverImageUrl={performance.coverImageUrl}
+                      id={performance.id}
+                      initialSummary={performance.summaryEn ?? performance.summary}
+                      initialTitle={performance.titleEn ?? performance.title}
+                      locale="en"
+                    />
                     <DeletePerformanceModal id={performance.id} title={performance.title} />
                   </div>
                   <p className="mt-4 text-muted">{performance.summary}</p>
