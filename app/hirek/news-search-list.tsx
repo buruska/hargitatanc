@@ -95,20 +95,15 @@ export function NewsSearchList({ heading, locale, posts }: NewsSearchListProps) 
       {filteredPosts.length > 0 ? (
         <section className="grid auto-rows-fr gap-5 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-4">
           {filteredPosts.map((post) => (
-            <Link className="home-news-card home-news-card-static block h-full min-h-[430px]" href={localizeHref(`/hirek/${post.slug}`, locale)} id={post.id} key={post.id}>
-              <div className="home-news-card-flip relative h-full min-h-[430px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
-                <div className="home-news-card-face home-news-card-front flex h-full min-h-[430px] flex-col bg-surface-strong px-5 py-6 text-center">
+            <Link className="home-news-card home-news-card-static block h-full min-h-[300px]" href={localizeHref(`/hirek/${post.slug}`, locale)} id={post.id} key={post.id}>
+              <div className="home-news-card-flip relative h-full min-h-[300px] shadow-[10px_10px_0_rgb(33_31_27_/_18%)]">
+                <div className="home-news-card-face home-news-card-front flex h-full min-h-[300px] flex-col bg-surface-strong px-5 py-6 text-center">
                   <time className="block font-serif text-[16px] leading-tight text-charcoal">
                     {new Intl.DateTimeFormat(labels.locale, { dateStyle: "long" }).format(new Date(post.publishedAt))}
                   </time>
-                  <h2 className="mb-9 mt-9 font-serif text-[clamp(18px,2vw,22px)] font-bold italic leading-tight text-thread-red">
+                  <h2 className="mb-9 mt-9 line-clamp-4 h-[5em] overflow-hidden font-serif text-[clamp(18px,2vw,22px)] font-bold italic leading-tight text-thread-red">
                     {post.title}
                   </h2>
-                  {post.excerpt ? (
-                    <p className="text-[15px] font-extrabold leading-snug text-charcoal">
-                      {post.excerpt}
-                    </p>
-                  ) : null}
                   <div className="-mx-5 -mb-6 mt-auto pt-4">
                     {post.imageSrc ? (
                       <Image
@@ -126,7 +121,7 @@ export function NewsSearchList({ heading, locale, posts }: NewsSearchListProps) 
                     )}
                   </div>
                 </div>
-                <div className="home-news-card-face home-news-card-back absolute inset-0 grid h-full min-h-[430px] place-items-center px-6 py-8 text-center text-surface-strong">
+                <div className="home-news-card-face home-news-card-back absolute inset-0 grid h-full min-h-[300px] place-items-center px-6 py-8 text-center text-surface-strong">
                   <div className="grid justify-items-center gap-8">
                     <Image
                       alt="Hargita Nemzeti Szekler Nepi Egyuttes"
