@@ -57,7 +57,7 @@ export function NewsPostList({ posts }: { posts: NewsPost[] }) {
         const originalIndex = posts.findIndex((item) => item.id === post.id);
 
         return (
-          <article className={`${panel} p-5`} key={post.id}>
+          <article className={`${panel} min-w-0 overflow-hidden p-5`} key={post.id}>
             <div className="flex flex-col gap-3 min-[760px]:flex-row min-[760px]:items-start min-[760px]:justify-between">
               <div>
                 <p className="text-sm font-extrabold text-thread-red">{dateFormatter.format(new Date(post.publishedAt))}</p>
@@ -74,7 +74,7 @@ export function NewsPostList({ posts }: { posts: NewsPost[] }) {
               />
             </div>
             {post.excerpt ? <p className="mt-1 text-sm font-extrabold text-petrol">{post.excerpt}</p> : null}
-            {preview ? <p className="mt-3 line-clamp-3 text-muted">{preview}</p> : null}
+            {preview ? <p className="mt-3 line-clamp-3 break-words text-muted [overflow-wrap:anywhere]">{preview}</p> : null}
           </article>
         );
       })}

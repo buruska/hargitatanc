@@ -11,9 +11,9 @@ const adminNavigation = [
   { href: "/admin/alapbeallitasok", label: "Alapbeállítások" },
   { href: "/admin/jatszott-darabok", label: "Játszott darabok" },
   { href: "/admin/tarsulat", label: "Rólunk" },
+  { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
   { href: "/admin/galeriak", label: "Galériák" },
   { href: "/admin/rendezvenyek", label: "Rendezvények" },
-  { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
 ];
 
 export async function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -27,8 +27,8 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
     <main className="admin-shell px-[clamp(18px,4vw,56px)] pb-[150px] pt-[124px]">
       <ImageCompressionManager />
       <section className="mx-auto max-w-[1040px]">
-        <div className="grid gap-6 min-[861px]:grid-cols-[220px_1fr]">
-          <aside className={`${panel} p-4`}>
+        <div className="grid gap-6 min-[861px]:grid-cols-[220px_minmax(0,1fr)]">
+          <aside className={`${panel} h-fit self-start p-4 min-[861px]:sticky min-[861px]:top-[112px]`}>
             <nav aria-label="Admin menü" className="grid gap-2">
               {adminNavigation.map((item) => (
                 <Link
@@ -41,7 +41,7 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
               ))}
             </nav>
           </aside>
-          <section>
+          <section className="min-w-0">
             <div className="mb-6 flex flex-col items-end gap-3 text-right min-[620px]:flex-row min-[620px]:justify-end">
               <div>
                 <p className={eyebrow}>Admin</p>
