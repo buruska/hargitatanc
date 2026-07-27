@@ -27,7 +27,7 @@ function getDateKeysBetween(startDate: Date, endDate: Date) {
 }
 
 function getFirstImageSrc(value: string) {
-  return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null;
+  return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? "/logo.png";
 }
 
 export default async function HomePage() {
@@ -315,7 +315,7 @@ export default async function HomePage() {
                             {imageSrc ? (
                               <Image
                                 alt=""
-                                className="aspect-[4/3] w-full object-cover"
+                                className={`aspect-[4/3] w-full ${imageSrc === "/logo.png" ? "bg-surface object-contain p-8" : "object-cover"}`}
                                 height={240}
                                 src={imageSrc}
                                 unoptimized={imageSrc.startsWith("data:")}

@@ -3,7 +3,7 @@ import { NewsSearchList } from "./news-search-list";
 import { getLocale } from "@/lib/i18n";
 
 function getFirstImageSrc(value: string) {
-  return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? null;
+  return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? "/logo.png";
 }
 
 export default async function HirekPage() {

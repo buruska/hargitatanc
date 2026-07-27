@@ -109,7 +109,7 @@ export function NewsSearchList({ heading, locale, posts }: NewsSearchListProps) 
                     {post.imageSrc ? (
                       <Image
                         alt=""
-                        className="aspect-[4/3] w-full object-cover"
+                        className={`aspect-[4/3] w-full ${post.imageSrc === "/logo.png" ? "bg-surface object-contain p-8" : "object-cover"}`}
                         height={240}
                         src={post.imageSrc}
                         unoptimized={post.imageSrc.startsWith("data:")}
