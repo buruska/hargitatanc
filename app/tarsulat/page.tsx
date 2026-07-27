@@ -45,20 +45,28 @@ export default async function TarsulatPage() {
       ],
       select: {
         bio: true,
+        bioEn: true,
+        bioRo: true,
         id: true,
         imageUrl: true,
         name: true,
         role: true,
+        roleEn: true,
+        roleRo: true,
       },
     }),
   ]);
   const safeMembers = members.map((member) => ({
     ...member,
-    bio: member.bio ? sanitizeRichText(member.bio) : null,
+    baseRole: member.role,
+    bio: sanitizeRichText(
+      (locale === "ro" ? member.bioRo : locale === "en" ? member.bioEn : member.bio) ?? "",
+    ) || null,
+    role: (locale === "ro" ? member.roleRo : locale === "en" ? member.roleEn : member.role) ?? member.role,
   }));
   const visibleMembers = safeMembers.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name));
-  const dancers = visibleMembers.filter((member) => isDancerRole(member.role));
-  const staffMembers = visibleMembers.filter((member) => !isDancerRole(member.role));
+  const dancers = visibleMembers.filter((member) => isDancerRole(member.baseRole));
+  const staffMembers = visibleMembers.filter((member) => !isDancerRole(member.baseRole));
   const localizedIntroText =
     locale === "ro" ? profile?.introTextRo : locale === "en" ? profile?.introTextEn : profile?.introText;
   const localizedDirectorBio =

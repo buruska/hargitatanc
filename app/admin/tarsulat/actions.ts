@@ -303,7 +303,13 @@ export async function createMemberAction(
   await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
+  const roleRo = String(formData.get("roleRo") ?? "").trim() || "-";
+  const roleEn = String(formData.get("roleEn") ?? "").trim() || "-";
   const bio = sanitizeRichText(String(formData.get("bio") ?? ""));
+  const bioRoValue = sanitizeRichText(String(formData.get("bioRo") ?? ""));
+  const bioEnValue = sanitizeRichText(String(formData.get("bioEn") ?? ""));
+  const bioRo = hasRichTextContent(bioRoValue) ? bioRoValue : "<p>-</p>";
+  const bioEn = hasRichTextContent(bioEnValue) ? bioEnValue : "<p>-</p>";
   const memberImage = formData.get("memberImage");
 
   if (!name) {
@@ -343,15 +349,21 @@ export async function createMemberAction(
   await prisma.member.create({
     data: {
       bio,
+      bioEn,
+      bioRo,
       imageUrl,
       name,
       role,
+      roleEn,
+      roleRo,
       sortOrder: (lastMember?.sortOrder ?? 100) + 10,
     },
   });
 
   revalidatePath("/admin/tarsulat");
   revalidatePath("/tarsulat");
+  revalidatePath("/ro/tarsulat");
+  revalidatePath("/en/tarsulat");
 
   return { message: "Az új tag mentve.", status: "success" };
 }
@@ -364,7 +376,13 @@ export async function updateMemberAction(
   const id = String(formData.get("id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
+  const roleRo = String(formData.get("roleRo") ?? "").trim() || "-";
+  const roleEn = String(formData.get("roleEn") ?? "").trim() || "-";
   const bio = sanitizeRichText(String(formData.get("bio") ?? ""));
+  const bioRoValue = sanitizeRichText(String(formData.get("bioRo") ?? ""));
+  const bioEnValue = sanitizeRichText(String(formData.get("bioEn") ?? ""));
+  const bioRo = hasRichTextContent(bioRoValue) ? bioRoValue : "<p>-</p>";
+  const bioEn = hasRichTextContent(bioEnValue) ? bioEnValue : "<p>-</p>";
   const memberImage = formData.get("memberImage");
 
   if (!id) {
@@ -415,9 +433,13 @@ export async function updateMemberAction(
   await prisma.member.update({
     data: {
       bio,
+      bioEn,
+      bioRo,
       imageUrl,
       name,
       role,
+      roleEn,
+      roleRo,
     },
     where: {
       id,
@@ -430,6 +452,8 @@ export async function updateMemberAction(
 
   revalidatePath("/admin/tarsulat");
   revalidatePath("/tarsulat");
+  revalidatePath("/ro/tarsulat");
+  revalidatePath("/en/tarsulat");
 
   return { message: "A tag adatai mentve.", status: "success" };
 }

@@ -50,6 +50,8 @@ export default async function AdminTarsulatPage() {
   const safeMembers = members.map((member) => ({
     ...member,
     bio: member.bio ? sanitizeRichText(member.bio) : null,
+    bioEn: member.bioEn ? sanitizeRichText(member.bioEn) : null,
+    bioRo: member.bioRo ? sanitizeRichText(member.bioRo) : null,
   }));
   const dancerMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() === "táncos");
   const staffMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() !== "táncos");
@@ -123,10 +125,14 @@ export default async function AdminTarsulatPage() {
 
 type MemberListItem = {
   bio: string | null;
+  bioEn: string | null;
+  bioRo: string | null;
   id: string;
   imageUrl: string | null;
   name: string;
   role: string;
+  roleEn: string | null;
+  roleRo: string | null;
 };
 
 function MemberListSection({

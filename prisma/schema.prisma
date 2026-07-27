@@ -102,7 +102,11 @@ model Member {
   id        String   @id @default(cuid())
   name      String
   role      String
+  roleRo    String?
+  roleEn    String?
   bio       String?
+  bioRo     String?
+  bioEn     String?
   imageUrl  String?
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
