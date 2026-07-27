@@ -116,8 +116,12 @@ model CompanyProfile {
   introTextRo   String?
   introTextEn   String?
   directorName  String?
+  directorNameRo String?
+  directorNameEn String?
   directorTitle String?
   directorBio   String?
+  directorBioRo String?
+  directorBioEn String?
   directorImageUrl String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

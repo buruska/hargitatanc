@@ -228,6 +228,7 @@ export async function updateDirectorAction(
   const directorName = String(formData.get("directorName") ?? "").trim();
   const directorBio = sanitizeRichText(String(formData.get("directorBio") ?? ""));
   const directorImage = formData.get("directorImage");
+  const locale = String(formData.get("locale") ?? "hu");
 
   if (!directorName) {
     return { message: "Add meg az igazgató nevét.", status: "error" };
@@ -261,17 +262,22 @@ export async function updateDirectorAction(
     shouldDeletePreviousImage = true;
   }
 
+  const localizedDirectorData =
+    locale === "ro"
+      ? { directorBioRo: directorBio, directorNameRo: directorName }
+      : locale === "en"
+        ? { directorBioEn: directorBio, directorNameEn: directorName }
+        : { directorBio, directorName };
+
   await prisma.companyProfile.upsert({
     create: {
-      directorBio,
       directorImageUrl,
-      directorName,
       id: "main",
+      ...localizedDirectorData,
     },
     update: {
-      directorBio,
       directorImageUrl,
-      directorName,
+      ...localizedDirectorData,
     },
     where: {
       id: "main",
@@ -284,6 +290,8 @@ export async function updateDirectorAction(
 
   revalidatePath("/admin/tarsulat");
   revalidatePath("/tarsulat");
+  revalidatePath("/ro/tarsulat");
+  revalidatePath("/en/tarsulat");
 
   return { message: "Az igazgató adatai mentve.", status: "success" };
 }

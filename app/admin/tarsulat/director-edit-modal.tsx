@@ -16,12 +16,24 @@ const initialState: DirectorFormState = {
 };
 
 type DirectorEditModalProps = {
+  buttonLabel?: string;
+  compact?: boolean;
   directorBio: string;
   directorImageUrl: string | null;
   directorName: string;
+  locale?: "hu" | "ro" | "en";
 };
 
-export function DirectorEditModal({ directorBio, directorImageUrl, directorName }: DirectorEditModalProps) {
+const localeNames = { hu: "magyar", ro: "román", en: "angol" } as const;
+
+export function DirectorEditModal({
+  buttonLabel,
+  compact = false,
+  directorBio,
+  directorImageUrl,
+  directorName,
+  locale = "hu",
+}: DirectorEditModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState(directorBio || "<p></p>");
   const [state, formAction, isPending] = useActionState(updateDirectorAction, initialState);
@@ -30,6 +42,7 @@ export function DirectorEditModal({ directorBio, directorImageUrl, directorName 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const titleId = useId();
+  const localeName = localeNames[locale];
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -122,8 +135,8 @@ export function DirectorEditModal({ directorBio, directorImageUrl, directorName 
 
   return (
     <>
-      <button className={`${buttonPrimary} transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95`} type="button" onClick={() => setIsOpen(true)}>
-        Igazgató adatai magyarul
+      <button className={`${compact ? `${buttonSecondary} !px-2` : buttonPrimary} transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95`} type="button" onClick={() => setIsOpen(true)}>
+        {buttonLabel ?? `Igazgató adatai ${localeName}ul`}
       </button>
 
       {isOpen ? (
@@ -136,7 +149,7 @@ export function DirectorEditModal({ directorBio, directorImageUrl, directorName 
           >
             <div className="mb-5 flex items-start justify-between gap-4 border-b border-line pb-4">
               <h2 className="font-serif text-[clamp(24px,3vw,34px)] font-bold leading-tight" id={titleId}>
-                Igazgató adatainak módosítása
+                Igazgató {localeName} adatainak módosítása
               </h2>
               <button
                 aria-label="Modal bezárása"
@@ -150,6 +163,7 @@ export function DirectorEditModal({ directorBio, directorImageUrl, directorName 
             </div>
 
             <form action={formAction} className="grid gap-4" ref={formRef}>
+              <input name="locale" type="hidden" value={locale} />
               <input name="directorBio" type="hidden" value={content} />
               <label className={label}>
                 Név

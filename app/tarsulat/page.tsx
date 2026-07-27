@@ -19,8 +19,12 @@ export default async function TarsulatPage() {
     prisma.companyProfile.findUnique({
       select: {
         directorBio: true,
+        directorBioEn: true,
+        directorBioRo: true,
         directorImageUrl: true,
         directorName: true,
+        directorNameEn: true,
+        directorNameRo: true,
         groupImageUrl: true,
         introText: true,
         introTextEn: true,
@@ -57,6 +61,10 @@ export default async function TarsulatPage() {
   const staffMembers = visibleMembers.filter((member) => !isDancerRole(member.role));
   const localizedIntroText =
     locale === "ro" ? profile?.introTextRo : locale === "en" ? profile?.introTextEn : profile?.introText;
+  const localizedDirectorBio =
+    locale === "ro" ? profile?.directorBioRo : locale === "en" ? profile?.directorBioEn : profile?.directorBio;
+  const localizedDirectorName =
+    locale === "ro" ? profile?.directorNameRo : locale === "en" ? profile?.directorNameEn : profile?.directorName;
 
   return (
     <main className={contentPage}>
@@ -87,9 +95,9 @@ export default async function TarsulatPage() {
               />
               {profile.directorImageUrl ? (
                 <DirectorProfileCard
-                  bio={sanitizeRichText(profile.directorBio ?? "")}
+                  bio={sanitizeRichText(localizedDirectorBio ?? "")}
                   imageUrl={profile.directorImageUrl}
-                  name={profile.directorName ?? ""}
+                  name={localizedDirectorName ?? ""}
                 />
               ) : null}
             </div>
