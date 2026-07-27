@@ -11,39 +11,52 @@ type AppearanceGaugeProps = {
 const radius = 138;
 const circumference = 2 * Math.PI * radius;
 
-export function AppearanceGauge({
-  completedAppearances,
-  completedPercentage,
-  totalAppearances,
-}: AppearanceGaugeProps) {
+function useGaugeAnimation(completedPercentage: number, spinUpDuration: number, settleDuration: number) {
   const [displayedPercentage, setDisplayedPercentage] = useState(0);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (reduceMotion || completedPercentage === 0) {
+    if (reduceMotion) {
       setDisplayedPercentage(completedPercentage);
       return;
     }
 
-    const duration = 1400;
     const startedAt = performance.now();
+    const totalDuration = spinUpDuration + settleDuration;
     let frameId = 0;
 
     const animate = (currentTime: number) => {
-      const progress = Math.min((currentTime - startedAt) / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      setDisplayedPercentage(Math.round(completedPercentage * easedProgress));
+      const elapsed = Math.min(currentTime - startedAt, totalDuration);
 
-      if (progress < 1) {
+      if (elapsed <= spinUpDuration) {
+        const progress = elapsed / spinUpDuration;
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        setDisplayedPercentage(Math.round(100 * easedProgress));
+      } else {
+        const progress = (elapsed - spinUpDuration) / settleDuration;
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        setDisplayedPercentage(Math.round(100 - (100 - completedPercentage) * easedProgress));
+      }
+
+      if (elapsed < totalDuration) {
         frameId = requestAnimationFrame(animate);
       }
     };
 
     frameId = requestAnimationFrame(animate);
-
     return () => cancelAnimationFrame(frameId);
-  }, [completedPercentage]);
+  }, [completedPercentage, settleDuration, spinUpDuration]);
+
+  return displayedPercentage;
+}
+
+export function AppearanceGauge({
+  completedAppearances,
+  completedPercentage,
+  totalAppearances,
+}: AppearanceGaugeProps) {
+  const displayedPercentage = useGaugeAnimation(completedPercentage, 900, 1100);
 
   const displayedArc = (displayedPercentage / 100) * circumference;
 
@@ -90,31 +103,7 @@ export function PerformanceGauge({
   title,
   totalAppearances,
 }: PerformanceGaugeProps) {
-  const [displayedPercentage, setDisplayedPercentage] = useState(0);
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (reduceMotion || completedPercentage === 0) {
-      setDisplayedPercentage(completedPercentage);
-      return;
-    }
-
-    const duration = 1200;
-    const startedAt = performance.now();
-    let frameId = 0;
-
-    const animate = (currentTime: number) => {
-      const progress = Math.min((currentTime - startedAt) / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      setDisplayedPercentage(Math.round(completedPercentage * easedProgress));
-
-      if (progress < 1) frameId = requestAnimationFrame(animate);
-    };
-
-    frameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frameId);
-  }, [completedPercentage]);
+  const displayedPercentage = useGaugeAnimation(completedPercentage, 750, 950);
 
   const compactRadius = 68;
   const compactCircumference = 2 * Math.PI * compactRadius;
