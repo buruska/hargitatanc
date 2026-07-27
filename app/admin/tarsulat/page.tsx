@@ -19,6 +19,8 @@ export default async function AdminTarsulatPage() {
       directorName: true,
       groupImageUrl: true,
       introText: true,
+      introTextEn: true,
+      introTextRo: true,
     },
     where: {
       id: "main",
@@ -46,14 +48,18 @@ export default async function AdminTarsulatPage() {
   const dancerMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() === "táncos");
   const staffMembers = safeMembers.filter((member) => member.role.trim().toLowerCase() !== "táncos");
   const safeIntroText = sanitizeRichText(profile?.introText ?? "");
+  const safeIntroTextRo = sanitizeRichText(profile?.introTextRo ?? "");
+  const safeIntroTextEn = sanitizeRichText(profile?.introTextEn ?? "");
   const safeDirectorBio = sanitizeRichText(profile?.directorBio ?? "");
 
   return (
     <AdminShell>
       <h1 className={adminTitle}>Rólunk</h1>
-      <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-4`}>
+      <div className={`${panel} mt-6 grid gap-3 p-5 min-[720px]:grid-cols-3`}>
         <GroupImageUploadModal />
         <IntroTextEditModal introText={safeIntroText} />
+        <IntroTextEditModal introText={safeIntroTextRo} locale="ro" />
+        <IntroTextEditModal introText={safeIntroTextEn} locale="en" />
         <DirectorEditModal
           directorBio={safeDirectorBio}
           directorImageUrl={profile?.directorImageUrl ?? null}
@@ -82,6 +88,18 @@ export default async function AdminTarsulatPage() {
             className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted"
             dangerouslySetInnerHTML={{ __html: safeIntroText }}
           />
+        </div>
+      ) : null}
+      {safeIntroTextRo ? (
+        <div className={`${panel} mt-6 p-5`}>
+          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális román bemutató szöveg</p>
+          <div className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted" dangerouslySetInnerHTML={{ __html: safeIntroTextRo }} />
+        </div>
+      ) : null}
+      {safeIntroTextEn ? (
+        <div className={`${panel} mt-6 p-5`}>
+          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.1em] text-thread-red">Aktuális angol bemutató szöveg</p>
+          <div className="rich-text-editor text-[15px] font-bold leading-relaxed text-muted" dangerouslySetInnerHTML={{ __html: safeIntroTextEn }} />
         </div>
       ) : null}
       {profile?.directorName || profile?.directorBio || profile?.directorImageUrl ? (

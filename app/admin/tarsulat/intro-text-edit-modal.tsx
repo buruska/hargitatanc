@@ -16,9 +16,16 @@ const initialState: IntroTextFormState = {
 
 type IntroTextEditModalProps = {
   introText: string;
+  locale?: "hu" | "ro" | "en";
 };
 
-export function IntroTextEditModal({ introText }: IntroTextEditModalProps) {
+const localeNames = {
+  hu: "magyar",
+  ro: "román",
+  en: "angol",
+} as const;
+
+export function IntroTextEditModal({ introText, locale = "hu" }: IntroTextEditModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState(introText || "<p></p>");
   const [state, formAction, isPending] = useActionState(updateIntroTextAction, initialState);
@@ -26,6 +33,7 @@ export function IntroTextEditModal({ introText }: IntroTextEditModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const titleId = useId();
+  const localeName = localeNames[locale];
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -125,7 +133,7 @@ export function IntroTextEditModal({ introText }: IntroTextEditModalProps) {
   return (
     <>
       <button className={buttonPrimary} type="button" onClick={() => setIsOpen(true)}>
-        Bemutató szöveg módosítása
+        {localeName.charAt(0).toUpperCase() + localeName.slice(1)} bemutató szöveg
       </button>
 
       {isOpen ? (
@@ -138,7 +146,7 @@ export function IntroTextEditModal({ introText }: IntroTextEditModalProps) {
           >
             <div className="mb-5 flex items-start justify-between gap-4 border-b border-line pb-4">
               <h2 className="font-serif text-[clamp(24px,3vw,34px)] font-bold leading-tight" id={titleId}>
-                Bemutató szöveg módosítása
+                {localeName.charAt(0).toUpperCase() + localeName.slice(1)} bemutató szöveg módosítása
               </h2>
               <button
                 aria-label="Modal bezárása"
@@ -152,6 +160,7 @@ export function IntroTextEditModal({ introText }: IntroTextEditModalProps) {
             </div>
 
             <form action={formAction} className="grid gap-4">
+              <input name="locale" type="hidden" value={locale} />
               <input name="introText" type="hidden" value={content} />
               <div className="border-2 border-line-strong bg-surface-strong">
                 <div className="flex flex-wrap gap-2 border-b border-line bg-surface px-3 py-3">

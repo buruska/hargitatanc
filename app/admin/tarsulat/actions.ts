@@ -186,18 +186,26 @@ export async function updateIntroTextAction(
 ): Promise<IntroTextFormState> {
   await requireAdmin();
   const introText = sanitizeRichText(String(formData.get("introText") ?? ""));
+  const locale = String(formData.get("locale") ?? "hu");
 
   if (!hasRichTextContent(introText)) {
     return { message: "Add meg a bemutató szöveget.", status: "error" };
   }
 
+  const introTextData =
+    locale === "ro"
+      ? { introTextRo: introText }
+      : locale === "en"
+        ? { introTextEn: introText }
+        : { introText };
+
   await prisma.companyProfile.upsert({
     create: {
       id: "main",
-      introText,
+      ...introTextData,
     },
     update: {
-      introText,
+      ...introTextData,
     },
     where: {
       id: "main",
@@ -206,6 +214,8 @@ export async function updateIntroTextAction(
 
   revalidatePath("/admin/tarsulat");
   revalidatePath("/tarsulat");
+  revalidatePath("/ro/tarsulat");
+  revalidatePath("/en/tarsulat");
 
   return { message: "A bemutató szöveg mentve.", status: "success" };
 }

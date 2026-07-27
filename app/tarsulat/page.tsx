@@ -23,6 +23,8 @@ export default async function TarsulatPage() {
         directorName: true,
         groupImageUrl: true,
         introText: true,
+        introTextEn: true,
+        introTextRo: true,
       },
       where: {
         id: "main",
@@ -53,6 +55,8 @@ export default async function TarsulatPage() {
   const visibleMembers = safeMembers.filter((member) => !MEMBER_CATEGORY_NAMES.includes(member.name));
   const dancers = visibleMembers.filter((member) => isDancerRole(member.role));
   const staffMembers = visibleMembers.filter((member) => !isDancerRole(member.role));
+  const localizedIntroText =
+    locale === "ro" ? profile?.introTextRo : locale === "en" ? profile?.introTextEn : profile?.introText;
 
   return (
     <main className={contentPage}>
@@ -69,7 +73,7 @@ export default async function TarsulatPage() {
           />
         </div>
       ) : null}
-      {profile?.introText ? (
+      {localizedIntroText && profile ? (
         <HomeRevealGroup className="home-reveal-group mt-24">
           <section className="relative left-1/2 w-[90vw] -translate-x-1/2">
             <div
@@ -79,7 +83,7 @@ export default async function TarsulatPage() {
             >
               <div
                 className="about-intro-reveal rich-text-editor text-[clamp(18px,2vw,22px)] font-bold leading-relaxed text-charcoal"
-                dangerouslySetInnerHTML={{ __html: sanitizeRichText(profile.introText) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(localizedIntroText) }}
               />
               {profile.directorImageUrl ? (
                 <DirectorProfileCard

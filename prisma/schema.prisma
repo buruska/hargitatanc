@@ -113,6 +113,8 @@ model CompanyProfile {
   id            String   @id @default("main")
   groupImageUrl String?
   introText     String?
+  introTextRo   String?
+  introTextEn   String?
   directorName  String?
   directorTitle String?
   directorBio   String?
