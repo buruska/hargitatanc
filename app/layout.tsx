@@ -27,9 +27,8 @@ const navigation = {
 };
 const navigationHrefs = ["/", "/tarsulat", "/hirek", "/esemenyeink", "/galeria", "/kapcsolat"];
 
-const socialLinks = [
+const socialLinkDefinitions = [
   {
-    href: "https://www.facebook.com/hargitaegyuttes",
     label: "Facebook",
     icon: (
       <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
@@ -41,7 +40,6 @@ const socialLinks = [
     ),
   },
   {
-    href: "https://www.instagram.com/hargitaneptancszinhaz",
     label: "Instagram",
     icon: (
       <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
@@ -53,7 +51,6 @@ const socialLinks = [
     ),
   },
   {
-    href: "#",
     label: "TikTok",
     icon: (
       <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24">
@@ -73,7 +70,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const now = new Date();
-  const [performanceEvents, events] = await Promise.all([
+  const [performanceEvents, events, companyProfile] = await Promise.all([
     prisma.runningPerformanceEvent.findMany({
       where: { startsAt: { gte: now } },
       orderBy: { startsAt: "asc" },
@@ -101,7 +98,17 @@ export default async function RootLayout({
       orderBy: { startsAt: "asc" },
       select: { id: true, location: true, startsAt: true, title: true },
     }),
+    prisma.companyProfile.findUnique({
+      where: { id: "main" },
+      select: { facebookUrl: true, instagramUrl: true, tiktokUrl: true },
+    }),
   ]);
+  const socialUrls = [
+    companyProfile?.facebookUrl ?? "https://www.facebook.com/hargitaegyuttes",
+    companyProfile?.instagramUrl ?? "https://www.instagram.com/hargitaneptancszinhaz",
+    companyProfile?.tiktokUrl ?? "#",
+  ];
+  const socialLinks = socialLinkDefinitions.map((item, index) => ({ ...item, href: socialUrls[index] }));
   const ticketItems: TicketModalItem[] = [
     ...performanceEvents.map((event) => ({
       id: event.id,

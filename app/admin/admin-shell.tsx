@@ -14,6 +14,7 @@ const adminNavigation = [
   { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
   { href: "/admin/galeriak", label: "Galériák" },
   { href: "/admin/rendezvenyek", label: "Rendezvények" },
+  { href: "/admin/kozossegi-media", label: "Közösségi média" },
 ];
 
 export async function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {

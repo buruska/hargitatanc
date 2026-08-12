@@ -131,6 +131,9 @@ model CompanyProfile {
   directorBioRo String?
   directorBioEn String?
   directorImageUrl String?
+  facebookUrl   String   @default("https://www.facebook.com/hargitaegyuttes")
+  instagramUrl  String   @default("https://www.instagram.com/hargitaneptancszinhaz")
+  tiktokUrl     String   @default("#")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
