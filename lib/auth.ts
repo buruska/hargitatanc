@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 const SESSION_COOKIE = "hargita_admin_session";
+const SESSION_DURATION_SECONDS = 60 * 60 * 8;
+const SESSION_DURATION_MS = SESSION_DURATION_SECONDS * 1000;
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -33,7 +35,7 @@ export async function createSession(email: string) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 8,
+    maxAge: SESSION_DURATION_SECONDS,
   });
 }
 
@@ -50,7 +52,13 @@ export async function getAdminSession() {
     return null;
   }
 
-  const [encodedPayload, signature] = token.split(".");
+  const tokenParts = token.split(".");
+
+  if (tokenParts.length !== 2) {
+    return null;
+  }
+
+  const [encodedPayload, signature] = tokenParts;
 
   if (!encodedPayload || !signature) {
     return null;
@@ -65,12 +73,31 @@ export async function getAdminSession() {
   }
 
   try {
-    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8")) as {
-      email: string;
-      createdAt: number;
-    };
+    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8")) as unknown;
 
-    return payload;
+    if (
+      !payload
+      || typeof payload !== "object"
+      || !("email" in payload)
+      || typeof payload.email !== "string"
+      || !payload.email
+      || !("createdAt" in payload)
+      || typeof payload.createdAt !== "number"
+      || !Number.isFinite(payload.createdAt)
+    ) {
+      return null;
+    }
+
+    const now = Date.now();
+
+    if (payload.createdAt > now || now - payload.createdAt >= SESSION_DURATION_MS) {
+      return null;
+    }
+
+    return {
+      createdAt: payload.createdAt,
+      email: payload.email,
+    };
   } catch {
     return null;
   }
