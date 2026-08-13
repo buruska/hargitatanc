@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function SiteFooter() {
@@ -8,9 +9,9 @@ export function SiteFooter() {
   const isAdminPage = pathname.startsWith("/admin");
   const locale = pathname.startsWith("/ro") ? "ro" : pathname.startsWith("/en") ? "en" : "hu";
   const text = {
-    hu: { maintainer: "Fenntartó:", contact: "Kapcsolat:", city: "Csíkszereda", county: "Hargita megye – 530102", address: "Temesvári sugárút 6. szám", phone: "Telefon" },
-    ro: { maintainer: "Susținător:", contact: "Contact:", city: "Miercurea Ciuc", county: "Județul Harghita – 530102", address: "Bulevardul Timișoarei nr. 6", phone: "Telefon" },
-    en: { maintainer: "Maintained by:", contact: "Contact:", city: "Miercurea Ciuc", county: "Harghita County – 530102", address: "6 Timișoarei Boulevard", phone: "Phone" },
+    hu: { maintainer: "Fenntartó:", contact: "Kapcsolat:", city: "Csíkszereda", county: "Hargita megye – 530102", address: "Temesvári sugárút 6. szám", phone: "Telefon", documents: "Hivatalos dokumentumok" },
+    ro: { maintainer: "Susținător:", contact: "Contact:", city: "Miercurea Ciuc", county: "Județul Harghita – 530102", address: "Bulevardul Timișoarei nr. 6", phone: "Telefon", documents: "Documente oficiale" },
+    en: { maintainer: "Maintained by:", contact: "Contact:", city: "Miercurea Ciuc", county: "Harghita County – 530102", address: "6 Timișoarei Boulevard", phone: "Phone", documents: "Official documents" },
   }[locale];
 
   if (isAdminPage) {
@@ -64,6 +65,12 @@ export function SiteFooter() {
               <a className="mt-2 inline-block break-all transition hover:text-thread-red" href="mailto:hargitaneptanc@gmail.com">
                 hargitaneptanc@gmail.com
               </a>
+              <Link
+                className="mt-4 inline-flex min-h-10 items-center border border-surface/45 px-3 py-2 text-center text-xs font-extrabold uppercase tracking-[0.06em] text-surface-strong transition hover:border-thread-red hover:bg-thread-red"
+                href={`${locale === "hu" ? "" : `/${locale}`}/dokumentumok`}
+              >
+                {text.documents}
+              </Link>
             </div>
           </address>
         </section>
