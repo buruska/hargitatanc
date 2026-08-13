@@ -1,0 +1,50 @@
+name: hargitatanc
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hargitatanc-app:local
+    restart: unless-stopped
+    env_file:
+      - ${ENV_FILE:-.env.docker}
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:/app/data/production.db
+    volumes:
+      - database:/app/data
+      - uploads:/app/public/uploads
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    image: hargitatanc-migrate:local
+    profiles:
+      - tools
+    env_file:
+      - ${ENV_FILE:-.env.docker}
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:/app/data/production.db
+    volumes:
+      - database:/app/data
+
+volumes:
+  database:
+    name: hargitatanc-database
+  uploads:
+    name: hargitatanc-uploads

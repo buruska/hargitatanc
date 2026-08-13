@@ -5,6 +5,7 @@ build/
 *.tsbuildinfo
 .env
 .env*.local
+.env.docker
 prisma/dev.db
 prisma/dev.db-journal
 public/uploads/
