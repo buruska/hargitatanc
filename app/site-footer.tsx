@@ -69,6 +69,24 @@ export function SiteFooter() {
         </section>
       </div>
 
+      <section
+        aria-label="Támogatónk"
+        className="relative border-t border-line-strong bg-warm-canvas px-[clamp(18px,4vw,40px)] py-3 text-charcoal min-[680px]:py-4"
+      >
+        <div className="mx-auto flex max-w-[1180px] items-center gap-5 min-[680px]:gap-8">
+          <Image
+            alt="Nemzeti Kulturális Alap"
+            className="h-auto w-[clamp(110px,16vw,180px)] shrink-0 object-contain"
+            height={996}
+            src="/nka_2023.png"
+            width={2048}
+          />
+          <p className="ml-auto max-w-[620px] text-right font-serif text-[clamp(14px,1.6vw,18px)] font-bold leading-snug">
+            A honlap felújítását a Nemzeti Kulturális Alap támogatta.
+          </p>
+        </div>
+      </section>
+
       <div className="relative border-t border-white/15 px-[clamp(18px,4vw,40px)] py-4">
         <p className="mx-auto max-w-[1180px] text-sm font-bold text-surface/80">
           Hargita Székely Néptáncszínház
