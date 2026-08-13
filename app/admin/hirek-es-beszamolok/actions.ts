@@ -18,6 +18,11 @@ export type DeleteNewsPostState = {
   success?: boolean;
 };
 
+export type FeatureNewsPostState = {
+  error?: string;
+  success?: boolean;
+};
+
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const NEWS_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "news");
 
@@ -211,6 +216,10 @@ export async function moveNewsPostAction(formData: FormData) {
   const posts = await prisma.newsPost.findMany({
     where: {
       locale: localeRecord.locale,
+      OR: [
+        { featuredUntil: null },
+        { featuredUntil: { lt: new Date() } },
+      ],
     },
     orderBy: {
       publishedAt: "desc",
@@ -248,5 +257,68 @@ export async function moveNewsPostAction(formData: FormData) {
     }),
   ]);
 
+  revalidateNewsPaths();
+}
+
+export async function featureNewsPostAction(
+  _state: FeatureNewsPostState,
+  formData: FormData,
+): Promise<FeatureNewsPostState> {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const featuredUntilValue = String(formData.get("featuredUntil") ?? "").trim();
+  const featuredUntil = new Date(featuredUntilValue);
+
+  if (!id) return { error: "Hiányzik a kiemelendő hír azonosítója." };
+  if (!featuredUntilValue || Number.isNaN(featuredUntil.getTime()) || featuredUntil <= new Date()) {
+    return { error: "Adj meg egy jövőbeli lejárati dátumot és időpontot." };
+  }
+
+  const post = await prisma.newsPost.findUnique({ where: { id }, select: { featuredOrder: true, featuredUntil: true, locale: true } });
+  if (!post) return { error: "A hír már nem található." };
+
+  let featuredOrder = post.featuredOrder;
+  if (!post.featuredUntil || post.featuredUntil < new Date()) {
+    const lastFeatured = await prisma.newsPost.findFirst({
+      where: { locale: post.locale, featuredUntil: { gte: new Date() } },
+      orderBy: { featuredOrder: "desc" },
+      select: { featuredOrder: true },
+    });
+    featuredOrder = (lastFeatured?.featuredOrder ?? -1) + 1;
+  }
+
+  await prisma.newsPost.update({ where: { id }, data: { featuredOrder, featuredUntil } });
+  revalidateNewsPaths();
+  return { success: true };
+}
+
+export async function unfeatureNewsPostAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+  await prisma.newsPost.updateMany({ where: { id }, data: { featuredOrder: null, featuredUntil: null } });
+  revalidateNewsPaths();
+}
+
+export async function moveFeaturedNewsPostAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const direction = String(formData.get("direction") ?? "").trim();
+  if (!id || !["up", "down"].includes(direction)) return;
+
+  const current = await prisma.newsPost.findUnique({ where: { id }, select: { locale: true } });
+  if (!current) return;
+
+  const posts = await prisma.newsPost.findMany({
+    where: { locale: current.locale, featuredUntil: { gte: new Date() } },
+    orderBy: [{ featuredOrder: "asc" }, { publishedAt: "desc" }],
+    select: { id: true, featuredOrder: true },
+  });
+  const currentIndex = posts.findIndex((post) => post.id === id);
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= posts.length) return;
+
+  [posts[currentIndex], posts[targetIndex]] = [posts[targetIndex], posts[currentIndex]];
+  await prisma.$transaction(posts.map((post, index) => prisma.newsPost.update({ where: { id: post.id }, data: { featuredOrder: index } })));
   revalidateNewsPaths();
 }

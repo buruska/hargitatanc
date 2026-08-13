@@ -98,6 +98,8 @@ model NewsPost {
   excerpt     String
   content     String
   publishedAt DateTime @default(now())
+  featuredUntil DateTime?
+  featuredOrder Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

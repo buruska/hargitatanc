@@ -10,6 +10,8 @@ type NewsPost = {
   content: string;
   excerpt: string;
   id: string;
+  featuredOrder: number | null;
+  featuredUntil: string | null;
   locale: string;
   publishedAt: string;
   title: string;
@@ -29,6 +31,7 @@ export function NewsPostList({ posts }: { posts: NewsPost[] }) {
   const [activeLocale, setActiveLocale] = useState<"hu" | "ro" | "en">("hu");
   const [query, setQuery] = useState("");
   const localePosts = useMemo(() => posts.filter((post) => post.locale === activeLocale), [activeLocale, posts]);
+  const featuredPosts = useMemo(() => localePosts.filter((post) => post.featuredUntil && new Date(post.featuredUntil) >= new Date()), [localePosts]);
   const filteredPosts = useMemo(() => {
     const normalized = normalizeSearchValue(query.trim());
     if (!normalized) return localePosts;
@@ -79,11 +82,18 @@ export function NewsPostList({ posts }: { posts: NewsPost[] }) {
       {filteredPosts.map((post) => {
         const preview = stripHtml(post.content);
         const originalIndex = localePosts.findIndex((item) => item.id === post.id);
+        const featuredIndex = featuredPosts.findIndex((item) => item.id === post.id);
+        const isFeatured = featuredIndex !== -1;
 
         return (
           <article className={`${panel} min-w-0 overflow-hidden p-5`} key={post.id}>
             <div className="flex flex-col gap-3 min-[760px]:flex-row min-[760px]:items-start min-[760px]:justify-between">
               <div>
+                {isFeatured ? (
+                  <p className="mb-2 inline-flex border border-[rgb(205_151_35_/_70%)] bg-[rgb(205_151_35_/_14%)] px-2 py-1 text-xs font-extrabold uppercase tracking-[0.08em] text-[rgb(122_83_18)]">
+                    Kiemelt hír · {new Intl.DateTimeFormat("hu-RO", { dateStyle: "medium", timeStyle: "short" }).format(new Date(post.featuredUntil!))}-ig
+                  </p>
+                ) : null}
                 <p className="text-sm font-extrabold text-thread-red">{dateFormatter.format(new Date(post.publishedAt))}</p>
                 <h2 className="mt-2 font-serif text-2xl font-bold leading-tight">{post.title}</h2>
               </div>
@@ -91,8 +101,10 @@ export function NewsPostList({ posts }: { posts: NewsPost[] }) {
                 content={post.content}
                 excerpt={post.excerpt}
                 id={post.id}
-                isFirst={originalIndex === 0}
-                isLast={originalIndex === localePosts.length - 1}
+                featuredUntil={post.featuredUntil}
+                isFeatured={isFeatured}
+                isFirst={isFeatured ? featuredIndex === 0 : originalIndex === featuredPosts.length}
+                isLast={isFeatured ? featuredIndex === featuredPosts.length - 1 : originalIndex === localePosts.length - 1}
                 publishedAt={post.publishedAt}
                 title={post.title}
               />

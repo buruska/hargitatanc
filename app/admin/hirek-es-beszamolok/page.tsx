@@ -3,16 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { adminTitle } from "@/lib/styles";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { NewsPostList } from "./news-post-list";
+import { sortNewsPosts } from "@/lib/sort-news-posts";
 
 export default async function AdminHirekEsBeszamolokPage() {
   const posts = await prisma.newsPost.findMany({
-    orderBy: {
-      publishedAt: "desc",
-    },
     select: {
       content: true,
       excerpt: true,
       id: true,
+      featuredOrder: true,
+      featuredUntil: true,
       locale: true,
       publishedAt: true,
       title: true,
@@ -23,9 +23,10 @@ export default async function AdminHirekEsBeszamolokPage() {
     <AdminShell>
       <h1 className={adminTitle}>Hírek és beszámolók</h1>
       <NewsPostList
-        posts={posts.map((post) => ({
+        posts={sortNewsPosts(posts).map((post) => ({
           ...post,
           content: sanitizeRichText(post.content),
+          featuredUntil: post.featuredUntil?.toISOString() ?? null,
           publishedAt: post.publishedAt.toISOString(),
         }))}
       />

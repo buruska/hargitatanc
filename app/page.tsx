@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getLocale, localizeHref } from "@/lib/i18n";
 import { getLocalizedPerformanceSummary, getLocalizedPerformanceTitle } from "@/lib/localize-performance";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
+import { sortNewsPosts } from "@/lib/sort-news-posts";
 
 function getDateKey(date: Date) {
   const year = date.getFullYear();
@@ -240,21 +241,20 @@ export default async function HomePage() {
     where: {
       locale,
     },
-    orderBy: {
-      publishedAt: "desc",
-    },
-    take: 9,
     select: {
       content: true,
       excerpt: true,
       id: true,
+      featuredOrder: true,
+      featuredUntil: true,
       publishedAt: true,
       slug: true,
       title: true,
     },
   });
-  const newsPreviewPosts = newsPosts.slice(0, 8);
-  const hasMoreNewsPosts = newsPosts.length > newsPreviewPosts.length;
+  const sortedNewsPosts = sortNewsPosts(newsPosts, now);
+  const newsPreviewPosts = sortedNewsPosts.slice(0, 8);
+  const hasMoreNewsPosts = sortedNewsPosts.length > newsPreviewPosts.length;
 
   return (
     <main className="relative">

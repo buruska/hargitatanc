@@ -9,16 +9,22 @@ import StarterKit from "@tiptap/starter-kit";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import {
   deleteNewsPostAction,
+  featureNewsPostAction,
+  moveFeaturedNewsPostAction,
   moveNewsPostAction,
+  unfeatureNewsPostAction,
   updateNewsPostAction,
   type DeleteNewsPostState,
+  type FeatureNewsPostState,
   type NewsPostFormState,
 } from "./actions";
 
 type NewsPostActionsProps = {
   content: string;
   excerpt: string;
+  featuredUntil: string | null;
   id: string;
+  isFeatured: boolean;
   isFirst: boolean;
   isLast: boolean;
   publishedAt: string;
@@ -27,6 +33,7 @@ type NewsPostActionsProps = {
 
 const formInitialState: NewsPostFormState = {};
 const deleteInitialState: DeleteNewsPostState = {};
+const featureInitialState: FeatureNewsPostState = {};
 
 function getLocalDateTimeInputValue(value: string) {
   const date = new Date(value);
@@ -39,13 +46,25 @@ function getLocalDateTimeInputValue(value: string) {
   return `${year}-${month}-${day}T${hour}:${minute}`;
 }
 
-export function NewsPostActions({ content, excerpt, id, isFirst, isLast, publishedAt, title }: NewsPostActionsProps) {
+function getDateTimeInputValue(value: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+export function NewsPostActions({ content, excerpt, featuredUntil, id, isFeatured, isFirst, isLast, publishedAt, title }: NewsPostActionsProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isFeatureOpen, setIsFeatureOpen] = useState(false);
 
   return (
     <div className="flex shrink-0 flex-wrap gap-2">
-      <form action={moveNewsPostAction}>
+      <form action={isFeatured ? moveFeaturedNewsPostAction : moveNewsPostAction}>
         <input name="id" type="hidden" value={id} />
         <input name="direction" type="hidden" value="up" />
         <button
@@ -56,7 +75,7 @@ export function NewsPostActions({ content, excerpt, id, isFirst, isLast, publish
           Fel
         </button>
       </form>
-      <form action={moveNewsPostAction}>
+      <form action={isFeatured ? moveFeaturedNewsPostAction : moveNewsPostAction}>
         <input name="id" type="hidden" value={id} />
         <input name="direction" type="hidden" value="down" />
         <button
@@ -67,6 +86,13 @@ export function NewsPostActions({ content, excerpt, id, isFirst, isLast, publish
           Le
         </button>
       </form>
+      <button
+        className="inline-flex min-h-8 items-center justify-center border border-petrol/60 bg-petrol/10 px-3 py-1.5 text-xs font-extrabold text-petrol transition hover:bg-petrol hover:text-white"
+        type="button"
+        onClick={() => setIsFeatureOpen(true)}
+      >
+        {isFeatured ? "Kiemelés módosítása" : "Hír kiemelése"}
+      </button>
       <button
         className="inline-flex min-h-8 items-center justify-center border border-[rgb(205_151_35_/_70%)] bg-[rgb(205_151_35_/_12%)] px-3 py-1.5 text-xs font-extrabold text-[rgb(122_83_18)] transition hover:bg-[rgb(205_151_35_/_20%)] hover:text-charcoal"
         type="button"
@@ -91,6 +117,62 @@ export function NewsPostActions({ content, excerpt, id, isFirst, isLast, publish
         onClose={() => setIsEditOpen(false)}
       />
       <DeleteNewsPostModal id={id} isOpen={isDeleteOpen} title={title} onClose={() => setIsDeleteOpen(false)} />
+      <FeatureNewsPostModal featuredUntil={featuredUntil} id={id} isFeatured={isFeatured} isOpen={isFeatureOpen} title={title} onClose={() => setIsFeatureOpen(false)} />
+    </div>
+  );
+}
+
+function FeatureNewsPostModal({ featuredUntil, id, isFeatured, isOpen, title, onClose }: Readonly<{
+  featuredUntil: string | null;
+  id: string;
+  isFeatured: boolean;
+  isOpen: boolean;
+  title: string;
+  onClose: () => void;
+}>) {
+  const [state, formAction, isPending] = useActionState(featureNewsPostAction, featureInitialState);
+  const router = useRouter();
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!state.success) return;
+    onClose();
+    router.refresh();
+  }, [onClose, router, state.success]);
+
+  if (!isOpen) return null;
+
+  const now = new Date();
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-charcoal/60 px-4 py-8" role="presentation">
+      <section aria-labelledby={titleId} aria-modal="true" className={`${panel} w-full max-w-[520px] p-6`} role="dialog">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-[clamp(24px,3vw,34px)] font-bold leading-tight" id={titleId}>Hír kiemelése</h2>
+            <p className="mt-2 font-bold text-muted">{title}</p>
+          </div>
+          <button aria-label="Modal bezárása" className="flex size-10 items-center justify-center border border-line bg-surface-strong text-xl font-extrabold" type="button" onClick={onClose}>×</button>
+        </div>
+        <form action={formAction} className="grid gap-4">
+          <input name="id" type="hidden" value={id} />
+          <label className={label}>
+            Kiemelés lejárati dátuma és időpontja
+            <input className={input} defaultValue={getDateTimeInputValue(featuredUntil)} min={getDateTimeInputValue(now.toISOString())} name="featuredUntil" required step={60} type="datetime-local" />
+          </label>
+          {state.error ? <p className="border-2 border-thread-red/40 bg-thread-red/10 px-3 py-2 font-bold text-thread-red">{state.error}</p> : null}
+          <div className="flex flex-wrap justify-end gap-3">
+            <button className={buttonSecondary} type="button" onClick={onClose}>Mégsem</button>
+            <button className={buttonPrimary} disabled={isPending} type="submit">{isPending ? "Mentés..." : "Kiemelés mentése"}</button>
+          </div>
+        </form>
+        {isFeatured ? (
+          <form action={unfeatureNewsPostAction} className="mt-4 border-t border-line pt-4">
+            <input name="id" type="hidden" value={id} />
+            <button className="text-sm font-extrabold text-thread-red underline" type="submit">Kiemelés megszüntetése</button>
+          </form>
+        ) : null}
+      </section>
     </div>
   );
 }
