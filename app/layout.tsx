@@ -146,7 +146,7 @@ export default async function RootLayout({
               height={52}
               priority
             />
-            <span className="hidden font-serif tracking-[0.035em] text-surface-strong min-[470px]:block">
+            <span className="hidden font-serif tracking-[0.035em] text-surface-strong min-[470px]:block min-[861px]:hidden min-[1060px]:block">
               <span className="block text-[18px] leading-[1.28]">Hargita Székely</span>
               <span className="block text-[18px] leading-[1.28]">Néptáncszínház</span>
             </span>
@@ -155,7 +155,7 @@ export default async function RootLayout({
             <nav className="flex flex-wrap items-center justify-start gap-1.5 min-[861px]:justify-end" aria-label="Fő navigáció">
               {navigationHrefs.map((href, index) => (
                 <Link
-                  className="inline-flex items-center px-2.5 py-2 text-[13px] font-extrabold uppercase tracking-[0.09em] text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95"
+                  className="inline-flex items-center px-2.5 py-2 text-[13px] font-extrabold uppercase tracking-[0.09em] text-surface-strong transition duration-200 hover:scale-105 hover:bg-white/50 hover:text-thread-red active:scale-95 min-[861px]:text-[11px] min-[1060px]:text-[13px]"
                   key={href}
                   href={localizeHref(href, locale)}
                 >

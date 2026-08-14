@@ -239,7 +239,7 @@ export function TicketPurchaseModal({ items, locale = "hu" }: Readonly<{ items: 
   return (
     <>
       <button
-        className="inline-flex min-h-9 items-center justify-center bg-thread-red px-3.5 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.09em] text-white shadow-[3px_3px_0_rgb(33_31_27_/_24%)] transition hover:scale-105 hover:bg-[#8f1f1a] active:scale-95"
+        className="inline-flex min-h-9 items-center justify-center bg-thread-red px-3.5 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.09em] text-white shadow-[3px_3px_0_rgb(33_31_27_/_24%)] transition hover:scale-105 hover:bg-[#8f1f1a] active:scale-95 min-[861px]:min-h-8 min-[861px]:px-2 min-[861px]:py-1 min-[861px]:text-[11px] min-[1060px]:min-h-9 min-[1060px]:px-3.5 min-[1060px]:py-1.5 min-[1060px]:text-[12px]"
         type="button"
         onClick={() => {
           setSearchQuery("");
