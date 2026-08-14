@@ -36,6 +36,7 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [galleryViewer, setGalleryViewer] = useState<{ event: HomePerformanceEvent; imageIndex: number } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<HomePerformanceEvent | null>(null);
   const isCalendarFiltered = activeEventId !== null;
   const visibleEvents = useMemo(() => {
@@ -50,12 +51,19 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
 
   useEffect(() => {
     setIsMounted(true);
+    setIsTouchDevice(
+      navigator.maxTouchPoints > 0 ||
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(any-pointer: coarse)").matches,
+    );
   }, []);
 
   return (
     <>
       <HomeRevealGroup
-        className="home-reveal-group grid gap-8 transition-all duration-300 ease-out min-[920px]:h-[540px] min-[920px]:grid-cols-[1.38fr_0.7fr] min-[920px]:items-stretch"
+        className={`home-reveal-group grid gap-8 transition-all duration-300 ease-out min-[920px]:h-[540px] min-[920px]:grid-cols-[1.38fr_0.7fr] min-[920px]:items-stretch ${
+          isTouchDevice ? "home-touch-device" : ""
+        }`}
         onMouseLeave={() => setActiveEventId(null)}
       >
         <div className="home-reveal-calendar h-full min-h-[420px] transition-all duration-300 ease-out min-[920px]:min-h-0">
@@ -78,7 +86,9 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
             <div
               key={activeEventId ?? "all-events"}
               className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pb-1 pr-2 pt-1 transition-all duration-300 ease-out ${
-                isCalendarFiltered ? "auto-rows-max content-start" : "auto-rows-[calc((100%_-_60px)/6)]"
+                isCalendarFiltered || isTouchDevice
+                  ? "auto-rows-max content-start"
+                  : "auto-rows-[calc((100%_-_60px)/6)]"
               }`}
             >
               {visibleEvents.map((event, index) => (
@@ -231,7 +241,7 @@ function PerformanceListItem({
       className="home-reveal-event group snap-start"
       style={{ transitionDelay: `${index * 85}ms` }}
     >
-      <article className={`relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out ${hoverLiftClass} ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
+      <article className={`home-event-card relative flex h-full overflow-hidden border border-line-strong bg-surface-strong shadow-[0_10px_24px_rgb(33_31_27_/_7%)] transition-all duration-300 ease-out ${hoverLiftClass} ${hoverBorder} group-hover:shadow-[0_14px_28px_rgb(33_31_27_/_11%)] ${
         event.isPast ? "grayscale opacity-65" : ""
       }`}>
         <span className="home-event-card-content flex min-w-0 flex-1 transition duration-200 group-hover:opacity-0">
@@ -257,7 +267,7 @@ function PerformanceListItem({
             type="button"
             onClick={onOpenDetails}
           >
-            Részletek
+            Bővebben
           </button>
         </span>
       </article>

@@ -273,7 +273,7 @@
   margin-block: 2rem;
 }
 
-@media (hover: none), (pointer: coarse) {
+@media (hover: none), (pointer: coarse), (any-hover: none), (any-pointer: coarse) {
   .home-news-card-flip,
   .home-news-card:hover .home-news-card-flip,
   .home-news-card:focus-within .home-news-card-flip {
@@ -289,13 +289,27 @@
     opacity: 1;
   }
 
+  .home-event-card {
+    flex-direction: column;
+  }
+
+  .home-event-card-content {
+    width: 100%;
+  }
+
   .home-event-card-actions {
-    inset: auto 8px 8px auto;
+    position: static;
+    inset: auto;
     pointer-events: auto;
-    width: auto;
+    width: 100%;
     justify-content: flex-end;
-    padding: 0;
+    border-top: 1px solid #cdbd9d;
+    padding: 8px;
     opacity: 1;
+  }
+
+  .home-event-card-actions > * {
+    white-space: nowrap;
   }
 
   .calendar-event-action {
@@ -313,10 +327,60 @@
   }
 
   .calendar-event-action::after {
-    content: "•••";
-    font-size: 8px;
-    letter-spacing: -1px;
+    content: "+";
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1;
   }
+}
+
+.home-touch-device .home-event-card-content,
+.home-touch-device .group:hover .home-event-card-content {
+  opacity: 1;
+}
+
+.home-touch-device .home-event-card {
+  flex-direction: column;
+}
+
+.home-touch-device .home-event-card-content {
+  width: 100%;
+}
+
+.home-touch-device .home-event-card-actions {
+  position: static;
+  inset: auto;
+  pointer-events: auto;
+  width: 100%;
+  justify-content: flex-end;
+  border-top: 1px solid #cdbd9d;
+  padding: 8px;
+  opacity: 1;
+}
+
+.home-touch-device .home-event-card-actions > * {
+  white-space: nowrap;
+}
+
+.home-touch-device .calendar-event-action {
+  inset: auto 3px 3px auto;
+  display: inline-flex;
+  min-height: 24px;
+  width: 24px;
+  transform: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  font-size: 0;
+  opacity: 1;
+}
+
+.home-touch-device .calendar-event-action::after {
+  content: "+";
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 @media (max-width: 520px) {
