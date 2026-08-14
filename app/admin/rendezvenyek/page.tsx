@@ -24,7 +24,7 @@ export default async function AdminRendezvenyekPage() {
   return (
     <AdminShell>
       <div className="flex flex-col items-start justify-between gap-4 min-[861px]:flex-row min-[861px]:items-center">
-        <h1 className={adminTitle}>Rendezvények</h1>
+        <h1 className={adminTitle}>Események</h1>
         <NewEventModal />
       </div>
 

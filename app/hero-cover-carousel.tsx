@@ -38,7 +38,7 @@ type HeroCoverCarouselProps = {
 export function HeroCoverCarousel({
   carouselCovers,
   covers,
-  className = "relative h-screen w-full overflow-hidden",
+  className = "relative h-[100dvh] w-full overflow-hidden",
   events = [],
   showTitleList = false,
 }: HeroCoverCarouselProps) {
@@ -126,7 +126,7 @@ export function HeroCoverCarousel({
       {displayedCovers.map((cover, index) => (
         <Image
           alt={cover.title}
-          className={`object-cover object-top transition-opacity duration-1000 ease-in-out ${
+          className={`object-cover object-center transition-opacity duration-1000 ease-in-out ${
             index === activeIndex ? "opacity-100" : "opacity-0"
           }`}
           fill
@@ -134,6 +134,7 @@ export function HeroCoverCarousel({
           priority={index === 0}
           sizes="100vw"
           src={cover.coverImageUrl}
+          style={{ height: "100dvh", width: "100vw" }}
         />
       ))}
       {showTitleList && hasTitleListItems ? (
@@ -173,7 +174,7 @@ export function HeroCoverCarousel({
           ) : null}
           {events.length > 0 ? (
             <aside className="hero-side-panel bg-charcoal/80 p-5 text-surface-strong shadow-[8px_8px_0_rgb(33_31_27_/_24%)] backdrop-blur-sm [--hero-panel-index:1]">
-              <h2 className="mb-5 font-serif text-[24px] leading-none tracking-[0.035em]">Rendezvények:</h2>
+              <h2 className="mb-5 font-serif text-[24px] leading-none tracking-[0.035em]">Események:</h2>
               <div className="grid max-h-[220px] gap-2 overflow-y-auto pr-1">
                 {events.map((event) => {
                   const eventCoverIndex = displayedCovers.findIndex((cover) => cover.id === `event-${event.id}`);

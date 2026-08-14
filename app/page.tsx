@@ -259,10 +259,10 @@ export default async function HomePage() {
   return (
     <main className="relative">
       {hasCarouselCovers ? (
-        <div className="relative h-screen">
+        <div className="relative h-[100dvh]">
           <HeroCoverCarousel
             carouselCovers={carouselCovers}
-            className="fixed inset-0 z-0 h-screen w-full overflow-hidden"
+            className="fixed inset-0 z-0 h-[100dvh] w-full overflow-hidden"
             covers={titleListCovers}
             events={titleListEvents}
             showTitleList

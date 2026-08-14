@@ -13,7 +13,7 @@ const adminNavigation = [
   { href: "/admin/tarsulat", label: "Rólunk" },
   { href: "/admin/hirek-es-beszamolok", label: "Hírek és beszámolók" },
   { href: "/admin/galeriak", label: "Galériák" },
-  { href: "/admin/rendezvenyek", label: "Rendezvények" },
+  { href: "/admin/rendezvenyek", label: "Események" },
   { href: "/admin/dokumentumok", label: "Dokumentumok" },
   { href: "/admin/kozossegi-media", label: "Közösségi média" },
   { href: "/admin/adminok", label: "Adminok" },
