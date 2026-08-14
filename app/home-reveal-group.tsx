@@ -25,7 +25,7 @@ export function HomeRevealGroup({ children, className = "", ...props }: HomeReve
           observer.disconnect();
         }
       },
-      { threshold: 0.2 },
+      { threshold: 0.05 },
     );
 
     observer.observe(container);

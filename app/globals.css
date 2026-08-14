@@ -147,6 +147,23 @@
   animation: home-list-fade 300ms ease-out;
 }
 
+@media (max-width: 919px) {
+  .home-reveal-calendar {
+    opacity: 0;
+    transform: translateX(58px);
+  }
+
+  .home-reveal-event {
+    opacity: 0;
+    transform: translateY(52px);
+  }
+
+  .all-performances-modal .home-reveal-event {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .hero-side-panel {
   opacity: 0;
   transform: translateX(56px);

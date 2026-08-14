@@ -35,27 +35,43 @@ type HomePerformanceCalendarSectionProps = {
 export function HomePerformanceCalendarSection({ events, initialDate }: HomePerformanceCalendarSectionProps) {
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const [galleryViewer, setGalleryViewer] = useState<{ event: HomePerformanceEvent; imageIndex: number } | null>(null);
+  const [isBelow920, setIsBelow920] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<HomePerformanceEvent | null>(null);
+  const [showAllPerformances, setShowAllPerformances] = useState(false);
   const isCalendarFiltered = activeEventId !== null;
+  const upcomingEvents = useMemo(() => events.filter((event) => !event.isPast), [events]);
   const visibleEvents = useMemo(() => {
-    const upcomingEvents = events.filter((event) => !event.isPast);
 
     if (!activeEventId) {
       return upcomingEvents;
     }
 
     return events.filter((event) => event.id === activeEventId);
-  }, [activeEventId, events]);
+  }, [activeEventId, events, upcomingEvents]);
+  const displayedEvents = isBelow920 && !isCalendarFiltered ? visibleEvents.slice(0, 6) : visibleEvents;
 
   useEffect(() => {
+    const below920Query = window.matchMedia("(max-width: 919px)");
+
+    function updateBelow920() {
+      setIsBelow920(below920Query.matches);
+    }
+
     setIsMounted(true);
+    updateBelow920();
     setIsTouchDevice(
       navigator.maxTouchPoints > 0 ||
         window.matchMedia("(pointer: coarse)").matches ||
         window.matchMedia("(any-pointer: coarse)").matches,
     );
+
+    below920Query.addEventListener("change", updateBelow920);
+
+    return () => {
+      below920Query.removeEventListener("change", updateBelow920);
+    };
   }, []);
 
   return (
@@ -81,17 +97,17 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
           />
         </div>
 
-        <div className="h-full min-h-0 transition-all duration-300 ease-out">
+        <div className="h-auto min-h-0 transition-all duration-300 ease-out min-[920px]:h-full">
           {visibleEvents.length > 0 ? (
             <div
               key={activeEventId ?? "all-events"}
-              className={`event-list-scrollbar home-list-transition grid h-full snap-y snap-mandatory gap-3 overflow-y-auto overscroll-contain pb-1 pr-2 pt-1 transition-all duration-300 ease-out ${
+              className={`event-list-scrollbar home-list-transition grid h-auto snap-none gap-3 overflow-visible overscroll-auto pb-1 pt-1 transition-all duration-300 ease-out min-[920px]:h-full min-[920px]:snap-y min-[920px]:snap-mandatory min-[920px]:overflow-y-auto min-[920px]:overscroll-contain min-[920px]:pr-2 ${
                 isCalendarFiltered || isTouchDevice
                   ? "auto-rows-max content-start"
                   : "auto-rows-[calc((100%_-_60px)/6)]"
               }`}
             >
-              {visibleEvents.map((event, index) => (
+              {displayedEvents.map((event, index) => (
                 <PerformanceListItem
                   event={event}
                   index={index}
@@ -106,8 +122,31 @@ export function HomePerformanceCalendarSection({ events, initialDate }: HomePerf
               Jelenleg nincs meghirdetett közelgő fellépés.
             </div>
           )}
+          {upcomingEvents.length > 0 ? (
+            <button
+              className="mt-4 w-full border border-thread-red bg-thread-red px-5 py-3 text-[12px] font-extrabold uppercase tracking-[0.12em] text-surface-strong shadow-[0_10px_22px_rgb(33_31_27_/_12%)] transition hover:bg-surface-strong hover:text-thread-red active:scale-[0.99] min-[920px]:hidden"
+              type="button"
+              onClick={() => setShowAllPerformances(true)}
+            >
+              Összes előadás
+            </button>
+          ) : null}
         </div>
       </HomeRevealGroup>
+
+      {showAllPerformances && isMounted
+        ? createPortal(
+            <AllPerformancesModal
+              events={upcomingEvents}
+              onClose={() => setShowAllPerformances(false)}
+              onOpenDetails={(event) => {
+                setShowAllPerformances(false);
+                setSelectedEvent(event);
+              }}
+            />,
+            document.body,
+          )
+        : null}
 
       {selectedEvent && isMounted
         ? createPortal(
@@ -271,6 +310,73 @@ function PerformanceListItem({
           </button>
         </span>
       </article>
+    </div>
+  );
+}
+
+function AllPerformancesModal({
+  events,
+  onClose,
+  onOpenDetails,
+}: {
+  events: HomePerformanceEvent[];
+  onClose: () => void;
+  onOpenDetails: (event: HomePerformanceEvent) => void;
+}) {
+  useEffect(() => {
+    function handleKeyDown(keyboardEvent: KeyboardEvent) {
+      if (keyboardEvent.key === "Escape") {
+        onClose();
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      aria-labelledby="all-performances-title"
+      aria-modal="true"
+      className="fixed inset-0 z-[190] grid place-items-center bg-charcoal/70 px-4 py-6 backdrop-blur-sm"
+      role="dialog"
+      onMouseDown={onClose}
+    >
+      <section
+        className="all-performances-modal home-touch-device flex max-h-[calc(100dvh-48px)] w-[min(720px,100%)] flex-col border border-line-strong bg-warm-canvas shadow-[12px_12px_0_rgb(33_31_27_/_20%)]"
+        onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+      >
+        <header className="flex items-center justify-between gap-4 border-b border-line-strong bg-surface-strong px-5 py-4">
+          <h2 id="all-performances-title" className="font-serif text-[clamp(24px,5vw,36px)] font-bold text-charcoal">
+            Összes előadás
+          </h2>
+          <button
+            aria-label="Modal bezárása"
+            className="grid size-9 shrink-0 place-items-center border border-thread-red bg-surface-strong text-[20px] font-extrabold text-thread-red transition hover:bg-thread-red hover:text-surface-strong"
+            type="button"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </header>
+        <div className="event-list-scrollbar grid min-h-0 flex-1 auto-rows-max content-start gap-3 overflow-y-auto p-4">
+          {events.map((event, index) => (
+            <PerformanceListItem
+              event={event}
+              index={index}
+              isFiltered={false}
+              key={event.id}
+              onOpenDetails={() => onOpenDetails(event)}
+            />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
