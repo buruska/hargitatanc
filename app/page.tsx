@@ -303,7 +303,7 @@ export default async function HomePage() {
 
                   return (
                     <Link
-                      className="home-news-card block h-full min-h-[430px]"
+                      className={`home-news-card block h-full min-h-[430px] ${index >= 3 ? "home-news-card-single-column-extra" : ""}`}
                       href={localizeHref(`/hirek/${post.slug}`, locale)}
                       key={post.id}
                       style={{ transitionDelay: `${index * 110 + 180}ms` }}
