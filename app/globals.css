@@ -330,11 +330,11 @@
   }
 
   .calendar-event-action {
-    inset: auto 3px 3px auto;
+    inset: 50% auto auto 50%;
     display: inline-flex;
     min-height: 24px;
     width: 24px;
-    transform: none;
+    transform: translate(-50%, -50%);
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -380,11 +380,11 @@
 }
 
 .home-touch-device .calendar-event-action {
-  inset: auto 3px 3px auto;
+  inset: 50% auto auto 50%;
   display: inline-flex;
   min-height: 24px;
   width: 24px;
-  transform: none;
+  transform: translate(-50%, -50%);
   align-items: center;
   justify-content: center;
   overflow: hidden;
