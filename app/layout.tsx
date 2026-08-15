@@ -7,6 +7,7 @@ import { TicketPurchaseModal, type TicketModalItem } from "./ticket-purchase-mod
 import { prisma } from "@/lib/prisma";
 import { getLocale, localizeHref } from "@/lib/i18n";
 import { LanguageSwitcher } from "./language-switcher";
+import { MobileMenuDetails } from "./mobile-menu-details";
 import "./globals.css";
 import { getLocalizedPerformanceTitle } from "@/lib/localize-performance";
 
@@ -183,7 +184,7 @@ export default async function RootLayout({
           <div className="flex min-w-0 items-center justify-end gap-2 min-[861px]:hidden">
             <TicketPurchaseModal items={ticketItems} locale={locale} />
             <LanguageSwitcher />
-            <details className="group relative">
+            <MobileMenuDetails>
               <summary
                 aria-label={locale === "ro" ? "Deschide meniul" : locale === "en" ? "Open menu" : "Menü megnyitása"}
                 className="grid size-11 cursor-pointer list-none place-items-center border border-white/45 bg-charcoal/45 text-surface-strong backdrop-blur-sm marker:hidden"
@@ -221,7 +222,7 @@ export default async function RootLayout({
                   ))}
                 </nav>
               </div>
-            </details>
+            </MobileMenuDetails>
           </div>
         </header>
         {children}
