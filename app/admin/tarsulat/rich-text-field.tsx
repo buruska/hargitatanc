@@ -6,6 +6,7 @@ import LinkExtension from "@tiptap/extension-link";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { buttonSecondary } from "@/lib/styles";
+import { BoldIcon, BulletListIcon, Heading2Icon, Heading3Icon, ImageIcon, ItalicIcon, LinkIcon, ParagraphIcon, QuoteIcon } from "../rich-text-toolbar-icons";
 
 type RichTextFieldProps = {
   initialValue?: string;
@@ -80,32 +81,32 @@ export function RichTextField({ initialValue = "<p></p>", label, name }: RichTex
       <p className="text-sm font-extrabold text-muted">{label}</p>
       <div className="border-2 border-line-strong bg-surface-strong">
         <div className="flex flex-wrap gap-2 border-b border-line bg-surface px-3 py-3">
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().setParagraph().run()}>
-            Bekezdés
+          <button aria-label="Bekezdés" className={buttonSecondary} title="Bekezdés" type="button" onClick={() => editor?.chain().focus().setParagraph().run()}>
+            <ParagraphIcon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>
-            Alcím 2
+          <button aria-label="Alcím 2" className={buttonSecondary} title="Alcím 2" type="button" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}>
+            <Heading2Icon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}>
-            Alcím 3
+          <button aria-label="Alcím 3" className={buttonSecondary} title="Alcím 3" type="button" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}>
+            <Heading3Icon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().toggleBold().run()}>
-            Félkövér
+          <button aria-label="Félkövér" className={buttonSecondary} title="Félkövér" type="button" onClick={() => editor?.chain().focus().toggleBold().run()}>
+            <BoldIcon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().toggleItalic().run()}>
-            Dőlt
+          <button aria-label="Dőlt" className={buttonSecondary} title="Dőlt" type="button" onClick={() => editor?.chain().focus().toggleItalic().run()}>
+            <ItalicIcon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().toggleBulletList().run()}>
-            Lista
+          <button aria-label="Felsorolás" className={buttonSecondary} title="Felsorolás" type="button" onClick={() => editor?.chain().focus().toggleBulletList().run()}>
+            <BulletListIcon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => editor?.chain().focus().toggleBlockquote().run()}>
-            Idézet
+          <button aria-label="Idézet" className={buttonSecondary} title="Idézet" type="button" onClick={() => editor?.chain().focus().toggleBlockquote().run()}>
+            <QuoteIcon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={setLink}>
-            Link
+          <button aria-label="Link hozzáadása" className={buttonSecondary} title="Link hozzáadása" type="button" onClick={setLink}>
+            <LinkIcon />
           </button>
-          <button className={buttonSecondary} type="button" onClick={() => fileInputRef.current?.click()}>
-            Kép
+          <button aria-label="Kép beszúrása" className={buttonSecondary} title="Kép beszúrása" type="button" onClick={() => fileInputRef.current?.click()}>
+            <ImageIcon />
           </button>
           <input
             accept="image/*"

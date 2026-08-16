@@ -8,6 +8,7 @@ import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
 import StarterKit from "@tiptap/starter-kit";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
+import { BoldIcon, BulletListIcon, Heading2Icon, Heading3Icon, ImageIcon, ItalicIcon, LinkIcon, ParagraphIcon, QuoteIcon, RedoIcon, UndoIcon } from "../rich-text-toolbar-icons";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
 import { createPerformanceGalleryAction, type CreateGalleryState } from "../galeriak/actions";
 import {
@@ -608,81 +609,103 @@ function UploadNewsModal({
             <div className="overflow-hidden border-2 border-line-strong bg-surface-strong">
               <div className="flex flex-wrap gap-1 border-b border-line bg-surface px-2 py-2">
                 <button
+                  aria-label="Bekezdés"
+                  title="Bekezdés"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold ${editor?.isActive("paragraph") ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().setParagraph().run()}
                 >
-                  Bekezdés
+                  <ParagraphIcon />
                 </button>
                 <button
+                  aria-label="Alcím 2"
+                  title="Alcím 2"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold ${editor?.isActive("heading", { level: 2 }) ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
                 >
-                  Alcím 2
+                  <Heading2Icon />
                 </button>
                 <button
+                  aria-label="Alcím 3"
+                  title="Alcím 3"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold ${editor?.isActive("heading", { level: 3 }) ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
                 >
-                  Alcím 3
+                  <Heading3Icon />
                 </button>
                 <button
+                  aria-label="Félkövér"
+                  title="Félkövér"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold ${editor?.isActive("bold") ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().toggleBold().run()}
                 >
-                  B
+                  <BoldIcon />
                 </button>
                 <button
+                  aria-label="Dőlt"
+                  title="Dőlt"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold italic ${editor?.isActive("italic") ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().toggleItalic().run()}
                 >
-                  I
+                  <ItalicIcon />
                 </button>
                 <button
+                  aria-label="Felsorolás"
+                  title="Felsorolás"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold ${editor?.isActive("bulletList") ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().toggleBulletList().run()}
                 >
-                  Lista
+                  <BulletListIcon />
                 </button>
                 <button
+                  aria-label="Idézet"
+                  title="Idézet"
                   className={`min-h-8 border border-line px-2 text-xs font-extrabold ${editor?.isActive("blockquote") ? "bg-thread-red text-surface-strong" : "bg-surface-strong text-muted"}`}
                   type="button"
                   onClick={() => editor?.chain().focus().toggleBlockquote().run()}
                 >
-                  Idézet
+                  <QuoteIcon />
                 </button>
                 <button
+                  aria-label="Link hozzáadása"
+                  title="Link hozzáadása"
                   className="min-h-8 border border-line bg-surface-strong px-2 text-xs font-extrabold text-muted hover:border-charcoal hover:text-charcoal"
                   type="button"
                   onClick={setLink}
                 >
-                  Link
+                  <LinkIcon />
                 </button>
                 <button
+                  aria-label="Képek beszúrása"
+                  title="Képek beszúrása"
                   className="min-h-8 border border-line bg-surface-strong px-2 text-xs font-extrabold text-muted hover:border-charcoal hover:text-charcoal"
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  Képek
+                  <ImageIcon />
                 </button>
                 <button
+                  aria-label="Visszavonás"
+                  title="Visszavonás"
                   className="min-h-8 border border-line bg-surface-strong px-2 text-xs font-extrabold text-muted hover:border-charcoal hover:text-charcoal"
                   type="button"
                   onClick={() => editor?.chain().focus().undo().run()}
                 >
-                  Vissza
+                  <UndoIcon />
                 </button>
                 <button
+                  aria-label="Ismétlés"
+                  title="Ismétlés"
                   className="min-h-8 border border-line bg-surface-strong px-2 text-xs font-extrabold text-muted hover:border-charcoal hover:text-charcoal"
                   type="button"
                   onClick={() => editor?.chain().focus().redo().run()}
                 >
-                  Újra
+                  <RedoIcon />
                 </button>
                 <input
                   accept="image/*"

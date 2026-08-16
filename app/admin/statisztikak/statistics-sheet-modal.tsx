@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { buttonPrimary, buttonSecondary, input, panel } from "@/lib/styles";
+import { BoldIcon, BulletListIcon, ItalicIcon, ParagraphIcon } from "../rich-text-toolbar-icons";
 
 type StatisticItem = {
   details?: string[];
@@ -419,17 +420,17 @@ function CustomStatisticEditor({
 
       <div className="mt-4 border-2 border-line-strong bg-surface-strong">
         <div className="flex flex-wrap gap-2 border-b border-line bg-surface p-2">
-          <button className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold" type="button" onClick={() => editor?.chain().focus().setParagraph().run()}>
-            Bekezdés
+          <button aria-label="Bekezdés" className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold" title="Bekezdés" type="button" onClick={() => editor?.chain().focus().setParagraph().run()}>
+            <ParagraphIcon />
           </button>
-          <button className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold" type="button" onClick={() => editor?.chain().focus().toggleBold().run()}>
-            Félkövér
+          <button aria-label="Félkövér" className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold" title="Félkövér" type="button" onClick={() => editor?.chain().focus().toggleBold().run()}>
+            <BoldIcon />
           </button>
-          <button className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold italic" type="button" onClick={() => editor?.chain().focus().toggleItalic().run()}>
-            Dőlt
+          <button aria-label="Dőlt" className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold italic" title="Dőlt" type="button" onClick={() => editor?.chain().focus().toggleItalic().run()}>
+            <ItalicIcon />
           </button>
-          <button className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold" type="button" onClick={() => editor?.chain().focus().toggleBulletList().run()}>
-            Felsorolás
+          <button aria-label="Felsorolás" className="border border-line bg-surface-strong px-2.5 py-1.5 text-xs font-extrabold" title="Felsorolás" type="button" onClick={() => editor?.chain().focus().toggleBulletList().run()}>
+            <BulletListIcon />
           </button>
         </div>
         <EditorContent
