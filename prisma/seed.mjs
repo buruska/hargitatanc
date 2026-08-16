@@ -1,23 +1,31 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const SUPER_ADMIN_EMAIL = "burusakos@yahoo.co.uk";
-const SUPER_ADMIN_PASSWORD_HASH = "$2b$12$fNcEOz6tH0xrUQD7Z.IRruGaE7ZcR5nQ1dII1G7cjBL8nxk1sJBIO";
-
 async function main() {
-  await prisma.user.upsert({
-    where: { email: SUPER_ADMIN_EMAIL },
-    update: {
-      passwordHash: SUPER_ADMIN_PASSWORD_HASH,
-      role: "SUPER_ADMIN",
-    },
-    create: {
-      email: SUPER_ADMIN_EMAIL,
-      passwordHash: SUPER_ADMIN_PASSWORD_HASH,
-      role: "SUPER_ADMIN",
-    },
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const existingAdmin = await prisma.user.findFirst({
+    where: { role: "SUPER_ADMIN" },
+    select: { id: true },
   });
+
+  if (!existingAdmin) {
+    if (!adminEmail || !adminPassword || adminPassword.length < 12) {
+      throw new Error(
+        "Az első admin létrehozásához add meg az ADMIN_EMAIL és a legalább 12 karakteres ADMIN_PASSWORD változót.",
+      );
+    }
+
+    await prisma.user.create({
+      data: {
+        email: adminEmail,
+        passwordHash: await bcrypt.hash(adminPassword, 12),
+        role: "SUPER_ADMIN",
+      },
+    });
+  }
 
   await prisma.event.upsert({
     where: { slug: "nyito-eloadas" },

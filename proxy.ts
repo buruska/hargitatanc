@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const match = request.nextUrl.pathname.match(/^\/(ro|en)(?=\/|$)/);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-site-locale", match?.[1] ?? "hu");
