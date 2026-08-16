@@ -2,6 +2,8 @@
 
 Modern Next.js alapú weboldalváz a hargitatanc.ro új verziójához.
 
+Az éles Docker Compose + Nginx VPS-telepítés teljes leírása: [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 ## Oldalak
 
 - `/` - Főoldal CTA-val, kiemelt eseményekkel és hírekkel
@@ -30,12 +32,8 @@ Copy-Item .env.example .env
 
 ## Admin
 
-A seed létrehoz egy super-admin felhasználót:
-
-- Felhasználónév: `burusakos@yahoo.co.uk`
-- Jelszó: a projekt indításához megadott ideiglenes jelszó
-
-Élesítés előtt az ideiglenes jelszót és az `AUTH_SECRET` értékét mindenképpen cserélni kell.
+A seed az `.env` fájlban megadott `ADMIN_EMAIL` és `ADMIN_PASSWORD` alapján hozza
+létre az első super-admin felhasználót. Meglévő admin jelszavát nem írja felül.
 
 ## Adatbázis
 
