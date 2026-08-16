@@ -6,7 +6,8 @@ import LinkExtension from "@tiptap/extension-link";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { buttonSecondary } from "@/lib/styles";
-import { BoldIcon, BulletListIcon, Heading2Icon, Heading3Icon, ImageIcon, ItalicIcon, LinkIcon, ParagraphIcon, QuoteIcon } from "../rich-text-toolbar-icons";
+import { BoldIcon, BulletListIcon, FileUploadIcon, Heading2Icon, Heading3Icon, ImageIcon, ItalicIcon, LinkIcon, ParagraphIcon } from "../rich-text-toolbar-icons";
+import { insertUploadedFile } from "../upload-rich-text-file";
 
 type RichTextFieldProps = {
   initialValue?: string;
@@ -17,6 +18,7 @@ type RichTextFieldProps = {
 export function RichTextField({ initialValue = "<p></p>", label, name }: RichTextFieldProps) {
   const [content, setContent] = useState(initialValue || "<p></p>");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const richTextFileInputRef = useRef<HTMLInputElement>(null);
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -99,9 +101,20 @@ export function RichTextField({ initialValue = "<p></p>", label, name }: RichTex
           <button aria-label="Felsorolás" className={buttonSecondary} title="Felsorolás" type="button" onClick={() => editor?.chain().focus().toggleBulletList().run()}>
             <BulletListIcon />
           </button>
-          <button aria-label="Idézet" className={buttonSecondary} title="Idézet" type="button" onClick={() => editor?.chain().focus().toggleBlockquote().run()}>
-            <QuoteIcon />
+          <button aria-label="Fájl feltöltése" className={buttonSecondary} title="Fájl feltöltése" type="button" onClick={() => richTextFileInputRef.current?.click()}>
+            <FileUploadIcon />
           </button>
+          <input
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.odt,.ods"
+            className="hidden"
+            ref={richTextFileInputRef}
+            type="file"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (file) await insertUploadedFile(editor, file).catch((error: Error) => window.alert(error.message));
+              event.target.value = "";
+            }}
+          />
           <button aria-label="Link hozzáadása" className={buttonSecondary} title="Link hozzáadása" type="button" onClick={setLink}>
             <LinkIcon />
           </button>
