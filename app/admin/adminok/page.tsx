@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { adminTitle, eyebrow, panel } from "@/lib/styles";
 import { AdminShell } from "../admin-shell";
 import { AddAdminForm } from "./add-admin-form";
+import { DeleteAdminButton } from "./delete-admin-button";
 
 const roleNames = {
   SUPER_ADMIN: "Szuperadmin",
@@ -51,9 +52,14 @@ export default async function AdminokPage() {
                   <p className="truncate font-extrabold text-charcoal">{admin.email}</p>
                   <p className="mt-1 text-xs font-bold text-muted">Létrehozva: {dateFormatter.format(admin.createdAt)}</p>
                 </div>
-                <span className="w-fit border border-petrol/40 bg-petrol/10 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.06em] text-petrol">
-                  {roleNames[admin.role]}
-                </span>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="w-fit border border-petrol/40 bg-petrol/10 px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.06em] text-petrol">
+                    {roleNames[admin.role]}
+                  </span>
+                  {currentAdmin.role === "SUPER_ADMIN" && admin.role !== "SUPER_ADMIN" ? (
+                    <DeleteAdminButton email={admin.email} userId={admin.id} />
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>

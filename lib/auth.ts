@@ -108,7 +108,7 @@ export async function getAdminSession() {
  * Page-level protection is not sufficient because Server Actions can be
  * invoked independently of the page that renders their form.
  */
-export async function requireAdmin() {
+export async function requireAdmin(options?: { allowRequiredPasswordChange?: boolean }) {
   const session = await getAdminSession();
 
   if (!session) {
@@ -117,11 +117,15 @@ export async function requireAdmin() {
 
   const user = await prisma.user.findUnique({
     where: { email: session.email },
-    select: { email: true, role: true },
+    select: { email: true, mustChangePassword: true, role: true },
   });
 
   if (!user) {
     redirect("/admin");
+  }
+
+  if (user.mustChangePassword && !options?.allowRequiredPasswordChange) {
+    redirect("/admin/jelszocsere");
   }
 
   return user;

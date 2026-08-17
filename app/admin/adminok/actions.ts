@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 
 export type CreateAdminState = { error?: string; success?: string };
 
+export type DeleteAdminState = { error?: string; success?: string };
+
 export async function createAdminAction(_state: CreateAdminState, formData: FormData): Promise<CreateAdminState> {
   const currentAdmin = await requireAdmin();
   if (currentAdmin.role === "ADMIN") return { error: "Nincs jogosultságod adminisztrátor hozzáadásához." };
@@ -24,8 +26,31 @@ export async function createAdminAction(_state: CreateAdminState, formData: Form
   if (existingUser) return { error: "Ezzel az e-mail címmel már létezik adminisztrátor." };
 
   await prisma.user.create({
-    data: { email, passwordHash: await bcrypt.hash(password, 12), role: allowedRole },
+    data: {
+      email,
+      mustChangePassword: true,
+      passwordHash: await bcrypt.hash(password, 12),
+      role: allowedRole,
+    },
   });
   revalidatePath("/admin/adminok");
   return { success: allowedRole === "MAIN_ADMIN" ? "A főadmin létrejött." : "Az admin létrejött." };
+}
+
+export async function deleteAdminAction(userId: string): Promise<DeleteAdminState> {
+  const currentAdmin = await requireAdmin();
+  if (currentAdmin.role !== "SUPER_ADMIN") {
+    return { error: "Csak a szuperadmin törölhet adminisztrátort." };
+  }
+
+  const targetAdmin = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, role: true },
+  });
+  if (!targetAdmin) return { error: "Az adminisztrátor már nem létezik." };
+  if (targetAdmin.role === "SUPER_ADMIN") return { error: "Szuperadmin-fiók nem törölhető." };
+
+  await prisma.user.delete({ where: { id: userId } });
+  revalidatePath("/admin/adminok");
+  return { success: `${targetAdmin.email} törölve.` };
 }
