@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
-import { getAdminSession } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { buttonSecondary, eyebrow, panel } from "@/lib/styles";
 import { InactivityLogoutTimer } from "./inactivity-logout";
 import { ImageCompressionManager } from "./image-compression-manager";
@@ -20,11 +19,10 @@ const adminNavigation = [
 ];
 
 export async function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = await getAdminSession();
-
-  if (!session) {
-    redirect("/admin");
-  }
+  const session = await requireAdmin();
+  const visibleNavigation = session.role === "ADMIN"
+    ? adminNavigation.filter((item) => item.href !== "/admin/adminok")
+    : adminNavigation;
 
   return (
     <main className="admin-shell px-[clamp(18px,4vw,56px)] pb-[150px] pt-[124px]">
@@ -33,7 +31,7 @@ export async function AdminShell({ children }: Readonly<{ children: React.ReactN
         <div className="grid gap-6 min-[861px]:grid-cols-[220px_minmax(0,1fr)]">
           <aside className={`${panel} h-fit self-start p-4 min-[861px]:sticky min-[861px]:top-[112px]`}>
             <nav aria-label="Admin menü" className="grid gap-2">
-              {adminNavigation.map((item) => (
+              {visibleNavigation.map((item) => (
                 <Link
                   className="border border-line bg-surface-strong px-3 py-2 text-sm font-extrabold text-muted hover:border-charcoal hover:bg-thread-red hover:text-surface-strong"
                   href={item.href}

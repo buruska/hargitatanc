@@ -1,41 +1,40 @@
-import { AdminShell } from "../admin-shell";
+import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, eyebrow, panel } from "@/lib/styles";
+import { AdminShell } from "../admin-shell";
+import { AddAdminForm } from "./add-admin-form";
 
 const roleNames = {
-  SUPER_ADMIN: "Főadminisztrátor",
-  EDITOR: "Szerkesztő",
+  SUPER_ADMIN: "Szuperadmin",
+  MAIN_ADMIN: "Főadmin",
+  ADMIN: "Admin",
 } as const;
 
 export default async function AdminokPage() {
+  const currentAdmin = await requireAdmin();
+  if (currentAdmin.role === "ADMIN") redirect("/admin/statisztikak");
+
   const admins = await prisma.user.findMany({
+    where: currentAdmin.role === "SUPER_ADMIN" ? undefined : { role: { not: "SUPER_ADMIN" } },
     orderBy: [{ role: "asc" }, { createdAt: "asc" }],
-    select: {
-      createdAt: true,
-      email: true,
-      id: true,
-      role: true,
-    },
+    select: { createdAt: true, email: true, id: true, role: true },
   });
   const dateFormatter = new Intl.DateTimeFormat("hu-RO", { dateStyle: "medium" });
 
   return (
     <AdminShell>
-      <div className="mb-6 flex flex-col gap-4 min-[620px]:flex-row min-[620px]:items-end min-[620px]:justify-between">
-        <div>
-          <p className={eyebrow}>Felhasználókezelés</p>
-          <h1 className={`${adminTitle} mb-0`}>Adminok</h1>
-        </div>
-        <button
-          aria-describedby="admin-add-status"
-          className="inline-flex min-h-[46px] cursor-not-allowed items-center justify-center border-2 border-charcoal bg-thread-red px-[18px] py-3 font-extrabold text-surface-strong opacity-50"
-          disabled
-          type="button"
-        >
-          Admin hozzáadása
-        </button>
+      <div className="mb-6">
+        <p className={eyebrow}>Felhasználókezelés</p>
+        <h1 className={`${adminTitle} mb-0`}>Adminok</h1>
       </div>
-      <p className="sr-only" id="admin-add-status">Az admin hozzáadása funkció hamarosan elérhető.</p>
+
+      <section className={`${panel} mb-6 p-5`}>
+        <h2 className="mb-4 font-serif text-2xl font-bold">
+          {currentAdmin.role === "SUPER_ADMIN" ? "Adminisztrátor hozzáadása" : "Admin hozzáadása"}
+        </h2>
+        <AddAdminForm canCreateMainAdmin={currentAdmin.role === "SUPER_ADMIN"} />
+      </section>
 
       <section className={panel}>
         <div className="border-b-2 border-charcoal px-5 py-4">
@@ -43,7 +42,7 @@ export default async function AdminokPage() {
           <p className="mt-1 text-sm font-bold text-muted">{admins.length} felhasználó</p>
         </div>
         {admins.length === 0 ? (
-          <p className="p-5 font-bold text-muted">Nincs adminisztrátor létrehozva.</p>
+          <p className="p-5 font-bold text-muted">Nincs megjeleníthető adminisztrátor.</p>
         ) : (
           <ul className="divide-y divide-line">
             {admins.map((admin) => (
