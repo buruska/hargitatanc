@@ -31,6 +31,20 @@ model User {
   updatedAt    DateTime @updatedAt
 }
 
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorEmail  String
+  actorRole   String
+  action      String
+  entityType  String
+  entityLabel String?
+  details     String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorEmail])
+}
+
 model Event {
   id          String   @id @default(cuid())
   title       String

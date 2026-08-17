@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { setAuditActor } from "@/lib/audit-context";
 
 const SESSION_COOKIE = "hargita_admin_session";
 const SESSION_DURATION_SECONDS = 60 * 60 * 8;
@@ -127,6 +128,8 @@ export async function requireAdmin(options?: { allowRequiredPasswordChange?: boo
   if (user.mustChangePassword && !options?.allowRequiredPasswordChange) {
     redirect("/admin/jelszocsere");
   }
+
+  setAuditActor({ email: user.email, role: user.role });
 
   return user;
 }

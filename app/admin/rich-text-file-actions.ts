@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { requireAdmin } from "@/lib/auth";
+import { recordFileAudit } from "@/lib/prisma";
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "rich-text-files");
@@ -22,6 +23,7 @@ export async function uploadRichTextFileAction(formData: FormData) {
   await mkdir(UPLOAD_DIR, { recursive: true });
   const storedName = `${randomUUID()}${extension}`;
   await writeFile(path.join(UPLOAD_DIR, storedName), Buffer.from(await file.arrayBuffer()), { flag: "wx" });
+  await recordFileAudit("CREATE", "RichTextFile", file.name);
 
   return {
     name: file.name,

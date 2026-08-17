@@ -5,6 +5,7 @@ import { mkdir, readFile, readdir, stat, unlink, writeFile } from "node:fs/promi
 import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
+import { recordFileAudit } from "@/lib/prisma";
 
 export type DocumentUploadState = {
   error?: string;
@@ -133,6 +134,7 @@ export async function uploadDocumentsAction(
   }
 
   revalidatePath("/admin/dokumentumok");
+  await recordFileAudit("CREATE", "Document", title);
 
   return {
     success: true,
@@ -152,6 +154,7 @@ export async function renameDocumentAction(formData: FormData) {
   if (!document) return;
 
   await saveMetadata({ ...document, title });
+  await recordFileAudit("UPDATE", "Document", title);
   revalidatePath("/admin/dokumentumok");
 }
 
@@ -170,6 +173,7 @@ export async function deleteDocumentAction(formData: FormData) {
   await unlink(document.metadataPath).catch((error: NodeJS.ErrnoException) => {
     if (error.code !== "ENOENT") throw error;
   });
+  await recordFileAudit("DELETE", "Document", document.title);
   revalidatePath("/admin/dokumentumok");
 }
 
@@ -186,5 +190,6 @@ export async function moveDocumentAction(formData: FormData) {
 
   [documents[currentIndex], documents[targetIndex]] = [documents[targetIndex], documents[currentIndex]];
   await Promise.all(documents.map((document, index) => saveMetadata(document, index)));
+  await recordFileAudit("UPDATE", "Document", documents[currentIndex]?.title);
   revalidatePath("/admin/dokumentumok");
 }
