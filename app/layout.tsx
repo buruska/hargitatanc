@@ -10,6 +10,7 @@ import { LanguageSwitcher } from "./language-switcher";
 import { MobileMenuDetails } from "./mobile-menu-details";
 import "./globals.css";
 import { getLocalizedPerformanceTitle } from "@/lib/localize-performance";
+import { getSiteTextMap } from "@/lib/site-texts";
 
 export const metadata: Metadata = {
   title: "Hargita Székely Néptáncszínház",
@@ -21,11 +22,7 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-const navigation = {
-  hu: ["Főoldal", "Rólunk", "Hírek", "Eseményeink", "Galéria", "Kapcsolat"],
-  ro: ["Acasă", "Despre noi", "Știri", "Evenimente", "Galerie", "Contact"],
-  en: ["Home", "About us", "News", "Events", "Gallery", "Contact"],
-};
+const navigationKeys = ["nav.home", "nav.about", "nav.news", "nav.events", "nav.gallery", "nav.contact"];
 const navigationHrefs = ["/", "/tarsulat", "/hirek", "/esemenyeink", "/galeria", "/kapcsolat"];
 
 const socialLinkDefinitions = [
@@ -70,6 +67,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  const siteTexts = await getSiteTextMap(locale);
   const now = new Date();
   const [performanceEvents, events, companyProfile] = await Promise.all([
     prisma.runningPerformanceEvent.findMany({
@@ -160,7 +158,7 @@ export default async function RootLayout({
                   key={href}
                   href={localizeHref(href, locale)}
                 >
-                  {navigation[locale][index]}
+                  {siteTexts[navigationKeys[index]]}
                 </Link>
               ))}
             </nav>
@@ -203,7 +201,7 @@ export default async function RootLayout({
                       key={href}
                       href={localizeHref(href, locale)}
                     >
-                      {navigation[locale][index]}
+                      {siteTexts[navigationKeys[index]]}
                     </Link>
                   ))}
                 </nav>

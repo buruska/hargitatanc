@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NewsSearchList } from "./news-search-list";
 import { getLocale } from "@/lib/i18n";
 import { sortNewsPosts } from "@/lib/sort-news-posts";
+import { getSiteTextMap } from "@/lib/site-texts";
 
 function getFirstImageSrc(value: string) {
   return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? "/logo.png";
@@ -9,7 +10,8 @@ function getFirstImageSrc(value: string) {
 
 export default async function HirekPage() {
   const locale = await getLocale();
-  const heading = locale === "ro" ? { eyebrow: "Actualitate", title: "Știri și relatări" } : locale === "en" ? { eyebrow: "Latest", title: "News and reports" } : { eyebrow: "Aktuális", title: "Hírek és beszámolók" };
+  const siteTexts = await getSiteTextMap(locale);
+  const heading = { eyebrow: siteTexts["news.eyebrow"], title: siteTexts["news.title"] };
   const posts = await prisma.newsPost.findMany({
     where: { locale },
     select: {

@@ -8,6 +8,7 @@ import { getLocale, localizeHref } from "@/lib/i18n";
 import { getLocalizedPerformanceSummary, getLocalizedPerformanceTitle } from "@/lib/localize-performance";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { sortNewsPosts } from "@/lib/sort-news-posts";
+import { getSiteTextMap } from "@/lib/site-texts";
 
 function getDateKey(date: Date) {
   const year = date.getFullYear();
@@ -35,6 +36,7 @@ function getFirstImageSrc(value: string) {
 
 export default async function HomePage() {
   const locale = await getLocale();
+  const siteTexts = await getSiteTextMap(locale);
   const now = new Date();
   const performances = await prisma.runningPerformance.findMany({
     where: {
@@ -274,10 +276,10 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1180px]">
           <div className="mb-12 grid gap-0 border-b border-line pb-12 pt-12 text-left">
             <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
-              Naptár
+              {siteTexts["home.calendar.eyebrow"]}
             </p>
             <h1 className="pt-6 pb-12 font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
-              Közelgő fellépések és rendezvények
+              {siteTexts["home.calendar.title"]}
             </h1>
           </div>
 
@@ -289,10 +291,10 @@ export default async function HomePage() {
         <HomeRevealGroup className="home-reveal-group mx-auto max-w-[1180px]">
           <div className="home-reveal-title-from-right bg-surface-strong px-[clamp(22px,4vw,42px)] py-12 text-left shadow-[12px_12px_0_rgb(33_31_27_/_20%)]">
             <p className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-thread-red">
-              Hírek és beszámolók
+              {siteTexts["home.news.eyebrow"]}
             </p>
             <h2 className="pt-6 font-serif text-[clamp(24px,3vw,36px)] font-bold leading-[1.05]">
-              Aktuális
+              {siteTexts["home.news.title"]}
             </h2>
           </div>
           {newsPreviewPosts.length > 0 ? (

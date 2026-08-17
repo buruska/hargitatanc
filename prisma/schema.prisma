@@ -45,6 +45,14 @@ model AuditLog {
   @@index([actorEmail])
 }
 
+model SiteText {
+  key       String   @id
+  hu        String
+  ro        String
+  en        String
+  updatedAt DateTime @updatedAt
+}
+
 model Event {
   id          String   @id @default(cuid())
   title       String

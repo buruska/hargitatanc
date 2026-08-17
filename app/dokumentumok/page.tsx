@@ -1,6 +1,7 @@
 import { mkdir, readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { getLocale } from "@/lib/i18n";
+import { getSiteTextMap } from "@/lib/site-texts";
 import { eyebrow, h1, panel } from "@/lib/styles";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "documents");
@@ -52,6 +53,7 @@ async function getDocuments() {
 
 export default async function DokumentumokPage() {
   const locale = await getLocale();
+  const siteTexts = await getSiteTextMap(locale);
   const documents = await getDocuments();
   const text = {
     hu: { eyebrow: "Dokumentumtár", title: "Hivatalos dokumentumok", empty: "Jelenleg nincs közzétett dokumentum.", open: "Megnyitás" },
@@ -60,8 +62,8 @@ export default async function DokumentumokPage() {
   }[locale];
   return (
     <main className="mx-auto min-h-[60vh] w-[calc(100%-36px)] max-w-[980px] pb-[72px] pt-[124px]">
-      <p className={eyebrow}>{text.eyebrow}</p>
-      <h1 className={h1}>{text.title}</h1>
+      <p className={eyebrow}>{siteTexts["documents.eyebrow"]}</p>
+      <h1 className={h1}>{siteTexts["documents.title"]}</h1>
       <section className={panel}>
         {documents.length === 0 ? (
           <p className="p-6 font-bold text-muted">{text.empty}</p>

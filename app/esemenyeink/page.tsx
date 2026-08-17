@@ -2,10 +2,12 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { card, contentPage, eyebrow, gridTwo, h1, h2, leadSpaced, meta } from "@/lib/styles";
 import { getLocale } from "@/lib/i18n";
+import { getSiteTextMap } from "@/lib/site-texts";
 
 export default async function EsemenyeinkPage() {
   const locale = await getLocale();
-  const heading = locale === "ro" ? { eyebrow: "Evenimente", title: "Spectacole și evenimente" } : locale === "en" ? { eyebrow: "Events", title: "Performances and events" } : { eyebrow: "Eseményeink", title: "Előadások és rendezvények" };
+  const siteTexts = await getSiteTextMap(locale);
+  const heading = { eyebrow: siteTexts["events.eyebrow"], title: siteTexts["events.title"] };
   const events = await prisma.event.findMany({
     orderBy: { startsAt: "asc" },
   });
@@ -15,7 +17,7 @@ export default async function EsemenyeinkPage() {
       <p className={eyebrow}>{heading.eyebrow}</p>
       <h1 className={h1}>{heading.title}</h1>
       <p className={leadSpaced}>
-        A közelgő előadások és rendezvények elsőként jelennek meg, az archív beszámolók külön blokkba kerülnek majd.
+        {siteTexts["events.subtitle"]}
       </p>
       <section className={gridTwo}>
         {events.map((event) => (

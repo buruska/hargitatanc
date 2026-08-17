@@ -17,12 +17,13 @@ const adminNavigation = [
   { href: "/admin/kozossegi-media", label: "Közösségi média" },
   { href: "/admin/adminok", label: "Adminok" },
   { href: "/admin/tevekenysegnaplo", label: "Tevékenységnapló" },
+  { href: "/admin/oldalelemek", label: "Oldalelemek változtatása" },
 ];
 
 export async function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await requireAdmin();
   const visibleNavigation = session.role === "ADMIN"
-    ? adminNavigation.filter((item) => !["/admin/adminok", "/admin/tevekenysegnaplo"].includes(item.href))
+    ? adminNavigation.filter((item) => !["/admin/adminok", "/admin/tevekenysegnaplo", "/admin/oldalelemek"].includes(item.href))
     : adminNavigation;
 
   return (

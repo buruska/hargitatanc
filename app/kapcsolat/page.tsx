@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { contentPage } from "@/lib/styles";
+import { contentPage, eyebrow } from "@/lib/styles";
 import { getLocale } from "@/lib/i18n";
+import { getSiteTextMap } from "@/lib/site-texts";
 
 export const metadata: Metadata = {
   title: "Kapcsolat | Hargita Székely Néptáncszínház",
@@ -41,6 +42,7 @@ const phoneNumbers = [
 
 export default async function KapcsolatPage() {
   const locale = await getLocale();
+  const siteTexts = await getSiteTextMap(locale);
   const text = {
     hu: { section: "Elérhetőségeink", address: "Cím", city: "Csíkszereda", county: "Hargita megye – 530102", street: "Temesvári sugárút 6. szám", phone: "Telefon", aria: "Elérhetőségek és térkép", mapTitle: "Hargita Székely Néptáncszínház helye a Google Térképen", openMap: "Megnyitás a térképen" },
     ro: { section: "Datele noastre de contact", address: "Adresă", city: "Miercurea Ciuc", county: "Județul Harghita – 530102", street: "Bulevardul Timișoarei nr. 6", phone: "Telefon", aria: "Date de contact și hartă", mapTitle: "Locația Teatrului de Dans Popular Secuiesc Harghita pe Google Maps", openMap: "Deschide în hartă" },
@@ -48,9 +50,10 @@ export default async function KapcsolatPage() {
   }[locale];
   return (
     <main className={`${contentPage} max-w-[1180px]`}>
+      <p className={eyebrow}>{siteTexts["contact.eyebrow"]}</p>
       <section className="grid overflow-hidden bg-surface shadow-[14px_14px_0_rgb(33_31_27_/_8%)] min-[900px]:grid-cols-[minmax(330px,0.8fr)_minmax(0,1.2fr)]" aria-label={text.aria}>
         <div className="relative overflow-hidden p-[clamp(24px,4vw,46px)]">
-          <h2 className="relative font-serif text-[clamp(25px,3vw,34px)] font-bold">{text.section}</h2>
+          <h1 className="relative font-serif text-[clamp(25px,3vw,34px)] font-bold">{siteTexts["contact.title"]}</h1>
           <address className="relative mt-8 grid gap-8 not-italic">
             <div className="grid grid-cols-[44px_1fr] gap-3">
               <span className="flex size-11 items-center justify-center bg-thread-red text-surface-strong"><LocationIcon /></span>
