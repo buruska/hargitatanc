@@ -379,14 +379,31 @@ export async function deleteRunningPerformanceAction(
     return { error: "Az előadás már nem található." };
   }
 
-  await prisma.runningPerformance.delete({
-    where: {
-      id,
-    },
-  });
+  if (performance.galleryImages.length > 0) {
+    await prisma.$transaction([
+      prisma.runningPerformanceEvent.deleteMany({
+        where: {
+          runningPerformanceId: id,
+        },
+      }),
+      prisma.runningPerformance.update({
+        where: {
+          id,
+        },
+        data: {
+          isGalleryOnly: true,
+        },
+      }),
+    ]);
+  } else {
+    await prisma.runningPerformance.delete({
+      where: {
+        id,
+      },
+    });
 
-  await deleteCoverImage(performance.coverImageUrl);
-  await Promise.all(performance.galleryImages.map((galleryImage) => deleteCoverImage(galleryImage.imageUrl)));
+    await deleteCoverImage(performance.coverImageUrl);
+  }
 
   revalidatePath("/");
   revalidatePath("/galeria");

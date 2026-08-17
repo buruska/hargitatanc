@@ -134,7 +134,6 @@ export function HeroCoverCarousel({
           priority={index === 0}
           sizes="100vw"
           src={cover.coverImageUrl}
-          style={{ height: "100dvh", width: "100vw" }}
         />
       ))}
       {showTitleList && hasTitleListItems ? (

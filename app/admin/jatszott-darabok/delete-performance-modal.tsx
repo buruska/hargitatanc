@@ -80,6 +80,9 @@ export function DeletePerformanceModal({ id, title }: DeletePerformanceModalProp
             <p className="text-muted">
               Biztosan törölni akarod ezt az előadást?
             </p>
+            <p className="mt-2 text-sm text-muted">
+              A hozzá tartozó fellépések törlődnek, a saját galéria és annak képei megmaradnak.
+            </p>
             <p className="mt-3 font-serif text-2xl font-bold leading-tight">{title}</p>
 
             {state.error ? (
