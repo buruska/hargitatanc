@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -30,11 +30,21 @@ export async function createSession(email: string) {
   const encodedPayload = Buffer.from(payload).toString("base64url");
   const signature = sign(encodedPayload);
 
-  const cookieStore = await cookies();
+  const [cookieStore, requestHeaders] = await Promise.all([cookies(), headers()]);
+  const forwardedProtocol = requestHeaders.get("x-forwarded-proto")?.split(",", 1)[0]?.trim().toLowerCase();
+  const originProtocol = (() => {
+    try {
+      return new URL(requestHeaders.get("origin") ?? "").protocol.replace(":", "").toLowerCase();
+    } catch {
+      return undefined;
+    }
+  })();
+  const isHttps = (forwardedProtocol ?? originProtocol) === "https";
+
   cookieStore.set(SESSION_COOKIE, `${encodedPayload}.${signature}`, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: isHttps,
     path: "/",
     maxAge: SESSION_DURATION_SECONDS,
   });
