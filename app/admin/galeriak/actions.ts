@@ -16,7 +16,7 @@ export type EditGalleryState = DeleteGalleryState;
 export type DeleteGalleryImageState = DeleteGalleryState;
 export type CreateGalleryState = DeleteGalleryState;
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const MAX_GALLERY_UPLOAD_SIZE = 40 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "performances");
 
@@ -71,7 +71,7 @@ export async function createPerformanceGalleryAction(
     return { error: "Válaszd ki a galéria borítóképét." };
   }
   if (images.some((file) => !file.type.startsWith("image/"))) return { error: "Csak képfájl tölthető fel." };
-  if (images.some((file) => file.size > MAX_IMAGE_SIZE)) return { error: "Egy kép legfeljebb 5 MB lehet." };
+  if (images.some((file) => file.size > MAX_IMAGE_SIZE)) return { error: "Egy kép legfeljebb 8 MB lehet." };
   if (images.reduce((total, file) => total + file.size, 0) > MAX_GALLERY_UPLOAD_SIZE) {
     return { error: "A kiválasztott képek összmérete legfeljebb 40 MB lehet." };
   }
@@ -136,7 +136,7 @@ export async function updatePerformanceGalleryAction(
 
   if (!id || !title) return { error: "Add meg a galéria címét." };
   if (newImages.some((file) => !file.type.startsWith("image/"))) return { error: "Csak képfájl tölthető fel." };
-  if (newImages.some((file) => file.size > MAX_IMAGE_SIZE)) return { error: "Egy kép legfeljebb 5 MB lehet." };
+  if (newImages.some((file) => file.size > MAX_IMAGE_SIZE)) return { error: "Egy kép legfeljebb 8 MB lehet." };
   if (newImages.reduce((total, file) => total + file.size, 0) > MAX_GALLERY_UPLOAD_SIZE) {
     return { error: "A kiválasztott képek összmérete legfeljebb 40 MB lehet." };
   }

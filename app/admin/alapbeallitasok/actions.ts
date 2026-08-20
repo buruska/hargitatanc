@@ -17,7 +17,7 @@ export type DeleteDefaultCoverState = {
   success?: boolean;
 };
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "default-covers");
 
 function getImageExtension(file: File) {
@@ -82,7 +82,7 @@ export async function uploadDefaultCoverAction(
   const oversizedFile = coverImages.find((coverImage) => coverImage.size > MAX_IMAGE_SIZE);
 
   if (oversizedFile) {
-    return { error: "Egy alap borítókép legfeljebb 5 MB lehet." };
+    return { error: "Egy alap borítókép legfeljebb 8 MB lehet." };
   }
 
   await mkdir(UPLOAD_DIR, { recursive: true });

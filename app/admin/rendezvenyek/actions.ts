@@ -17,7 +17,7 @@ export type DeleteEventState = {
   success?: boolean;
 };
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "events");
 
 function slugify(value: string) {
@@ -123,7 +123,7 @@ export async function createEventAction(_state: EventFormState, formData: FormDa
   }
 
   if (coverImage.size > MAX_IMAGE_SIZE) {
-    return { error: "A borítókép legfeljebb 5 MB lehet." };
+    return { error: "A borítókép legfeljebb 8 MB lehet." };
   }
 
   const startsAt = new Date(`${startDate}T${startTime}:00`);
@@ -210,7 +210,7 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
     }
 
     if (coverImage.size > MAX_IMAGE_SIZE) {
-      return { error: "A borítókép legfeljebb 5 MB lehet." };
+      return { error: "A borítókép legfeljebb 8 MB lehet." };
     }
 
     coverImageUrl = await saveCoverImage(coverImage, slug);

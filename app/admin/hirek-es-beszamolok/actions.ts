@@ -23,7 +23,7 @@ export type FeatureNewsPostState = {
   success?: boolean;
 };
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const NEWS_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "news");
 
 function getImageExtension(file: File) {
@@ -85,7 +85,7 @@ export async function createNewsPostAction(_state: NewsPostFormState, formData: 
   if (!publishedAtValue || Number.isNaN(publishedAt.getTime())) return { error: "Adj meg érvényes dátumot." };
   if (!(coverImage instanceof File) || coverImage.size === 0) return { error: "Tölts fel borítóképet." };
   if (!coverImage.type.startsWith("image/")) return { error: "A borítókép csak képfájl lehet." };
-  if (coverImage.size > MAX_IMAGE_SIZE) return { error: "A borítókép legfeljebb 5 MB lehet." };
+  if (coverImage.size > MAX_IMAGE_SIZE) return { error: "A borítókép legfeljebb 8 MB lehet." };
   if (!hasRichTextContent(content)) return { error: "Írd meg a hír tartalmát." };
 
   const slug = await createUniqueSlug(title);

@@ -39,7 +39,7 @@ export type PerformanceNewsFormState = {
   success?: boolean;
 };
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "performances");
 
 function slugify(value: string) {
@@ -203,7 +203,7 @@ export async function createRunningPerformanceAction(
   }
 
   if (coverImage.size > MAX_IMAGE_SIZE) {
-    return { error: "A borítókép legfeljebb 5 MB lehet." };
+    return { error: "A borítókép legfeljebb 8 MB lehet." };
   }
 
   const invalidGalleryImage = galleryImages.find((galleryImage) => !galleryImage.type.startsWith("image/"));
@@ -215,7 +215,7 @@ export async function createRunningPerformanceAction(
   const oversizedGalleryImage = galleryImages.find((galleryImage) => galleryImage.size > MAX_IMAGE_SIZE);
 
   if (oversizedGalleryImage) {
-    return { error: "Egy galériakép legfeljebb 5 MB lehet." };
+    return { error: "Egy galériakép legfeljebb 8 MB lehet." };
   }
 
   const slug = await createUniqueSlug(title);
@@ -292,7 +292,7 @@ export async function updateRunningPerformanceAction(
     }
 
     if (coverImage.size > MAX_IMAGE_SIZE) {
-      return { error: "A borítókép legfeljebb 5 MB lehet." };
+      return { error: "A borítókép legfeljebb 8 MB lehet." };
     }
 
     coverImageUrl = await saveCoverImage(coverImage, slug);
@@ -480,7 +480,7 @@ export async function addRunningPerformanceGalleryImagesAction(
   const oversizedGalleryImage = galleryImages.find((galleryImage) => galleryImage.size > MAX_IMAGE_SIZE);
 
   if (oversizedGalleryImage) {
-    return { error: "Egy galériakép legfeljebb 5 MB lehet." };
+    return { error: "Egy galériakép legfeljebb 8 MB lehet." };
   }
 
   const performance = await prisma.runningPerformance.findUnique({

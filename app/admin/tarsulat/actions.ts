@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { hasRichTextContent, sanitizeRichText } from "@/lib/sanitize-rich-text";
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "company");
 const MEMBER_UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "members");
 const MEMBER_CATEGORY_NAMES = ["Tánckar", "Munkatársak", "Zenekar", "Alkotók"];
@@ -147,7 +147,7 @@ export async function uploadGroupImageAction(
   }
 
   if (groupImage.size > MAX_IMAGE_SIZE) {
-    return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+    return { message: "A kép legfeljebb 8 MB lehet.", status: "error" };
   }
 
   const currentProfile = await prisma.companyProfile.findUnique({
@@ -255,7 +255,7 @@ export async function updateDirectorAction(
     }
 
     if (directorImage.size > MAX_IMAGE_SIZE) {
-      return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+      return { message: "A kép legfeljebb 8 MB lehet.", status: "error" };
     }
 
     directorImageUrl = await saveDirectorImage(directorImage);
@@ -325,7 +325,7 @@ export async function createMemberAction(
   }
 
   if (memberImage.size > MAX_IMAGE_SIZE) {
-    return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+    return { message: "A kép legfeljebb 8 MB lehet.", status: "error" };
   }
 
   if (!role) {
@@ -423,7 +423,7 @@ export async function updateMemberAction(
     }
 
     if (memberImage.size > MAX_IMAGE_SIZE) {
-      return { message: "A kép legfeljebb 5 MB lehet.", status: "error" };
+      return { message: "A kép legfeljebb 8 MB lehet.", status: "error" };
     }
 
     imageUrl = await saveMemberImage(memberImage);

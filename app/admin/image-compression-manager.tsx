@@ -10,8 +10,8 @@ async function compressFile(file: File) {
 
   const compressed = await imageCompression(file, {
     initialQuality: 0.9,
-    maxSizeMB: 2,
-    maxWidthOrHeight: 2560,
+    maxSizeMB: 8,
+    maxWidthOrHeight: 5120,
     preserveExif: false,
     useWebWorker: true,
   });

@@ -45,8 +45,8 @@ export function NewGalleryModal() {
     if (!titleRef.current?.reportValidity() || !imagesRef.current?.reportValidity()) return;
     const files = Array.from(imagesRef.current.files ?? []);
     if (files.length === 0) return;
-    if (files.some((file) => file.size > 5 * 1024 * 1024)) {
-      setSelectionError("Egy kép legfeljebb 5 MB lehet.");
+    if (files.some((file) => file.size > 8 * 1024 * 1024)) {
+      setSelectionError("Egy kép legfeljebb 8 MB lehet.");
       return;
     }
     if (files.reduce((total, file) => total + file.size, 0) > 40 * 1024 * 1024) {
