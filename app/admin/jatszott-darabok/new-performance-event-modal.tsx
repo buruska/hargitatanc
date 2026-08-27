@@ -59,6 +59,10 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
   }
 
   function closeModal() {
+    if (isPending) {
+      return;
+    }
+
     setIsOpen(false);
   }
 
@@ -73,7 +77,6 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
     }
 
     setLocationError("");
-    setIsOpen(false);
   }
 
   const selectedDate = `${dateTimeValues.year}-${dateTimeValues.month.padStart(2, "0")}-${dateTimeValues.day.padStart(2, "0")}`;
@@ -96,7 +99,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isPending) {
         setIsOpen(false);
       }
     }
@@ -106,7 +109,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, isPending]);
 
   return (
     <>
@@ -136,6 +139,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
               <button
                 aria-label="Modal bezárása"
                 className="flex size-10 items-center justify-center border border-line bg-surface-strong text-xl font-extrabold text-muted hover:border-charcoal hover:text-charcoal"
+                disabled={isPending}
                 type="button"
                 onClick={closeModal}
               >
@@ -300,7 +304,7 @@ export function NewPerformanceEventModal({ performanceId, performanceTitle }: Ne
                 </label>
               ) : null}
               <div className="flex flex-col gap-3 min-[520px]:flex-row min-[520px]:justify-end">
-                <button className={buttonSecondary} type="button" onClick={closeModal}>
+                <button className={buttonSecondary} type="button" disabled={isPending} onClick={closeModal}>
                   Mégsem
                 </button>
                 <button className={buttonPrimary} type="submit" disabled={isPending}>
