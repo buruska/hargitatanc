@@ -43,15 +43,25 @@ export function NewEventModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [startDateTimeValues, setStartDateTimeValues] = useState(getCurrentDateTimeValues);
   const [endDateTimeValues, setEndDateTimeValues] = useState(getCurrentDateTimeValues);
+  const [hasEnd, setHasEnd] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const titleId = useId();
 
   function openModal() {
     const currentDateTimeValues = getCurrentDateTimeValues();
+    const defaultEnd = new Date();
+    defaultEnd.setHours(defaultEnd.getHours() + 1);
 
     setStartDateTimeValues(currentDateTimeValues);
-    setEndDateTimeValues({ ...currentDateTimeValues, hour: String((Number(currentDateTimeValues.hour) + 1) % 24) });
+    setEndDateTimeValues({
+      day: String(defaultEnd.getDate()),
+      hour: String(defaultEnd.getHours()),
+      minute: String(defaultEnd.getMinutes()),
+      month: String(defaultEnd.getMonth() + 1),
+      year: String(defaultEnd.getFullYear()),
+    });
+    setHasEnd(false);
     setIsOpen(true);
   }
 
@@ -135,15 +145,27 @@ export function NewEventModal() {
                 values={startDateTimeValues}
                 onChange={setStartDateTimeValues}
               />
-              <DateTimeFields
-                dateInputName="endDate"
-                dateValue={selectedEndDate}
-                legend="Vége időpont"
-                timeInputName="endTime"
-                timeValue={selectedEndTime}
-                values={endDateTimeValues}
-                onChange={setEndDateTimeValues}
-              />
+              <input name="hasEnd" type="hidden" value={hasEnd ? "true" : "false"} />
+              {hasEnd ? (
+                <div className="grid gap-3 border-2 border-line bg-surface p-4">
+                  <DateTimeFields
+                    dateInputName="endDate"
+                    dateValue={selectedEndDate}
+                    legend="Rendezvényzárás időpontja"
+                    timeInputName="endTime"
+                    timeValue={selectedEndTime}
+                    values={endDateTimeValues}
+                    onChange={setEndDateTimeValues}
+                  />
+                  <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={() => setHasEnd(false)}>
+                    Rendezvényzárás eltávolítása
+                  </button>
+                </div>
+              ) : (
+                <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={() => setHasEnd(true)}>
+                  Rendezvényzárás megadása
+                </button>
+              )}
               <label className={label}>
                 Borítókép
                 <input

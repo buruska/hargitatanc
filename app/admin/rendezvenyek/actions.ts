@@ -131,6 +131,7 @@ export async function createEventAction(_state: EventFormState, formData: FormDa
   const title = String(formData.get("title") ?? "").trim();
   const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
   const coverImage = formData.get("coverImage");
+  const hasEnd = String(formData.get("hasEnd") ?? "") === "true";
 
   if (!title || !hasRichTextContent(summary)) {
     return { error: "Tölts ki minden mezőt a rendezvény hozzáadásához." };
@@ -149,13 +150,13 @@ export async function createEventAction(_state: EventFormState, formData: FormDa
   }
 
   const startsAt = getDateTime(formData, "start");
-  const endsAt = getDateTime(formData, "end");
+  const endsAt = hasEnd ? getDateTime(formData, "end") : null;
 
-  if (!startsAt || !endsAt) {
+  if (!startsAt || (hasEnd && !endsAt)) {
     return { error: "Érvénytelen kezdési vagy vége időpont." };
   }
 
-  if (endsAt <= startsAt) {
+  if (endsAt && endsAt <= startsAt) {
     return { error: "A vége időpont későbbi kell legyen, mint a kezdési időpont." };
   }
 
@@ -186,6 +187,7 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
   const title = String(formData.get("title") ?? "").trim();
   const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
   const coverImage = formData.get("coverImage");
+  const hasEnd = String(formData.get("hasEnd") ?? "") === "true";
 
   if (!id) {
     return { error: "Hiányzik a módosítandó rendezvény azonosítója." };
@@ -196,13 +198,13 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
   }
 
   const startsAt = getDateTime(formData, "start");
-  const endsAt = getDateTime(formData, "end");
+  const endsAt = hasEnd ? getDateTime(formData, "end") : null;
 
-  if (!startsAt || !endsAt) {
+  if (!startsAt || (hasEnd && !endsAt)) {
     return { error: "Érvénytelen kezdési vagy vége időpont." };
   }
 
-  if (endsAt <= startsAt) {
+  if (endsAt && endsAt <= startsAt) {
     return { error: "A vége időpont későbbi kell legyen, mint a kezdési időpont." };
   }
 

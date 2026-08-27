@@ -65,6 +65,7 @@ export function EditEventModal({ endsAt, id, startsAt, summary, title }: EditEve
   const [isOpen, setIsOpen] = useState(false);
   const [startDateTimeValues, setStartDateTimeValues] = useState(() => getDateTimeValues(startsAt));
   const [endDateTimeValues, setEndDateTimeValues] = useState(() => getDateTimeValues(endsAt ?? startsAt));
+  const [hasEnd, setHasEnd] = useState(endsAt !== null);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const titleId = useId();
@@ -72,6 +73,7 @@ export function EditEventModal({ endsAt, id, startsAt, summary, title }: EditEve
   function openModal() {
     setStartDateTimeValues(getDateTimeValues(startsAt));
     setEndDateTimeValues(getDateTimeValues(endsAt ?? startsAt));
+    setHasEnd(endsAt !== null);
     setIsOpen(true);
   }
 
@@ -155,15 +157,27 @@ export function EditEventModal({ endsAt, id, startsAt, summary, title }: EditEve
                 values={startDateTimeValues}
                 onChange={setStartDateTimeValues}
               />
-              <DateTimeFields
-                dateInputName="endDate"
-                dateValue={getDateValue(endDateTimeValues)}
-                legend="Vége időpont"
-                timeInputName="endTime"
-                timeValue={getTimeValue(endDateTimeValues)}
-                values={endDateTimeValues}
-                onChange={setEndDateTimeValues}
-              />
+              <input name="hasEnd" type="hidden" value={hasEnd ? "true" : "false"} />
+              {hasEnd ? (
+                <div className="grid gap-3 border-2 border-line bg-surface p-4">
+                  <DateTimeFields
+                    dateInputName="endDate"
+                    dateValue={getDateValue(endDateTimeValues)}
+                    legend="Rendezvényzárás időpontja"
+                    timeInputName="endTime"
+                    timeValue={getTimeValue(endDateTimeValues)}
+                    values={endDateTimeValues}
+                    onChange={setEndDateTimeValues}
+                  />
+                  <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={() => setHasEnd(false)}>
+                    Rendezvényzárás eltávolítása
+                  </button>
+                </div>
+              ) : (
+                <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={() => setHasEnd(true)}>
+                  Rendezvényzárás megadása
+                </button>
+              )}
               <label className={label}>
                 Új borítókép
                 <input
