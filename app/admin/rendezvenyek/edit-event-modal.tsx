@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import { updateEventAction, type EventFormState } from "./actions";
 import { RichTextField } from "../tarsulat/rich-text-field";
-import { getEventDateTimeParts } from "@/lib/event-date-time";
+import { getEventDateTimeParts, parseEventDateTime } from "@/lib/event-date-time";
 
 type EditEventModalProps = {
   endsAt: string | null;
@@ -76,6 +76,24 @@ export function EditEventModal({ endsAt, id, startsAt, summary, title }: EditEve
     setEndDateTimeValues(getDateTimeValues(endsAt ?? startsAt));
     setHasEnd(endsAt !== null);
     setIsOpen(true);
+  }
+
+  function enableEndDateTime() {
+    const currentStartsAt = parseEventDateTime({
+      day: Number(startDateTimeValues.day),
+      hour: Number(startDateTimeValues.hour),
+      minute: Number(startDateTimeValues.minute),
+      month: Number(startDateTimeValues.month),
+      year: Number(startDateTimeValues.year),
+    });
+
+    if (currentStartsAt) {
+      setEndDateTimeValues(
+        getDateTimeValues(new Date(currentStartsAt.getTime() + 60 * 60 * 1000).toISOString()),
+      );
+    }
+
+    setHasEnd(true);
   }
 
   useEffect(() => {
@@ -175,7 +193,7 @@ export function EditEventModal({ endsAt, id, startsAt, summary, title }: EditEve
                   </button>
                 </div>
               ) : (
-                <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={() => setHasEnd(true)}>
+                <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={enableEndDateTime}>
                   Rendezvényzárás megadása
                 </button>
               )}
