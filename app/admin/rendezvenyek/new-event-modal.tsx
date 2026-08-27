@@ -5,6 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import { createEventAction, type EventFormState } from "./actions";
+import { RichTextField } from "../tarsulat/rich-text-field";
 
 const initialState: EventFormState = {};
 
@@ -153,10 +154,7 @@ export function NewEventModal() {
                   required
                 />
               </label>
-              <label className={label}>
-                Leírás
-                <textarea className={`${input} min-h-32 resize-y`} name="summary" required />
-              </label>
+              <RichTextField label="Formázható leírás" name="summary" />
               <div className="flex flex-col gap-3 min-[520px]:flex-row min-[520px]:justify-end">
                 <button className={buttonSecondary} type="button" onClick={() => setIsOpen(false)}>
                   Mégsem

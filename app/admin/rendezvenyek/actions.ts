@@ -6,6 +6,7 @@ import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { hasRichTextContent, sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 export type EventFormState = {
   error?: string;
@@ -19,6 +20,31 @@ export type DeleteEventState = {
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "events");
+
+function getDateTime(formData: FormData, prefix: "start" | "end") {
+  const year = Number(formData.get(`${prefix}DateYear`));
+  const month = Number(formData.get(`${prefix}DateMonth`));
+  const day = Number(formData.get(`${prefix}DateDay`));
+  const hour = Number(formData.get(`${prefix}TimeHour`));
+  const minute = Number(formData.get(`${prefix}TimeMinute`));
+
+  if (![year, month, day, hour, minute].every(Number.isInteger)) return null;
+  if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+
+  const date = new Date(year, month - 1, day, hour, minute, 0, 0);
+
+  // The Date constructor normalizes impossible dates (for example February 31),
+  // so compare every component before accepting the value.
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute
+  ) return null;
+
+  return date;
+}
 
 function slugify(value: string) {
   const slug = value
@@ -103,14 +129,10 @@ async function deleteCoverImage(coverImageUrl: string | null) {
 export async function createEventAction(_state: EventFormState, formData: FormData): Promise<EventFormState> {
   await requireAdmin();
   const title = String(formData.get("title") ?? "").trim();
-  const startDate = String(formData.get("startDate") ?? "").trim();
-  const startTime = String(formData.get("startTime") ?? "").trim();
-  const endDate = String(formData.get("endDate") ?? "").trim();
-  const endTime = String(formData.get("endTime") ?? "").trim();
-  const summary = String(formData.get("summary") ?? "").trim();
+  const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
   const coverImage = formData.get("coverImage");
 
-  if (!title || !startDate || !startTime || !endDate || !endTime || !summary) {
+  if (!title || !hasRichTextContent(summary)) {
     return { error: "Tölts ki minden mezőt a rendezvény hozzáadásához." };
   }
 
@@ -126,10 +148,10 @@ export async function createEventAction(_state: EventFormState, formData: FormDa
     return { error: "A borítókép legfeljebb 8 MB lehet." };
   }
 
-  const startsAt = new Date(`${startDate}T${startTime}:00`);
-  const endsAt = new Date(`${endDate}T${endTime}:00`);
+  const startsAt = getDateTime(formData, "start");
+  const endsAt = getDateTime(formData, "end");
 
-  if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) {
+  if (!startsAt || !endsAt) {
     return { error: "Érvénytelen kezdési vagy vége időpont." };
   }
 
@@ -162,25 +184,21 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
   await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
-  const startDate = String(formData.get("startDate") ?? "").trim();
-  const startTime = String(formData.get("startTime") ?? "").trim();
-  const endDate = String(formData.get("endDate") ?? "").trim();
-  const endTime = String(formData.get("endTime") ?? "").trim();
-  const summary = String(formData.get("summary") ?? "").trim();
+  const summary = sanitizeRichText(String(formData.get("summary") ?? ""));
   const coverImage = formData.get("coverImage");
 
   if (!id) {
     return { error: "Hiányzik a módosítandó rendezvény azonosítója." };
   }
 
-  if (!title || !startDate || !startTime || !endDate || !endTime || !summary) {
+  if (!title || !hasRichTextContent(summary)) {
     return { error: "Tölts ki minden mezőt a rendezvény módosításához." };
   }
 
-  const startsAt = new Date(`${startDate}T${startTime}:00`);
-  const endsAt = new Date(`${endDate}T${endTime}:00`);
+  const startsAt = getDateTime(formData, "start");
+  const endsAt = getDateTime(formData, "end");
 
-  if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) {
+  if (!startsAt || !endsAt) {
     return { error: "Érvénytelen kezdési vagy vége időpont." };
   }
 

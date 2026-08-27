@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { card, contentPage, eyebrow, gridTwo, h1, h2, leadSpaced, meta } from "@/lib/styles";
 import { getLocale } from "@/lib/i18n";
 import { getSiteTextMap } from "@/lib/site-texts";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 export default async function EsemenyeinkPage() {
   const locale = await getLocale();
@@ -36,7 +37,10 @@ export default async function EsemenyeinkPage() {
             <div className="p-[clamp(18px,3vw,28px)]">
               <time className={meta}>{new Intl.DateTimeFormat("hu-RO", { dateStyle: "full", timeStyle: "short" }).format(event.startsAt)}</time>
               <h2 className={h2}>{event.title}</h2>
-              <p>{event.summary}</p>
+              <div
+                className="rich-text-editor"
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(event.summary) }}
+              />
               <p className={meta}>{event.location}</p>
             </div>
           </article>

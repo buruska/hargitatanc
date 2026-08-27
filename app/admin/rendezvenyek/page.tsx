@@ -5,6 +5,7 @@ import { adminTitle, panel } from "@/lib/styles";
 import { DeleteEventModal } from "./delete-event-modal";
 import { EditEventModal } from "./edit-event-modal";
 import { NewEventModal } from "./new-event-modal";
+import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 
 export default async function AdminRendezvenyekPage() {
   const events = await prisma.event.findMany({
@@ -70,7 +71,10 @@ export default async function AdminRendezvenyekPage() {
                   <DeleteEventModal id={event.id} title={event.title} />
                 </div>
               </div>
-              <p className="mt-2 text-muted">{event.summary}</p>
+              <div
+                className="rich-text-editor mt-2 text-muted"
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(event.summary) }}
+              />
             </div>
           </article>
         ))}
