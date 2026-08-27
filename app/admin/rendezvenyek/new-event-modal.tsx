@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import { createEventAction, type EventFormState } from "./actions";
 import { RichTextField } from "../tarsulat/rich-text-field";
-import { getEventDateTimeParts } from "@/lib/event-date-time";
+import { getEventDateTimeParts, parseEventDateTime } from "@/lib/event-date-time";
 
 const initialState: EventFormState = {};
 
@@ -51,20 +51,34 @@ export function NewEventModal() {
 
   function openModal() {
     const currentDateTimeValues = getCurrentDateTimeValues();
-    const defaultEnd = new Date();
-    defaultEnd.setHours(defaultEnd.getHours() + 1);
-    const defaultEndParts = getEventDateTimeParts(defaultEnd);
 
     setStartDateTimeValues(currentDateTimeValues);
-    setEndDateTimeValues({
-      day: String(defaultEndParts.day),
-      hour: String(defaultEndParts.hour),
-      minute: String(defaultEndParts.minute),
-      month: String(defaultEndParts.month),
-      year: String(defaultEndParts.year),
-    });
+    setEndDateTimeValues(currentDateTimeValues);
     setHasEnd(false);
     setIsOpen(true);
+  }
+
+  function enableEndDateTime() {
+    const startsAt = parseEventDateTime({
+      day: Number(startDateTimeValues.day),
+      hour: Number(startDateTimeValues.hour),
+      minute: Number(startDateTimeValues.minute),
+      month: Number(startDateTimeValues.month),
+      year: Number(startDateTimeValues.year),
+    });
+
+    if (startsAt) {
+      const defaultEndParts = getEventDateTimeParts(new Date(startsAt.getTime() + 60 * 60 * 1000));
+      setEndDateTimeValues({
+        day: String(defaultEndParts.day),
+        hour: String(defaultEndParts.hour),
+        minute: String(defaultEndParts.minute),
+        month: String(defaultEndParts.month),
+        year: String(defaultEndParts.year),
+      });
+    }
+
+    setHasEnd(true);
   }
 
   const selectedStartDate = `${startDateTimeValues.year}-${startDateTimeValues.month.padStart(2, "0")}-${startDateTimeValues.day.padStart(2, "0")}`;
@@ -164,7 +178,7 @@ export function NewEventModal() {
                   </button>
                 </div>
               ) : (
-                <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={() => setHasEnd(true)}>
+                <button className={`${buttonSecondary} justify-self-start`} type="button" onClick={enableEndDateTime}>
                   Rendezvényzárás megadása
                 </button>
               )}
