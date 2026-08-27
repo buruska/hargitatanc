@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import { updateEventAction, type EventFormState } from "./actions";
 import { RichTextField } from "../tarsulat/rich-text-field";
+import { getEventDateTimeParts } from "@/lib/event-date-time";
 
 type EditEventModalProps = {
   endsAt: string | null;
@@ -41,14 +42,14 @@ const months = [
 ];
 
 function getDateTimeValues(value: string) {
-  const date = new Date(value);
+  const parts = getEventDateTimeParts(new Date(value));
 
   return {
-    day: String(date.getDate()),
-    hour: String(date.getHours()),
-    minute: String(date.getMinutes()),
-    month: String(date.getMonth() + 1),
-    year: String(date.getFullYear()),
+    day: String(parts.day),
+    hour: String(parts.hour),
+    minute: String(parts.minute),
+    month: String(parts.month),
+    year: String(parts.year),
   };
 }
 

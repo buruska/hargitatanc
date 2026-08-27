@@ -6,6 +6,7 @@ import { DeleteEventModal } from "./delete-event-modal";
 import { EditEventModal } from "./edit-event-modal";
 import { NewEventModal } from "./new-event-modal";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
+import { EVENT_TIME_ZONE } from "@/lib/event-date-time";
 
 export default async function AdminRendezvenyekPage() {
   const events = await prisma.event.findMany({
@@ -50,11 +51,13 @@ export default async function AdminRendezvenyekPage() {
                     {new Intl.DateTimeFormat("hu-RO", {
                       dateStyle: "full",
                       timeStyle: "short",
+                      timeZone: EVENT_TIME_ZONE,
                     }).format(event.startsAt)}
                     {event.endsAt
                       ? ` - ${new Intl.DateTimeFormat("hu-RO", {
                           dateStyle: "full",
                           timeStyle: "short",
+                          timeZone: EVENT_TIME_ZONE,
                         }).format(event.endsAt)}`
                       : null}
                   </p>

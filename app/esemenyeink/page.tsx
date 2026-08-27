@@ -4,6 +4,7 @@ import { card, contentPage, eyebrow, gridTwo, h1, h2, leadSpaced, meta } from "@
 import { getLocale } from "@/lib/i18n";
 import { getSiteTextMap } from "@/lib/site-texts";
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
+import { EVENT_TIME_ZONE } from "@/lib/event-date-time";
 
 export default async function EsemenyeinkPage() {
   const locale = await getLocale();
@@ -35,7 +36,7 @@ export default async function EsemenyeinkPage() {
               </div>
             ) : null}
             <div className="p-[clamp(18px,3vw,28px)]">
-              <time className={meta}>{new Intl.DateTimeFormat("hu-RO", { dateStyle: "full", timeStyle: "short" }).format(event.startsAt)}</time>
+              <time className={meta}>{new Intl.DateTimeFormat("hu-RO", { dateStyle: "full", timeStyle: "short", timeZone: EVENT_TIME_ZONE }).format(event.startsAt)}</time>
               <h2 className={h2}>{event.title}</h2>
               <div
                 className="rich-text-editor"

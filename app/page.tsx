@@ -9,26 +9,7 @@ import { getLocalizedPerformanceSummary, getLocalizedPerformanceTitle } from "@/
 import { sanitizeRichText } from "@/lib/sanitize-rich-text";
 import { sortNewsPosts } from "@/lib/sort-news-posts";
 import { getSiteTextMap } from "@/lib/site-texts";
-
-function getDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function getDateKeysBetween(startDate: Date, endDate: Date) {
-  const firstDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-  const lastDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-  const dateKeys: string[] = [];
-
-  for (const currentDate = new Date(firstDate); currentDate <= lastDate; currentDate.setDate(currentDate.getDate() + 1)) {
-    dateKeys.push(getDateKey(currentDate));
-  }
-
-  return dateKeys;
-}
+import { getEventDateKey, getEventDateKeysBetween } from "@/lib/event-date-time";
 
 function getFirstImageSrc(value: string) {
   return value.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1] ?? "/logo.png";
@@ -198,7 +179,7 @@ export default async function HomePage() {
   });
   const calendarPerformanceEvents = performanceEvents.map((event) => ({
     coverImageUrl: event.runningPerformance.coverImageUrl,
-    dateKey: getDateKey(event.startsAt),
+    dateKey: getEventDateKey(event.startsAt),
     id: event.id,
     isPast: event.startsAt < now,
     kind: "performance" as const,
@@ -217,9 +198,9 @@ export default async function HomePage() {
     }
 
     return [{
-      calendarDateKeys: getDateKeysBetween(event.startsAt, event.endsAt ?? event.startsAt),
+      calendarDateKeys: getEventDateKeysBetween(event.startsAt, event.endsAt ?? event.startsAt),
       coverImageUrl: event.coverImageUrl,
-      dateKey: getDateKey(event.startsAt),
+      dateKey: getEventDateKey(event.startsAt),
       id: event.id,
       isPast: (event.endsAt ?? event.startsAt) < now,
       kind: "event" as const,
@@ -283,7 +264,7 @@ export default async function HomePage() {
             </h1>
           </div>
 
-          <HomePerformanceCalendarSection events={calendarEvents} initialDate={getDateKey(calendarDate)} />
+          <HomePerformanceCalendarSection events={calendarEvents} initialDate={getEventDateKey(calendarDate)} />
         </div>
       </section>
 

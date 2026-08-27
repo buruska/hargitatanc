@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
+import { EVENT_TIME_ZONE } from "@/lib/event-date-time";
 import { HomeCalendar } from "./home-calendar";
 import { HomeRevealGroup } from "./home-reveal-group";
 
@@ -190,14 +191,15 @@ function PerformanceListItem({
   onOpenDetails: () => void;
 }) {
   const startsAt = new Date(event.startsAt);
-  const day = new Intl.DateTimeFormat("hu-RO", { day: "2-digit" }).format(startsAt);
-  const month = new Intl.DateTimeFormat("hu-RO", { month: "short" }).format(startsAt);
+  const day = new Intl.DateTimeFormat("hu-RO", { day: "2-digit", timeZone: EVENT_TIME_ZONE }).format(startsAt);
+  const month = new Intl.DateTimeFormat("hu-RO", { month: "short", timeZone: EVENT_TIME_ZONE }).format(startsAt);
   const weekdayAndTime = new Intl.DateTimeFormat("hu-RO", {
     weekday: "long",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: EVENT_TIME_ZONE,
   }).format(startsAt);
-  const fullDate = new Intl.DateTimeFormat("hu-RO", { dateStyle: "long" }).format(startsAt);
+  const fullDate = new Intl.DateTimeFormat("hu-RO", { dateStyle: "long", timeZone: EVENT_TIME_ZONE }).format(startsAt);
   const accentText = event.isPast ? "text-muted" : "text-thread-red";
   const accentBg = event.isPast ? "bg-muted" : "bg-thread-red";
   const accentBorder = event.isPast ? "border-muted" : "border-thread-red";
@@ -397,10 +399,11 @@ function PerformanceDetailsModal({
   });
   const galleryAnimationTimeoutRef = useRef<number | null>(null);
   const startsAt = new Date(event.startsAt);
-  const date = new Intl.DateTimeFormat("hu-RO", { dateStyle: "full" }).format(startsAt);
+  const date = new Intl.DateTimeFormat("hu-RO", { dateStyle: "full", timeZone: EVENT_TIME_ZONE }).format(startsAt);
   const time = new Intl.DateTimeFormat("hu-RO", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: EVENT_TIME_ZONE,
   }).format(startsAt);
   const accentText = "text-thread-red";
   const accentBg = "bg-thread-red";

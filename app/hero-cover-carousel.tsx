@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { getTicketDisplayText, isTicketLink, type TicketMode } from "@/lib/tickets";
+import { EVENT_TIME_ZONE } from "@/lib/event-date-time";
 
 type HeroCover = {
   id: string;
@@ -199,6 +200,7 @@ export function HeroCoverCarousel({
                         {new Intl.DateTimeFormat("hu-RO", {
                           dateStyle: "medium",
                           timeStyle: "short",
+                          timeZone: EVENT_TIME_ZONE,
                         }).format(new Date(event.startsAt))}
                       </time>
                     </button>
@@ -249,6 +251,7 @@ export function HeroCoverCarousel({
                           {new Intl.DateTimeFormat("hu-RO", {
                             dateStyle: "full",
                             timeStyle: "short",
+                            timeZone: EVENT_TIME_ZONE,
                           }).format(new Date(event.startsAt))}
                         </time>
                         <span className="text-[13px] font-bold text-muted">{event.location}</span>

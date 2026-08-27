@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { hasRichTextContent, sanitizeRichText } from "@/lib/sanitize-rich-text";
+import { parseEventDateTime } from "@/lib/event-date-time";
 
 export type EventFormState = {
   error?: string;
@@ -31,19 +32,7 @@ function getDateTime(formData: FormData, prefix: "start" | "end") {
   if (![year, month, day, hour, minute].every(Number.isInteger)) return null;
   if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
 
-  const date = new Date(year, month - 1, day, hour, minute, 0, 0);
-
-  // The Date constructor normalizes impossible dates (for example February 31),
-  // so compare every component before accepting the value.
-  if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== month - 1 ||
-    date.getDate() !== day ||
-    date.getHours() !== hour ||
-    date.getMinutes() !== minute
-  ) return null;
-
-  return date;
+  return parseEventDateTime({ day, hour, minute, month, year });
 }
 
 function slugify(value: string) {

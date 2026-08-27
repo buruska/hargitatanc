@@ -6,18 +6,19 @@ import { useRouter } from "next/navigation";
 import { buttonPrimary, buttonSecondary, input, label, panel } from "@/lib/styles";
 import { createEventAction, type EventFormState } from "./actions";
 import { RichTextField } from "../tarsulat/rich-text-field";
+import { getEventDateTimeParts } from "@/lib/event-date-time";
 
 const initialState: EventFormState = {};
 
 function getCurrentDateTimeValues() {
-  const now = new Date();
+  const parts = getEventDateTimeParts(new Date());
 
   return {
-    day: String(now.getDate()),
-    hour: String(now.getHours()),
-    minute: String(now.getMinutes()),
-    month: String(now.getMonth() + 1),
-    year: String(now.getFullYear()),
+    day: String(parts.day),
+    hour: String(parts.hour),
+    minute: String(parts.minute),
+    month: String(parts.month),
+    year: String(parts.year),
   };
 }
 
@@ -52,14 +53,15 @@ export function NewEventModal() {
     const currentDateTimeValues = getCurrentDateTimeValues();
     const defaultEnd = new Date();
     defaultEnd.setHours(defaultEnd.getHours() + 1);
+    const defaultEndParts = getEventDateTimeParts(defaultEnd);
 
     setStartDateTimeValues(currentDateTimeValues);
     setEndDateTimeValues({
-      day: String(defaultEnd.getDate()),
-      hour: String(defaultEnd.getHours()),
-      minute: String(defaultEnd.getMinutes()),
-      month: String(defaultEnd.getMonth() + 1),
-      year: String(defaultEnd.getFullYear()),
+      day: String(defaultEndParts.day),
+      hour: String(defaultEndParts.hour),
+      minute: String(defaultEndParts.minute),
+      month: String(defaultEndParts.month),
+      year: String(defaultEndParts.year),
     });
     setHasEnd(false);
     setIsOpen(true);
