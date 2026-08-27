@@ -212,6 +212,7 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
 
   const slug = await createUniqueSlug(title, id);
   let coverImageUrl = event.coverImageUrl;
+  let newCoverImageUrl: string | null = null;
 
   if (coverImage instanceof File && coverImage.size > 0) {
     if (!coverImage.type.startsWith("image/")) {
@@ -222,23 +223,34 @@ export async function updateEventAction(_state: EventFormState, formData: FormDa
       return { error: "A borítókép legfeljebb 8 MB lehet." };
     }
 
-    coverImageUrl = await saveCoverImage(coverImage, slug);
-    await deleteCoverImage(event.coverImageUrl);
+    newCoverImageUrl = await saveCoverImage(coverImage, slug);
+    coverImageUrl = newCoverImageUrl;
   }
 
-  await prisma.event.update({
-    where: {
-      id,
-    },
-    data: {
-      title,
-      slug,
-      startsAt,
-      endsAt,
-      summary,
-      coverImageUrl,
-    },
-  });
+  try {
+    await prisma.event.update({
+      where: {
+        id,
+      },
+      data: {
+        title,
+        slug,
+        startsAt,
+        endsAt,
+        summary,
+        coverImageUrl,
+      },
+    });
+  } catch (error) {
+    // The database still references the previous cover, so only the newly
+    // uploaded, otherwise orphaned file may be removed after a failed update.
+    await deleteCoverImage(newCoverImageUrl);
+    throw error;
+  }
+
+  if (newCoverImageUrl) {
+    await deleteCoverImage(event.coverImageUrl);
+  }
 
   revalidatePath("/");
   revalidatePath("/admin/rendezvenyek");
