@@ -26,7 +26,12 @@ export default async function ActivityLogPage() {
   const currentAdmin = await requireAdmin();
   if (currentAdmin.role === "ADMIN") redirect("/admin/statisztikak");
 
-  const entries = await prisma.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 300 });
+  const entries = await prisma.auditLog.findMany({
+    orderBy: { createdAt: "desc" },
+    where: currentAdmin.role === "MAIN_ADMIN"
+      ? { actorRole: { not: "SUPER_ADMIN" } }
+      : undefined,
+  });
   const dateFormatter = new Intl.DateTimeFormat("hu-RO", {
     dateStyle: "medium",
     timeStyle: "medium",
@@ -38,7 +43,7 @@ export default async function ActivityLogPage() {
       <div className="mb-6">
         <p className={eyebrow}>Ellenőrzés</p>
         <h1 className={`${adminTitle} mb-0`}>Tevékenységnapló</h1>
-        <p className="mt-2 font-bold text-muted">A legutóbbi 300 adminisztrációs módosítás.</p>
+        <p className="mt-2 font-bold text-muted">Az adminisztrációs módosítások teljes naplója.</p>
       </div>
       <ActivityLogList entries={entries.map((entry) => ({
         action: entry.action,
