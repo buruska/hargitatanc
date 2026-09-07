@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { adminTitle, eyebrow } from "@/lib/styles";
@@ -24,13 +23,15 @@ const roleNames: Record<string, string> = { SUPER_ADMIN: "Szuperadmin", MAIN_ADM
 
 export default async function ActivityLogPage() {
   const currentAdmin = await requireAdmin();
-  if (currentAdmin.role === "ADMIN") redirect("/admin/statisztikak");
+  const where = currentAdmin.role === "SUPER_ADMIN"
+    ? undefined
+    : currentAdmin.role === "MAIN_ADMIN"
+      ? { actorRole: { not: "SUPER_ADMIN" } }
+      : { actorEmail: currentAdmin.email };
 
   const entries = await prisma.auditLog.findMany({
     orderBy: { createdAt: "desc" },
-    where: currentAdmin.role === "MAIN_ADMIN"
-      ? { actorRole: { not: "SUPER_ADMIN" } }
-      : undefined,
+    where,
   });
   const dateFormatter = new Intl.DateTimeFormat("hu-RO", {
     dateStyle: "medium",

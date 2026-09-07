@@ -23,7 +23,7 @@ const adminNavigation = [
 export async function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await requireAdmin();
   const visibleNavigation = session.role === "ADMIN"
-    ? adminNavigation.filter((item) => !["/admin/adminok", "/admin/tevekenysegnaplo", "/admin/oldalelemek"].includes(item.href))
+    ? adminNavigation.filter((item) => !["/admin/adminok", "/admin/oldalelemek"].includes(item.href))
     : adminNavigation;
 
   return (
